@@ -11,6 +11,15 @@ inline vec3 vec3::operator-() const
     return vec3(-e[0], -e[1], -e[2]);
 }
 
+float vec3::operator[](int i) const
+{
+    return (*this).e[i];
+}
+
+float& vec3::operator[](int i)
+{
+    return (*this).e[i];
+}
 
 // binary operators
 inline vec3& vec3::operator+=(const vec3 &v2)

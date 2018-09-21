@@ -22,8 +22,8 @@ public:
     // Array subscript operator
     // User-defined classes that provide array-like access that allows both reading and writing typically define two overloads for operator[]: const and non-const variants:
     // like in https://en.cppreference.com/w/cpp/language/operators
-    inline float operator[](int i) const {return e[i];}
-    inline float& operator[](int i) {return e[i];}
+    float operator[](int i) const;
+    float& operator[](int i);
 
     vec3& operator+=(const vec3 &v2);
     vec3& operator-=(const vec3 &v2);
