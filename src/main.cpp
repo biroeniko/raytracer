@@ -22,6 +22,6 @@ SOFTWARE.
 
 int main()
 {
-    helloWorld();
+    helloRays();
     return 0;
 }

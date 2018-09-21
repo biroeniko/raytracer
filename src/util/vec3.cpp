@@ -1,3 +1,21 @@
+/* MIT License
+Copyright (c) 2018 Biro Eniko
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #include "vec3.h"
 
 // unary operators
@@ -89,65 +107,66 @@ inline void vec3::makeUnitVector()
     e[2] *= k;
 }
 
-inline vec3 unitVector(const vec3 v)
+vec3 unitVector(const vec3 v)
 {
     return v / v.length();
 }
 
 // friend functions
-inline std::istream& operator>>(std::istream &is, vec3 &t)
+// if it would be inline => should be in header
+std::istream& operator>>(std::istream &is, vec3 &t)
 {
     is >> t.e[0] >> t.e[1] >> t.e[2];
     return is;
 }
 
-inline std::ostream& operator <<(std::ostream &os, const vec3 &t)
+std::ostream& operator <<(std::ostream &os, const vec3 &t)
 {
     os << t.e[0] << " " << t.e[1] << " " << t.e[2];
     return os;    
 }
 
-inline vec3 operator+(const vec3 &v1, const vec3 &v2)
+vec3 operator+(const vec3 &v1, const vec3 &v2)
 {
     return vec3(v1.e[0] + v2.e[0], v1.e[1] + v2.e[1], v1.e[2] + v2.e[2]); 
 }
 
-inline vec3 operator-(const vec3 &v1, const vec3 &v2)
+vec3 operator-(const vec3 &v1, const vec3 &v2)
 {
     return vec3(v1.e[0] - v2.e[0], v1.e[1] - v2.e[1], v1.e[2] - v2.e[2]); 
 }
 
-inline vec3 operator*(const vec3 &v1, const vec3 &v2)
+vec3 operator*(const vec3 &v1, const vec3 &v2)
 {
     return vec3(v1.e[0] * v2.e[0], v1.e[1] * v2.e[1], v1.e[2] * v2.e[2]); 
 }
 
-inline vec3 operator/(const vec3 &v1, const vec3 &v2)
+vec3 operator/(const vec3 &v1, const vec3 &v2)
 {
     return vec3(v1.e[0] / v2.e[0], v1.e[1] / v2.e[1], v1.e[2] / v2.e[2]); 
 }
 
-inline vec3 operator*(float t, const vec3 &v)
+vec3 operator*(float t, const vec3 &v)
 {
     return vec3(t*v.e[0], t*v.e[1], t*v.e[2]); 
 }
 
-inline vec3 operator*(const vec3 &v, float t)
+vec3 operator*(const vec3 &v, float t)
 {
     return vec3(t*v.e[0], t*v.e[1], t*v.e[2]); 
 }
 
-inline vec3 operator/(const vec3 &v, float t)
+vec3 operator/(const vec3 &v, float t)
 {
     return vec3(v.e[0]/t, v.e[1]/t, v.e[2]/t); 
 }
 
-inline float dot(const vec3 &v1, const vec3 &v2)
+float dot(const vec3 &v1, const vec3 &v2)
 {
     return v1.e[0] * v2.e[0] + v1.e[1] * v2.e[1] + v1.e[2] * v2.e[2];
 }
 
-inline vec3 cross(const vec3 &v1, const vec3 &v2)
+vec3 cross(const vec3 &v1, const vec3 &v2)
 {
     return vec3((v1.e[1]*v2.e[2] - v1.e[2]*v2.e[1]),
                 (-(v1.e[0]*v2.e[2] - v1.e[2]*v2.e[0])),
