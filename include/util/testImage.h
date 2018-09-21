@@ -24,9 +24,28 @@ SOFTWARE.
 #include "vec3.h"
 #include "ray.h"
 
-vec3 colorLerp(const ray& r)
+bool hitSphere(const vec3& center, float radius, const ray& r)
 {
+    // t*t*dot(B,B) + 2*t*dot(B,A-C) + dot(A-C,A-C) - R*R = 0
+    // => discriminant > 0 => ray hits the surface of the sphere
+
+    vec3 oc = r.origin() - center;  // oc = origin-center
+    float a = dot(r.direction(), r.direction());
+    float b = 2.0 * dot(oc, r.direction());
+    float c = dot(oc, oc) - radius*radius;
+    float discriminant = b*b - 4*a*c;
+    return (discriminant > 0);
+}
+
+vec3 color(const ray& r)
+{
+    // if ray hits the sphere
+    if ( hitSphere(vec3(0,0,-1), 0.5, r) )
+        return vec3(1, 0, 0);
+
     vec3 unitDirection = unitVector(r.direction());
+    
+    // LERP
     // -1.0 < y < 1.0 => 
     // 0.0 <  y < 2.0 =>
     // 0.0 <  y < 1.0
@@ -36,7 +55,7 @@ vec3 colorLerp(const ray& r)
 
 void helloRays()
 {
-    int nx = 800;
+    int nx = 1200;
     int ny = 600;
 
     std::ofstream myfile ("test.ppm");
@@ -60,7 +79,7 @@ void helloRays()
                 
                 ray r(origin, lowerLeftCorner + u*horizontal + v*vertical);
 
-                vec3 col = colorLerp(r);
+                vec3 col = color(r);
                 
                 int ir = int(255.99*col[0]);
                 int ig = int(255.99*col[1]);

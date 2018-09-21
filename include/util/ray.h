@@ -23,8 +23,8 @@ SOFTWARE.
 
 class ray 
 {
-    vec3 A;
-    vec3 B;
+    vec3 A;             // ray origin
+    vec3 B;             // ray direction
 
 public:
     ray() {};
