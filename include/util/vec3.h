@@ -4,7 +4,8 @@
 #include <cstdlib>
 #include <iostream>
 
-class vec3 {
+class vec3 
+{
     float e[3];
 public:
     vec3() {}
