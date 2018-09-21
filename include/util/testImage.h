@@ -23,8 +23,12 @@ SOFTWARE.
 #include <fstream>
 #include "vec3.h"
 #include "ray.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
-bool hitSphere(const vec3& center, float radius, const ray& r)
+float hitSphere(const vec3& center, float radius, const ray& r)
 {
     // t*t*dot(B,B) + 2*t*dot(B,A-C) + dot(A-C,A-C) - R*R = 0
     // => discriminant > 0 => ray hits the surface of the sphere
@@ -34,22 +38,31 @@ bool hitSphere(const vec3& center, float radius, const ray& r)
     float b = 2.0 * dot(oc, r.direction());
     float c = dot(oc, oc) - radius*radius;
     float discriminant = b*b - 4*a*c;
-    return (discriminant > 0);
+
+    // visualize the normals with a color map
+    if (discriminant < 0)
+        return -1.0;
+    else
+        return (-b - sqrt(discriminant)) / (2.0*a);
+
 }
 
 vec3 color(const ray& r)
 {
     // if ray hits the sphere
-    if ( hitSphere(vec3(0,0,-1), 0.5, r) )
-        return vec3(1, 0, 0);
-
+    float t = hitSphere(vec3(0,0,-1), 0.5, r);
+    if (t > 0.0)
+    {
+        vec3 N = unitVector(r.pointAtParameter(t) - vec3(0,0,-1));
+        return 0.5*vec3(N.x()+1, N.y()+1, N.z()+1);
+    }
     vec3 unitDirection = unitVector(r.direction());
     
     // LERP
     // -1.0 < y < 1.0 => 
     // 0.0 <  y < 2.0 =>
     // 0.0 <  y < 1.0
-    float t = 0.5*(unitDirection.y() + 1.0);
+    t = 0.5*(unitDirection.y() + 1.0);
     return (1.0-t)*vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0);
 }
 
@@ -57,6 +70,9 @@ void helloRays()
 {
     int nx = 1200;
     int ny = 600;
+
+    // for png file
+    uint8_t *image = new uint8_t[nx * ny * 3];
 
     std::ofstream myfile ("test.ppm");
     if (myfile.is_open())
@@ -84,12 +100,22 @@ void helloRays()
                 int ir = int(255.99*col[0]);
                 int ig = int(255.99*col[1]);
                 int ib = int(255.99*col[2]);
+
+                int index = (ny - 1 - j) * nx + i;
+                int index3 = 3 * index;
+
+                image[index3 + 0] = ir;
+                image[index3 + 1] = ig;
+                image[index3 + 2] = ib;
                 myfile << ir << " " << ig << " " << ib << "\n";
             }
         }
         myfile.close();
     }
     else std::cout << "Unable to open file";
+
+    // write png
+    stbi_write_png("test.png", nx, ny, 3, image, nx * 3);
 }
 
 void helloWorld()
@@ -121,6 +147,7 @@ void helloWorld()
                 myfile << ir << " " << ig << " " << ib << "\n";
             }
         }
+
         myfile.close();
     }
     else std::cout << "Unable to open file";
