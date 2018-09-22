@@ -83,10 +83,9 @@ void diffuseMaterialsExample()
 
         // create source of randomness, and initialize it with non-deterministic seed
         std::random_device r;
-        std::seed_seq seed{r(), r(), r(), r(), r(), r(), r(), r()};
-        std::mt19937 eng{seed};
+        std::mt19937 mt(r());
         // a distribution that takes randomness and produces values in specified range
-        std::uniform_real_distribution<> dist(0,1);
+        std::uniform_real_distribution<float> dist(0.0, 1.0);
 
         // j track rows - from top to bottom
         for (int j = ny-1; j >= 0; j--)
@@ -98,8 +97,8 @@ void diffuseMaterialsExample()
 
                 for (int s = 0; s < ns; s++)
                 {
-                    float u = float(i + dist(eng)) / float(nx); // left to right
-                    float v = float(j + dist(eng)) / float(ny); // bottom to top
+                    float u = float(i + dist(mt)) / float(nx); // left to right
+                    float v = float(j + dist(mt)) / float(ny); // bottom to top
                     
                     ray r = cam.getRay(u,v);
 
