@@ -38,8 +38,17 @@ SOFTWARE.
 #include "hitables/hitableList.h"
 #include "util/camera.h"
 
-vec3 randomInSphere()
+vec3 randomInUnitSphere()
 {
+    std::random_device r;
+    std::mt19937 mt(r());
+    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
+    vec3 point;
+    do {
+        point = 2.0f * vec3(dist(mt), dist(mt), dist(mt)) - vec3(1.0f,1.0f,1.0f);
+    } while (point.squaredLength() >= 1.0f);
+    return point;
 }
 
 vec3 color(const ray& r, hitable *world)
@@ -47,8 +56,8 @@ vec3 color(const ray& r, hitable *world)
     hitRecord rec;
     if (world->hit(r, 0.0f, FLT_MAX, rec))
     {
-        vec3 target = rec.point + rec.normal + randomInSphere();
-        return 0.5*vec3(rec.normal.x()+1, rec.normal.y()+1, rec.normal.z()+1);
+        vec3 target = rec.point + rec.normal + randomInUnitSphere();
+        return 0.5f*color(ray(rec.point, target-rec.point), world);
     }
     else
     {
@@ -73,8 +82,8 @@ void diffuseMaterialsExample()
         myfile << "P3\n" << nx << " " << ny << "\n255\n";
         
         hitable *list[2];
-        list[0] = new sphere(vec3(0,0,-1), 0.5);
-        list[1] = new sphere(vec3(0,-100.5,-1), 100);
+        list[0] = new sphere(vec3(0.0f,0.0f,-1.0f), 0.5f);
+        list[1] = new sphere(vec3(0.0f,-100.5f,-1.0f), 100.0f);
         // intersting: list[1] = new sphere(vec3(0.2,0.2,-1.2), 0.5); // like a molecule
 
         hitable *world = new hitableList(list, 2);
@@ -85,7 +94,7 @@ void diffuseMaterialsExample()
         std::random_device r;
         std::mt19937 mt(r());
         // a distribution that takes randomness and produces values in specified range
-        std::uniform_real_distribution<float> dist(0.0, 1.0);
+        std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
         // j track rows - from top to bottom
         for (int j = ny-1; j >= 0; j--)
@@ -93,7 +102,7 @@ void diffuseMaterialsExample()
             // i tracks columns - left to right
             for (int i = 0; i < nx; i++)
             {
-                vec3 col(0.0, 0.0, 0.0);
+                vec3 col(0.0f, 0.0f, 0.0f);
 
                 for (int s = 0; s < ns; s++)
                 {
@@ -102,14 +111,13 @@ void diffuseMaterialsExample()
                     
                     ray r = cam.getRay(u,v);
 
-                    vec3 p = r.pointAtParameter(2.0);
                     col += color(r, world);
                 }
                 col /= float(ns);
                 
-                int ir = int(255.99*col[0]);
-                int ig = int(255.99*col[1]);
-                int ib = int(255.99*col[2]);
+                int ir = int(255.99f*col[0]);
+                int ig = int(255.99f*col[1]);
+                int ib = int(255.99f*col[2]);
 
                 // PNG
                 int index = (ny - 1 - j) * nx + i;

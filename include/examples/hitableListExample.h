@@ -96,7 +96,6 @@ void hitableListExample()
                     
                     ray r = cam.getRay(u,v);
 
-                    vec3 p = r.pointAtParameter(2.0);
                     col += color(r, world);
                 }
                 col /= float(ns);
