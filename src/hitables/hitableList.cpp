@@ -17,12 +17,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <iostream>
-#include "testFunctions/testImage.h"
-#include "testFunctions/testHitableList.h"
+#include "hitables/hitableList.h"
 
-int main()
+bool hitableList::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
 {
-    testHitableList();
-    return 0;
+    hitRecord tempRec;
+    bool hitAnything = false;
+    double closestSoFar = tMax;
+
+    for (int i = 0; i < listSize; i++)
+    {
+        // if the list item was hit
+        if (list[i]->hit(r, tMin, closestSoFar, tempRec))
+        {
+            hitAnything = true;
+            closestSoFar = tempRec.time;
+            rec = tempRec;
+        }
+    }
+    return hitAnything;
 }

@@ -17,12 +17,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <iostream>
-#include "testFunctions/testImage.h"
-#include "testFunctions/testHitableList.h"
+#pragma once
 
-int main()
+#include "hitable.h"
+
+class hitableList: public hitable
 {
-    testHitableList();
-    return 0;
-}
+    public: 
+        hitable **list;
+        int listSize;
+        hitableList() {}
+        hitableList(hitable **l, int n) {list = l, listSize = n;}
+        virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const;
+};

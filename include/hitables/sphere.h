@@ -17,12 +17,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <iostream>
-#include "testFunctions/testImage.h"
-#include "testFunctions/testHitableList.h"
+#pragma once
 
-int main()
+#include "hitables/hitable.h"
+
+class sphere: public hitable
 {
-    testHitableList();
-    return 0;
-}
+    public:
+        vec3 center;
+        float radius;
+        
+        sphere() {};
+        sphere(vec3 cen, float r) : center(cen), radius(r) {};
+        virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const;
+};

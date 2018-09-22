@@ -21,52 +21,33 @@ SOFTWARE.
 
 #include <iostream>
 #include <fstream>
-#include "vec3.h"
-#include "ray.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include "sphere.h"
+#include "hitables/hitableList.h"
+#include <float.h>
+#ifndef STB_IMAGE_IMPLEMENTATION 
+  #define STB_IMAGE_IMPLEMENTATION
+    #include "stb_image.h"
+#endif /* STB_IMAGE_IMPLEMENTATION */
 
-float hitSphere(const vec3& center, float radius, const ray& r)
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION 
+  #define STB_IMAGE_WRITE_IMPLEMENTATION
+    #include "stb_image_write.h"
+#endif /* STB_IMAGE_WRITE_IMPLEMENTATION */
+
+vec3 color(const ray& r, hitable *world)
 {
-    // t*t*dot(B,B) + 2*t*dot(B,A-C) + dot(A-C,A-C) - R*R = 0
-    // => discriminant > 0 => ray hits the surface of the sphere
-
-    vec3 oc = r.origin() - center;  // oc = origin-center
-    float a = dot(r.direction(), r.direction());
-    float b = 2.0 * dot(oc, r.direction());
-    float c = dot(oc, oc) - radius*radius;
-    float discriminant = b*b - 4*a*c;
-
-    // visualize the normals with a color map
-    if (discriminant < 0)
-        return -1.0;
+    hitRecord rec;
+    if (world->hit(r, 0.0, FLT_MAX, rec))
+        return 0.5*vec3(rec.normal.x()+1, rec.normal.y()+1, rec.normal.z()+1);
     else
-        return (-b - sqrt(discriminant)) / (2.0*a);
-
-}
-
-vec3 color(const ray& r)
-{
-    // if ray hits the sphere
-    float t = hitSphere(vec3(0,0,-1), 0.5, r);
-    if (t > 0.0)
     {
-        vec3 N = unitVector(r.pointAtParameter(t) - vec3(0,0,-1));
-        return 0.5*vec3(N.x()+1, N.y()+1, N.z()+1);
+        vec3 unitDirection = unitVector(r.direction());
+        float t = 0.5*(unitDirection.y() + 1.0);
+        return (1.0-t)*vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0);
     }
-    vec3 unitDirection = unitVector(r.direction());
-    
-    // LERP
-    // -1.0 < y < 1.0 => 
-    // 0.0 <  y < 2.0 =>
-    // 0.0 <  y < 1.0
-    t = 0.5*(unitDirection.y() + 1.0);
-    return (1.0-t)*vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0);
 }
 
-void helloRays()
+void testHitableList()
 {
     int nx = 1200;
     int ny = 600;
@@ -84,6 +65,12 @@ void helloRays()
         vec3 vertical(0.0, 2.0, 0.0);               // difference
         vec3 origin(0.0, 0.0, 0.0);
 
+        hitable *list[2];
+        list[0] = new sphere(vec3(0,0,-1), 0.5);
+        list[1] = new sphere(vec3(0,-100.5,-1), 100);
+
+        hitable *world = new hitableList(list, 2);
+
         // j track rows - from top to bottom
         for (int j = ny-1; j >= 0; j--)
         {
@@ -95,12 +82,14 @@ void helloRays()
                 
                 ray r(origin, lowerLeftCorner + u*horizontal + v*vertical);
 
-                vec3 col = color(r);
+                vec3 p = r.pointAtParameter(2.0);
+                vec3 col = color(r, world);
                 
                 int ir = int(255.99*col[0]);
                 int ig = int(255.99*col[1]);
                 int ib = int(255.99*col[2]);
 
+                // PNG
                 int index = (ny - 1 - j) * nx + i;
                 int index3 = 3 * index;
 
@@ -116,39 +105,4 @@ void helloRays()
 
     // write png
     stbi_write_png("test.png", nx, ny, 3, image, nx * 3);
-}
-
-void helloWorld()
-{
-    int nx = 800;
-    int ny = 600;
-
-    std::ofstream myfile ("test.ppm");
-    if (myfile.is_open())
-    {
-        myfile << "P3\n" << nx << " " << ny << "\n255\n";
-        
-        // j track rows - from top to bottom
-        for (int j = ny-1; j >= 0; j--)
-        {
-            // i tracks columns - left to right
-            for (int i = 0; i < nx; i++)
-            {
-                vec3 col(float(float(i) / float(nx)), float(float(j) / float(ny)), 0.2); 
-                // red goes from black to fully -> from left to right
-                //float r = float(i) / float(nx);
-                // green goes from black to fully -> from bottom to top
-                //float g = float(j) / float(ny);
-                // blue - experimental (original: 0.2) -> from left to right
-                //float b = float(i) / float(ny);
-                int ir = int(255.99*col[0]);
-                int ig = int(255.99*col[1]);
-                int ib = int(255.99*col[2]);
-                myfile << ir << " " << ig << " " << ib << "\n";
-            }
-        }
-
-        myfile.close();
-    }
-    else std::cout << "Unable to open file";
 }
