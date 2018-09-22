@@ -21,9 +21,9 @@ SOFTWARE.
 
 #include <iostream>
 #include <fstream>
-#include "sphere.h"
-#include "hitables/hitableList.h"
 #include <float.h>
+#include <random>
+
 #ifndef STB_IMAGE_IMPLEMENTATION 
   #define STB_IMAGE_IMPLEMENTATION
     #include "stb_image.h"
@@ -34,16 +34,20 @@ SOFTWARE.
     #include "stb_image_write.h"
 #endif /* STB_IMAGE_WRITE_IMPLEMENTATION */
 
+#include "hitables/sphere.h"
+#include "hitables/hitableList.h"
+#include "util/camera.h"
+
 vec3 color(const ray& r, hitable *world)
 {
     hitRecord rec;
-    if (world->hit(r, 0.0, FLT_MAX, rec))
+    if (world->hit(r, 0.0f, FLT_MAX, rec))
         return 0.5*vec3(rec.normal.x()+1, rec.normal.y()+1, rec.normal.z()+1);
     else
     {
         vec3 unitDirection = unitVector(r.direction());
-        float t = 0.5*(unitDirection.y() + 1.0);
-        return (1.0-t)*vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0);
+        float t = 0.5f*(unitDirection.y() + 1.0f);
+        return (1.0f-t)*vec3(1.0f, 1.0f, 1.0f) + t*vec3(0.5f, 0.7f, 1.0f);
     }
 }
 
@@ -51,6 +55,7 @@ void testHitableList()
 {
     int nx = 1200;
     int ny = 600;
+    int ns = 100;       // sample size
 
     // for png file
     uint8_t *image = new uint8_t[nx * ny * 3];
@@ -60,11 +65,6 @@ void testHitableList()
     {
         myfile << "P3\n" << nx << " " << ny << "\n255\n";
         
-        vec3 lowerLeftCorner(-2.0, -1.0, -1.0);
-        vec3 horizontal(4.0, 0.0, 0.0);             // difference
-        vec3 vertical(0.0, 2.0, 0.0);               // difference
-        vec3 origin(0.0, 0.0, 0.0);
-
         hitable *list[2];
         list[0] = new sphere(vec3(0,0,-1), 0.5);
         list[1] = new sphere(vec3(0,-100.5,-1), 100);
@@ -72,19 +72,34 @@ void testHitableList()
 
         hitable *world = new hitableList(list, 2);
 
+        camera cam;
+
+        // create source of randomness, and initialize it with non-deterministic seed
+        std::random_device r;
+        std::seed_seq seed{r(), r(), r(), r(), r(), r(), r(), r()};
+        std::mt19937 eng{seed};
+        // a distribution that takes randomness and produces values in specified range
+        std::uniform_int_distribution<> dist(0,1);
+
         // j track rows - from top to bottom
         for (int j = ny-1; j >= 0; j--)
         {
             // i tracks columns - left to right
             for (int i = 0; i < nx; i++)
             {
-                float u = float(i) / float(nx); // left to right
-                float v = float(j) / float(ny); // bottom to top
-                
-                ray r(origin, lowerLeftCorner + u*horizontal + v*vertical);
+                vec3 col(0.0, 0.0, 0.0);
 
-                vec3 p = r.pointAtParameter(2.0);
-                vec3 col = color(r, world);
+                for (int s = 0; s < ns; s++)
+                {
+                    float u = float(i + dist(eng)) / float(nx); // left to right
+                    float v = float(j + dist(eng)) / float(ny); // bottom to top
+                    
+                    ray r = cam.getRay(u,v);
+
+                    vec3 p = r.pointAtParameter(2.0);
+                    col += color(r, world);
+                }
+                col /= float(ns);
                 
                 int ir = int(255.99*col[0]);
                 int ig = int(255.99*col[1]);

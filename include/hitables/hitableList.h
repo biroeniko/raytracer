@@ -19,14 +19,14 @@ SOFTWARE.
 
 #pragma once
 
-#include "hitable.h"
+#include "hitables/hitable.h"
 
 class hitableList: public hitable
 {
-    public: 
-        hitable **list;
-        int listSize;
-        hitableList() {}
-        hitableList(hitable **l, int n) {list = l, listSize = n;}
-        virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const;
+public: 
+    hitable **list;
+    int listSize;
+    hitableList() {}
+    hitableList(hitable **l, int n) {list = l, listSize = n;}
+    virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const;
 };

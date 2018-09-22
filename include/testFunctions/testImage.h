@@ -21,8 +21,8 @@ SOFTWARE.
 
 #include <iostream>
 #include <fstream>
-#include "vec3.h"
-#include "ray.h"
+#include "util/vec3.h"
+#include "util/ray.h"
 #ifndef STB_IMAGE_IMPLEMENTATION 
   #define STB_IMAGE_IMPLEMENTATION
     #include "stb_image.h"

@@ -19,12 +19,12 @@ SOFTWARE.
 #include "vec3.h"
 
 // unary operators
-inline const vec3& vec3::operator+() const
+const vec3& vec3::operator+() const
 {
     return *this;
 }   
 
-inline vec3 vec3::operator-() const
+vec3 vec3::operator-() const
 {
     return vec3(-e[0], -e[1], -e[2]);
 }
@@ -40,7 +40,7 @@ float& vec3::operator[](int i)
 }
 
 // binary operators
-inline vec3& vec3::operator+=(const vec3 &v2)
+vec3& vec3::operator+=(const vec3 &v2)
 {
     e[0] += v2.e[0];
     e[1] += v2.e[1];
@@ -48,7 +48,7 @@ inline vec3& vec3::operator+=(const vec3 &v2)
     return *this;
 }
 
-inline vec3& vec3::operator-=(const vec3 &v2)
+vec3& vec3::operator-=(const vec3 &v2)
 {
     e[0] -= v2.e[0];
     e[1] -= v2.e[1];
@@ -56,7 +56,7 @@ inline vec3& vec3::operator-=(const vec3 &v2)
     return *this;
 }
 
-inline vec3& vec3::operator*=(const vec3 &v2)
+vec3& vec3::operator*=(const vec3 &v2)
 {
     e[0] *= v2.e[0];
     e[1] *= v2.e[1];
@@ -64,7 +64,7 @@ inline vec3& vec3::operator*=(const vec3 &v2)
     return *this;
 }
 
-inline vec3& vec3::operator/=(const vec3 &v2)
+vec3& vec3::operator/=(const vec3 &v2)
 {
     e[0] /= v2.e[0];
     e[1] /= v2.e[1];
@@ -72,7 +72,7 @@ inline vec3& vec3::operator/=(const vec3 &v2)
     return *this;
 }
 
-inline vec3& vec3::operator*=(const float x)
+vec3& vec3::operator*=(const float x)
 {
     e[0] *= x;
     e[1] *= x;
@@ -80,7 +80,7 @@ inline vec3& vec3::operator*=(const float x)
     return *this;
 }
 
-inline vec3& vec3::operator/=(const float x)
+vec3& vec3::operator/=(const float x)
 {
     float k = 1.0 / x;
     e[0] *= k;
@@ -89,17 +89,17 @@ inline vec3& vec3::operator/=(const float x)
     return *this;
 }
 
-inline float vec3::length() const
+float vec3::length() const
 {
     return sqrt(e[0]*e[0]+e[1]*e[1]+e[2]*e[2]);
 }
 
-inline float vec3::squaredLength() const
+float vec3::squaredLength() const
 {
     return e[0]*e[0]+e[1]*e[1]+e[2]*e[2];
 }
 
-inline void vec3::makeUnitVector()
+void vec3::makeUnitVector()
 {
     float k = 1.0 / (sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]));
     e[0] *= k;
