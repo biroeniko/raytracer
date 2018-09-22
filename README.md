@@ -39,6 +39,10 @@ Now you can build the binary by running:
 make
 ```
 Now, you should see the executable in the build folder.
+Some screenshots along the way of developing:
+![](https://github.com/biroeniko/raytracer/blob/master/images/sphereHit.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/test.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/interesting.png)
 
 ## Authors
 
