@@ -68,6 +68,7 @@ void testHitableList()
         hitable *list[2];
         list[0] = new sphere(vec3(0,0,-1), 0.5);
         list[1] = new sphere(vec3(0,-100.5,-1), 100);
+        // intersting: list[1] = new sphere(vec3(0.2,0.2,-1.2), 0.5); // like a molecule
 
         hitable *world = new hitableList(list, 2);
 
