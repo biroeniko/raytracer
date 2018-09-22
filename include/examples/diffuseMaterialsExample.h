@@ -54,7 +54,7 @@ vec3 randomInUnitSphere()
 vec3 color(const ray& r, hitable *world)
 {
     hitRecord rec;
-    if (world->hit(r, 0.0f, FLT_MAX, rec))
+    if (world->hit(r, 0.001f, FLT_MAX, rec))        // get rid of shadow acne problem
     {
         vec3 target = rec.point + rec.normal + randomInUnitSphere();
         return 0.5f*color(ray(rec.point, target-rec.point), world);
@@ -115,6 +115,14 @@ void diffuseMaterialsExample()
                 }
                 col /= float(ns);
                 
+                // Gamma encoding of images is used to optimize the usage of bits 
+                // when encoding an image, or bandwidth used to transport an image, 
+                // by taking advantage of the non-linear manner in which humans perceive 
+                // light and color. (wikipedia)
+                
+                // we use gamma 2: raising the color to the power 1/gamma (1/2)
+                col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+
                 int ir = int(255.99f*col[0]);
                 int ig = int(255.99f*col[1]);
                 int ib = int(255.99f*col[2]);
