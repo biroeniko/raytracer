@@ -17,13 +17,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <iostream>
-//#include "examples/imageExample.h"
-//#include "examples/hitableListExample.h"
-#include "examples/diffuseMaterialsExample.h"
+/*
+As in Peter Shirley's book:
+- diffuse = matte materials
+- diffuse objects that don't emit light take on the color of their surroundings
+- BUT they modulate that with their own intrinsic colot
+- light that reflects off a diffuse surface has its direction randomized
+- if we send three rays into a crack between two diffuse surfaces they will each have different random behavior
+- rays might be absorbed
+- the darker the durface, the more likely absorption is
+*/
 
-int main()
-{
-    diffuseMaterialsExample();
-    return 0;
-}

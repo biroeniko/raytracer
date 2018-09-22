@@ -38,11 +38,18 @@ SOFTWARE.
 #include "hitables/hitableList.h"
 #include "util/camera.h"
 
+vec3 randomInSphere()
+{
+}
+
 vec3 color(const ray& r, hitable *world)
 {
     hitRecord rec;
     if (world->hit(r, 0.0f, FLT_MAX, rec))
+    {
+        vec3 target = rec.point + rec.normal + randomInSphere();
         return 0.5*vec3(rec.normal.x()+1, rec.normal.y()+1, rec.normal.z()+1);
+    }
     else
     {
         vec3 unitDirection = unitVector(r.direction());
@@ -51,7 +58,7 @@ vec3 color(const ray& r, hitable *world)
     }
 }
 
-void testHitableList()
+void diffuseMaterialsExample()
 {
     int nx = 1200;
     int ny = 600;
@@ -79,7 +86,7 @@ void testHitableList()
         std::seed_seq seed{r(), r(), r(), r(), r(), r(), r(), r()};
         std::mt19937 eng{seed};
         // a distribution that takes randomness and produces values in specified range
-        std::uniform_int_distribution<> dist(0,1);
+        std::uniform_real_distribution<> dist(0,1);
 
         // j track rows - from top to bottom
         for (int j = ny-1; j >= 0; j--)

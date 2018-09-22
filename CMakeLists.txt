@@ -6,7 +6,9 @@ project(raytracer)
 include_directories(	include
  			include/util
 			include/hitables
-			include/testFunctions)
+			include/examples
+			include/materials
+)
 
 file(GLOB SOURCES
     src/*.cpp
