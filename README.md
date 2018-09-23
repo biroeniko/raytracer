@@ -13,12 +13,17 @@ The basic requirements for building the executable are:
 * CMake 2.8+
 * a c++ compiler
 * make
-
+<!--
+* SDL2
+-->
 #### Installation on Ubuntu
 
 ```
 sudo apt-get install build-essentials cmake
 ```
+<!--
+sudo apt-get install libsdl2-2.0 libsdl2-dev
+-->
 
 ### Installing
 
@@ -49,6 +54,14 @@ Some screenshots along the way of developing:
 ![](https://github.com/biroeniko/raytracer/blob/master/images/diffuseWithGammaCorrectionAndShadowAcneCorrection.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/metal.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/metalWithFuzziness.png)
+
+
+## Built With
+
+<!--
+* [SDL2](https://www.libsdl.org/) - used for display and control)
+-->
+* [OpenMP](https://www.openmp.org/) - used for creating multiple threads for the tasks (pixel color calculation)
 
 ## Authors
 
