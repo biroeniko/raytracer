@@ -23,6 +23,7 @@ SOFTWARE.
 #include <fstream>
 #include <float.h>
 #include <random>
+#include <SDL2/SDL.h>
 
 #ifndef STB_IMAGE_IMPLEMENTATION 
   #define STB_IMAGE_IMPLEMENTATION
@@ -38,6 +39,10 @@ SOFTWARE.
 #include "hitables/hitableList.h"
 #include "util/camera.h"
 #include "materials/material.h"
+
+#define nx 1200
+#define ny 600
+#define ns 100          // sample size
 
 vec3 color(const ray& r, hitable *world, int depth)
 {
@@ -75,23 +80,23 @@ need more light, so we only have an aperture when we want defocus blur.
 
 hitable* randomScene()
 {
-    int n = 500;
+    int n = 1000;
     hitable** list = new hitable*[n+1];
     list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
     int i = 1;
-    for (int a = -11; a < 11; a++)
+    for (int a = -15; a < 15; a++)
     {
-        for (int b = -11; b < 11; b++)
+        for (int b = -15; b < 15; b++)
         {
             float chooseMat = dist(mt);
             vec3 center(a+0.9f*dist(mt), 0.2f, b+0.9f*dist(mt));
             if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
             {
-                if (chooseMat < 0.8)            // diffuse
+                if (chooseMat < 0.2)            // diffuse
                 {
                     list[i++] = new sphere(center, 0.2f, new lambertian(vec3(dist(mt)*dist(mt), dist(mt)*dist(mt), dist(mt)*dist(mt))));
                 }
-                else if (chooseMat < 0.95)      // metal 
+                else if (chooseMat < 0.35)      // metal 
                 {
                     list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+dist(mt)), 0.5*(1+dist(mt)), 0.5*(1+dist(mt))))); 
                 }
@@ -112,10 +117,6 @@ hitable* randomScene()
 
 void sceneExample()
 {
-    int nx = 1200;
-    int ny = 600;
-    int ns = 100;       // sample size
-
     // for png file
     uint8_t *image = new uint8_t[nx * ny * 3];
 
@@ -194,4 +195,5 @@ void sceneExample()
 
     // write png
     stbi_write_png("test.png", nx, ny, 3, image, nx * 3);
+    delete[] image;
 }

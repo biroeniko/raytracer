@@ -3,6 +3,9 @@ set (CMAKE_CXX_STANDARD 11)
 
 project(raytracer)
 
+# SDL2
+find_package(SDL2 REQUIRED)
+
 # OpenMP
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -18,6 +21,7 @@ include_directories(	include
 			include/examples
 			include/materials
 )
+include_directories(${SDL2_INCLUDE_DIRS})
 
 # source files
 file(GLOB SOURCES
@@ -27,3 +31,5 @@ file(GLOB SOURCES
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
