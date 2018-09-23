@@ -21,6 +21,9 @@ SOFTWARE.
 
 #include "util/ray.h"
 
+// fov - field of view
+// image is not square => fow is different horizontally and  vertically
+
 class camera
 {
     public:
@@ -29,9 +32,40 @@ class camera
         vec3 horizontal;
         vec3 vertical;
 
-        camera():   lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)), 
+        /*camera():   lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)), 
                     horizontal(vec3(4.0f, 0.0f, 0.0f)),
                     vertical(vec3(0.0f, 2.0f, 0.0f)),
                     origin(vec3(0.0f, 0.0f, 0.0f)) {};
+        camera(float vfov, float aspect);*/
+
+        // vfov is top to bottom in degrees
+        camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect)
+        {
+            vec3 u, v, w;
+            float theta = vfov*M_PI/180;
+            float halfHeight = tan(theta/2.0f);
+            float halfWidth = aspect * halfHeight;
+            
+            origin = lookFrom;
+            w = unitVector(lookFrom - lookAt);
+            u = unitVector(cross(vup, w));
+            v = cross(w, u);
+            
+            lowerLeftCorner = vec3(-halfWidth, -halfHeight, -1.0);
+            lowerLeftCorner = origin - halfWidth*u - halfHeight*v - w;
+            horizontal = 2.0f*halfWidth*u;
+            vertical = 2.0f*halfHeight*v;
+        } 
         ray getRay(float u, float v) {return ray(origin, lowerLeftCorner + u*horizontal + v*vertical - origin);}
 };
+/*
+camera::camera(float vfov, float aspect)
+{
+    float theta = vfov*M_PI/180.0f;
+    float halfHeight = tan(theta/2.0f);
+    float halfWidth = aspect * halfHeight;
+    lowerLeftCorner = vec3(-halfWidth, -halfHeight, -1.0);
+    horizontal = vec3(2*halfWidth, 0.0, 0.0);
+    vertical = vec3(0.0, 2*halfHeight, 0.0);
+    origin = vec3(0.0, 0.0, 0.0);
+}*/
