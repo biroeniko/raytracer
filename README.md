@@ -47,6 +47,8 @@ Some screenshots along the way of developing:
 ![](https://github.com/biroeniko/raytracer/blob/master/images/diffuseBeforeGammaCorrection.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/diffuseWithGammaCorrection.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/diffuseWithGammaCorrectionAndShadowAcneCorrection.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/metal.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/metalWithFuzziness.png)
 
 ## Authors
 
