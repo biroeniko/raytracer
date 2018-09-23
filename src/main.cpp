@@ -21,10 +21,11 @@ SOFTWARE.
 //#include "examples/imageExample.h"
 //#include "examples/hitableListExample.h"
 //#include "examples/diffuseMaterialsExample.h"
-#include "examples/materialExample.h"
+//#include "examples/materialExample.h"
+#include "examples/glassExample.h"
 
 int main()
 {
-    materialExample();
+    glassExample();
     return 0;
 }

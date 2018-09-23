@@ -67,6 +67,7 @@ class lambertian : public material
         virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
 };
 
+// diffuse matrials randomly scatter the rays
 bool lambertian::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {                    
     vec3 target = rec.point + rec.normal + randomInUnitSphere();
@@ -79,7 +80,7 @@ bool lambertian::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation
 // because v points in, we will need a minus sign before the dot product
 vec3 reflect(const vec3& v, const vec3& n)
 {
-    return v - 2*dot(v,n)*n;
+    return v - 2.0f*dot(v,n)*n;
 }
 
 class metal: public material
@@ -87,14 +88,76 @@ class metal: public material
     vec3 albedo;
     float fuzz;
     public:
-        metal(const vec3& a, float f) : albedo(a) {if (f < 1) fuzz = f; else fuzz = 1;}
+        metal(const vec3& a, float f) : albedo(a) {if (f < 1.0f) fuzz = f; else fuzz = 1.0f;}
         virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
 };
 
+// metals don't randomly scatter -> they reflect
 inline bool metal::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
     vec3 reflected = reflect(unitVector(rIn.direction()), rec.normal);
     scattered = ray(rec.point, reflected + fuzz*randomInUnitSphere());
     attenuation = albedo;
     return (dot(scattered.direction(), rec.normal) > 0);
+}
+
+
+// dielectrics: water, glass, diamonds (those are clear materials)
+// when a ray hits them, it splits into a reflected ray and a refracted (transmitted) ray
+// randomly choosing between reflection and refraction -> 
+// only generating one scattered ray per interaction
+
+// refraction is described by Snell's law:
+// n sin(theta) = n' sin(theta')
+// n and n' are the refractive indices (air = 1, glass = 1.2-1.7, diamond = 2.4)
+// total internal reflection
+
+bool refract(const vec3& v, const vec3& n, float niOverNt, vec3& refracted)
+{
+    vec3 uv = unitVector(v);
+    float dt = dot(uv, n);
+    float discriminant = 1.0f - niOverNt*niOverNt*(1-dt*dt);
+    if (discriminant > 0.0f)
+    {
+        refracted = niOverNt*(uv - n*dt) - n*sqrt(discriminant);
+        return true;
+    }
+    else
+        return false;
+}
+
+class dielectric: public material
+{
+    float refIndex;
+    public:
+        dielectric(float ri) : refIndex(ri) {}
+        virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+};
+
+bool dielectric::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+{
+    vec3 outWardNormal;
+    vec3 reflected = reflect(rIn.direction(), rec.normal);
+    float niOverNt;
+    // the glass surface absorbs nothing => attenuation = 1
+    // erase the blue channel 
+    attenuation = vec3(1.0, 1.0, 1.0);
+    vec3 refracted;
+
+    if (dot(rIn.direction(), rec.normal) > 0.0f)
+    {
+        outWardNormal = -rec.normal;
+        niOverNt = refIndex;
+    }
+    else
+    {
+        outWardNormal = rec.normal;
+        niOverNt = 1.0f / refIndex;
+    }
+
+    if (refract(rIn.direction(), outWardNormal, niOverNt, refracted))
+        scattered = ray(rec.point, refracted);
+    else
+        scattered = ray(rec.point, reflected);
+    return true;
 }
