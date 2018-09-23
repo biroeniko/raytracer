@@ -35,6 +35,7 @@ bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
             rec.time = temp;
             rec.point = r.pointAtParameter(rec.time);
             rec.normal = (rec.point - center) / radius;
+            rec.matPtr = matPtr;
             return true;
         }
         temp = (-b + sqrt(discriminant))/a;
@@ -43,6 +44,7 @@ bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
             rec.time = temp;
             rec.point = r.pointAtParameter(rec.time);
             rec.normal = (rec.point - center) / radius;
+            rec.matPtr = matPtr;
             return true;
         } 
     }

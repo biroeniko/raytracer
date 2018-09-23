@@ -23,14 +23,14 @@ SOFTWARE.
 
 class ray 
 {
-    vec3 A;             // ray origin
-    vec3 B;             // ray direction
+        vec3 A;             // ray origin
+        vec3 B;             // ray direction
 
-public:
-    ray() {};
-    ray(const vec3& a, const vec3& b) {A = a; B = b;}
+    public:
+        ray() {};
+        ray(const vec3& a, const vec3& b) {A = a; B = b;}
 
-    vec3 origin() const                     { return A;}
-    vec3 direction() const                  { return B;}
-    vec3 pointAtParameter(float t) const    { return A + t*B;}
+        vec3 origin() const                     { return A;}
+        vec3 direction() const                  { return B;}
+        vec3 pointAtParameter(float t) const    { return A + t*B;}
 };

@@ -28,3 +28,72 @@ As in Peter Shirley's book:
 - the darker the durface, the more likely absorption is
 */
 
+#pragma once
+
+struct hitable;
+
+#include <random>
+#include "util/ray.h"
+#include "hitables/hitable.h"
+
+vec3 randomInUnitSphere()
+{
+    std::random_device r;
+    std::mt19937 mt(r());
+    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
+    vec3 point;
+    do {
+        point = 2.0f * vec3(dist(mt), dist(mt), dist(mt)) - vec3(1.0f,1.0f,1.0f);
+    } while (point.squaredLength() >= 1.0f);
+    return point;
+}
+
+class material
+{
+    public:
+        virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const = 0;
+};
+
+// lambertian (diffuse)
+// it can either scatter always and attenuate by its reflectance R
+// or it can scatter with no attenuation but absorb the fraction 1-R of the rays
+// or MIXED of these two strategies
+class lambertian : public material 
+{
+    vec3 albedo; // the proportion of the incident light or radiation that is reflected by a surface
+    public:
+        lambertian(const vec3& a) : albedo(a) {}
+        virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+};
+
+bool lambertian::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+{                    
+    vec3 target = rec.point + rec.normal + randomInUnitSphere();
+    scattered = ray(rec.point, target-rec.point);
+    attenuation = albedo;
+    return true;
+}
+
+// for smooth metals the ray won't be randomly scattered
+// because v points in, we will need a minus sign before the dot product
+vec3 reflect(const vec3& v, const vec3& n)
+{
+    return v - 2*dot(v,n)*n;
+}
+
+class metal: public material
+{
+    vec3 albedo;
+    public:
+        metal(const vec3& a) : albedo(a) {}
+        virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+};
+
+inline bool metal::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+{
+    vec3 reflected = reflect(unitVector(rIn.direction()), rec.normal);
+    scattered = ray(rec.point, reflected);
+    attenuation = albedo;
+    return (dot(scattered.direction(), rec.normal) > 0);
+}

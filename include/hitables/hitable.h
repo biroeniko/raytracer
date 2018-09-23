@@ -21,20 +21,23 @@ SOFTWARE.
 
 #include "util/ray.h"
 
+class material;
+
 struct hitRecord
 {
     float time;
     vec3 point;
     vec3 normal;
+    material* matPtr;
 };
 
 class hitable
 {
-public:
-    // the hit counts if tMin < t < tMax
-    // for the initial rays this is positive t
-    // compute the normal if we hit something?
-    // we will only need the normal of the closest thing
-    // we want motion blur => time input variable
-    virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const = 0;
+    public:
+        // the hit counts if tMin < t < tMax
+        // for the initial rays this is positive t
+        // compute the normal if we hit something?
+        // we will only need the normal of the closest thing
+        // we want motion blur => time input variable
+        virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const = 0;
 };
