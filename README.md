@@ -43,6 +43,10 @@ Some screenshots along the way of developing:
 ![](https://github.com/biroeniko/raytracer/blob/master/images/sphereHit.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/test.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/interesting.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/antialiased.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/diffuseBeforeGammaCorrection.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/diffuseWithGammaCorrection.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/diffuseWithGammaCorrectionAndShadowAcneCorrection.png)
 
 ## Authors
 
