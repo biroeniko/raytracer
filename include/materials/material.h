@@ -75,7 +75,7 @@ class metal: public material
     vec3 albedo;
     float fuzz;
     public:
-        metal(const vec3& a, float f) : albedo(a) {if (f < 1.0f) fuzz = f; else fuzz = 1.0f;}
+        metal(const vec3& a, float f = 0.0f) : albedo(a) {if (f < 1.0f) fuzz = f; else fuzz = 1.0f;}
         virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
 };
 

@@ -23,10 +23,11 @@ SOFTWARE.
 //#include "examples/diffuseMaterialsExample.h"
 //#include "examples/materialExample.h"
 //#include "examples/glassExample.h"
-#include "examples/defocusBlurExample.h"
+//#include "examples/defocusBlurExample.h"
+#include "examples/sceneExample.h"
 
 int main()
 {
-    defocusBlurExample();
+    sceneExample();
     return 0;
 }
