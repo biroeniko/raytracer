@@ -85,15 +85,16 @@ vec3 reflect(const vec3& v, const vec3& n)
 class metal: public material
 {
     vec3 albedo;
+    float fuzz;
     public:
-        metal(const vec3& a) : albedo(a) {}
+        metal(const vec3& a, float f) : albedo(a) {if (f < 1) fuzz = f; else fuzz = 1;}
         virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
 };
 
 inline bool metal::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
     vec3 reflected = reflect(unitVector(rIn.direction()), rec.normal);
-    scattered = ray(rec.point, reflected);
+    scattered = ray(rec.point, reflected + fuzz*randomInUnitSphere());
     attenuation = albedo;
     return (dot(scattered.direction(), rec.normal) > 0);
 }
