@@ -43,7 +43,9 @@ Now you can build the binary by running:
 ```
 make
 ```
-Now, you should see the executable in the build folder.
+Now, you should see the executable in the build folder. The final ray traced image is:
+![](https://github.com/biroeniko/raytracer/blob/master/images/final.png)
+
 Some screenshots along the way of developing:
 ![](https://github.com/biroeniko/raytracer/blob/master/images/sphereHit.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/interesting.png)
@@ -54,7 +56,10 @@ Some screenshots along the way of developing:
 ![](https://github.com/biroeniko/raytracer/blob/master/images/diffuseWithGammaCorrectionAndShadowAcneCorrection.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/metal.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/metalWithFuzziness.png)
-
+![](https://github.com/biroeniko/raytracer/blob/master/images/hollowGlassSphere.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/cameraPosition.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/cameraPosition2.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/depthOfField.png)
 
 ## Built With
 
