@@ -60,7 +60,20 @@ vec3 color(const ray& r, hitable *world, int depth)
     }
 }
 
-void glassExample()
+// defocus blur = depth of field
+/*
+Peter Shirley's book:
+The reason we defocus blur in real cameras is because they need a big hole (rather than just a
+pinhole) to gather light. This would defocus everything, but if we stick a lens in the hole, there
+will be a certain distance where everything is in focus. The distance to that plane where things
+are in focus is controlled by the distance between the lens and the film/sensor.
+
+For a real camera, if you need more light you make the aperture bigger, and
+will get more defocus blur. For our virtual camera, we can have a perfect sensor and never
+need more light, so we only have an aperture when we want defocus blur.
+*/
+
+void defocusBlurExample()
 {
     int nx = 1200;
     int ny = 600;
@@ -84,7 +97,12 @@ void glassExample()
         
         hitable *world = new hitableList(list, 5);
 
-        camera cam(vec3(-2.0f, 2.0f, 1.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f), 90.0f, float(nx)/float(ny));
+        vec3 lokFrom(3.0f, 3.0f, 2.0f);
+        vec3 lookAt(0.0f, 0.0f, -1.0f);
+        float distToFocus = (lokFrom - lookAt).length();
+        float aperture = 2.0;
+
+        camera cam(lokFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), aperture, distToFocus);
 
         // create source of randomness, and initialize it with non-deterministic seed
         std::random_device r;

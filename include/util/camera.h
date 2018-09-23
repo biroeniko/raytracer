@@ -20,6 +20,7 @@ SOFTWARE.
 #pragma once
 
 #include "util/ray.h"
+#include "util/util.h"
 
 // fov - field of view
 // image is not square => fow is different horizontally and  vertically
@@ -31,18 +32,19 @@ class camera
         vec3 lowerLeftCorner;
         vec3 horizontal;
         vec3 vertical;
+        vec3 u, v, w;
+        float lensRadius;
 
-        /*camera():   lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)), 
+        camera():   lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)), 
                     horizontal(vec3(4.0f, 0.0f, 0.0f)),
                     vertical(vec3(0.0f, 2.0f, 0.0f)),
                     origin(vec3(0.0f, 0.0f, 0.0f)) {};
-        camera(float vfov, float aspect);*/
-
+        
         // vfov is top to bottom in degrees
         camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect)
         {
             vec3 u, v, w;
-            float theta = vfov*M_PI/180;
+            float theta = vfov*M_PI/180.0f;
             float halfHeight = tan(theta/2.0f);
             float halfWidth = aspect * halfHeight;
             
@@ -56,16 +58,28 @@ class camera
             horizontal = 2.0f*halfWidth*u;
             vertical = 2.0f*halfHeight*v;
         } 
-        ray getRay(float u, float v) {return ray(origin, lowerLeftCorner + u*horizontal + v*vertical - origin);}
+
+        camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float aperture, float focusDist)
+        {
+            lensRadius = aperture/2.0f;
+            float theta = vfov*M_PI/180;
+            float halfHeight = tan(theta/2.0f);
+            float halfWidth = aspect * halfHeight;
+            
+            origin = lookFrom;
+            w = unitVector(lookFrom - lookAt);
+            u = unitVector(cross(vup, w));
+            v = cross(w, u);
+            
+            lowerLeftCorner = origin - halfWidth*focusDist*u - halfHeight*focusDist*v - focusDist*w;
+            horizontal = 2.0f*halfWidth*focusDist*u;
+            vertical = 2.0f*halfHeight*focusDist*v;
+        } 
+
+        ray getRay(float s, float t) 
+        {
+            vec3 rd = lensRadius*randomInUnitSphere();
+            vec3 offset = u * rd.x() + v * rd.y();
+            return ray(origin + offset, lowerLeftCorner + s*horizontal + t*vertical - origin - offset);
+        }
 };
-/*
-camera::camera(float vfov, float aspect)
-{
-    float theta = vfov*M_PI/180.0f;
-    float halfHeight = tan(theta/2.0f);
-    float halfWidth = aspect * halfHeight;
-    lowerLeftCorner = vec3(-halfWidth, -halfHeight, -1.0);
-    horizontal = vec3(2*halfWidth, 0.0, 0.0);
-    vertical = vec3(0.0, 2*halfHeight, 0.0);
-    origin = vec3(0.0, 0.0, 0.0);
-}*/

@@ -32,22 +32,9 @@ As in Peter Shirley's book:
 
 struct hitable;
 
-#include <random>
 #include "util/ray.h"
 #include "hitables/hitable.h"
-
-std::random_device r;
-std::mt19937 mt(r());
-std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-
-vec3 randomInUnitSphere()
-{
-    vec3 point;
-    do {
-        point = 2.0f * vec3(dist(mt), dist(mt), dist(mt)) - vec3(1.0f,1.0f,1.0f);
-    } while (point.squaredLength() >= 1.0f);
-    return point;
-}
+#include "util/util.h"
 
 class material
 {
