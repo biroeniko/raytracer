@@ -36,12 +36,12 @@ struct hitable;
 #include "util/ray.h"
 #include "hitables/hitable.h"
 
+std::random_device r;
+std::mt19937 mt(r());
+std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
 vec3 randomInUnitSphere()
 {
-    std::random_device r;
-    std::mt19937 mt(r());
-    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-
     vec3 point;
     do {
         point = 2.0f * vec3(dist(mt), dist(mt), dist(mt)) - vec3(1.0f,1.0f,1.0f);
@@ -134,6 +134,15 @@ class dielectric: public material
         virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
 };
 
+// real glass has reflectivity that varies with angle
+// Christophe Schlick's simple qeuation:
+float schlick(float cosine, float refIndex)
+{
+    float r0 = (1-refIndex) / (1+refIndex);
+    r0 = r0*r0;
+    return r0 + (1-r0)*pow((1-cosine),5);
+}
+
 bool dielectric::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
     vec3 outWardNormal;
@@ -141,23 +150,35 @@ bool dielectric::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation
     float niOverNt;
     // the glass surface absorbs nothing => attenuation = 1
     // erase the blue channel 
-    attenuation = vec3(1.0, 1.0, 1.0);
+    attenuation = vec3(1.0f, 1.0f, 1.0f);
     vec3 refracted;
+    float reflectProbability;
+    float cosine;
 
     if (dot(rIn.direction(), rec.normal) > 0.0f)
     {
         outWardNormal = -rec.normal;
         niOverNt = refIndex;
+        cosine = refIndex * dot(rIn.direction(), rec.normal) / rIn.direction().length();
     }
     else
     {
         outWardNormal = rec.normal;
         niOverNt = 1.0f / refIndex;
+        cosine = -dot(rIn.direction(), rec.normal) / rIn.direction().length();
     }
 
     if (refract(rIn.direction(), outWardNormal, niOverNt, refracted))
-        scattered = ray(rec.point, refracted);
+        reflectProbability = schlick(cosine, refIndex);
     else
+    {
         scattered = ray(rec.point, reflected);
+        reflectProbability = 1.0f;
+    }
+
+    if (dist(mt) < reflectProbability)
+        scattered = ray(rec.point, reflected);
+    else
+        scattered = ray(rec.point, refracted);
     return true;
 }
