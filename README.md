@@ -11,14 +11,14 @@ These instructions will get you a copy of the project up and running on your loc
 The basic requirements for building the executable are:
 
 * CMake 2.8+
-* a c++ compiler
+* a C++ compiler
 * make
 * SDL2
 #### Installation on Ubuntu
 
 ```
 sudo apt-get install build-essentials cmake
-sudo apt-get install libsdl2-2.0 libsdl2-dev
+sudo apt-get install libsdl2-dev
 ```
 
 ### Installing
