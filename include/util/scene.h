@@ -87,11 +87,11 @@ hitable* randomScene()
             vec3 center(a+0.9f*dist(mt), 0.2f, b+0.9f*dist(mt));
             if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
             {
-                if (chooseMat < 0.2)            // diffuse
+                if (chooseMat < 0.5)            // diffuse
                 {
                     list[i++] = new sphere(center, 0.2f, new lambertian(vec3(dist(mt)*dist(mt), dist(mt)*dist(mt), dist(mt)*dist(mt))));
                 }
-                else if (chooseMat < 0.35)      // metal 
+                else if (chooseMat < 0.75)      // metal 
                 {
                     list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+dist(mt)), 0.5*(1+dist(mt)), 0.5*(1+dist(mt))))); 
                 }
