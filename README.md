@@ -39,8 +39,10 @@ Now you can build the binary by running:
 ```
 make
 ```
-Now, you should see the executable in the build folder. The final ray traced image is:
+Now, you should see the executable in the build folder. Examples for the final images are:
 ![](https://github.com/biroeniko/raytracer/blob/master/images/final.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/final2.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/final3.png)
 
 Some screenshots along the way of developing:
 ![](https://github.com/biroeniko/raytracer/blob/master/images/sphereHit.png)
