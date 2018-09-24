@@ -59,7 +59,7 @@ Some screenshots along the way of developing:
 
 ## Built With
 
-* [SDL2](https://www.libsdl.org/) - used for display and control)
+* [SDL2](https://www.libsdl.org/) - used for display
 * [OpenMP](https://www.openmp.org/) - used for creating multiple threads for the tasks (pixel color calculation)
 
 ## Authors
