@@ -39,8 +39,8 @@ SOFTWARE.
 #include "materials/material.h"
 #include "util/scene.h"
 
-#define nx 500
-#define ny 250
+#define nx 1200
+#define ny 600
 #define ns 100          // sample size
 
 
@@ -184,7 +184,7 @@ void draw(bool showWindow, bool writeImage)
         else std::cout << "Unable to open file" << std::endl;
     }
 
-    hitable *world = simpleScene();
+    hitable *world = randomScene();
 
     vec3 lookFrom(13.0f, 2.0f, 3.0f);
     vec3 lookAt(0.0f, 0.0f, 0.0f);
@@ -229,7 +229,7 @@ void draw(bool showWindow, bool writeImage)
 int main()
 {
 	bool writeImage = true;
-    bool showWindow = false;
+    bool showWindow = true;
 
     draw(showWindow, writeImage);
     return 0;
