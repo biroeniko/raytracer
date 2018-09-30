@@ -116,7 +116,7 @@ struct window
 };
 
 
-bool traceRays(bool showWindow, bool writeImagePPM, window* w, hitable* world, uint8_t *image, camera& cam, std::ofstream& myfile)
+bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, window* w, hitable* world, uint8_t *image, camera& cam, std::ofstream& myfile)
 {
     volatile bool flag = w->flag;
 
@@ -157,6 +157,9 @@ bool traceRays(bool showWindow, bool writeImagePPM, window* w, hitable* world, u
 
             #pragma omp ordered
             if (writeImagePPM)
+                myfile << ir << " " << ig << " " << ib << "\n";
+            
+            if (writeImagePNG)
             {
                 // PNG
                 int index = (ny - 1 - j) * nx + i;
@@ -165,7 +168,6 @@ bool traceRays(bool showWindow, bool writeImagePPM, window* w, hitable* world, u
                 image[index3 + 0] = ir;
                 image[index3 + 1] = ig;
                 image[index3 + 2] = ib;
-                myfile << ir << " " << ig << " " << ib << "\n";
             }
 
             if (showWindow)
@@ -224,7 +226,7 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
 
     if (showWindow)
     {
-        traceRays(showWindow, writeImagePPM, w, world, image, cam, myfile);    
+        traceRays(showWindow, writeImagePPM, writeImagePNG, w, world, image, cam, myfile);    
         
         if (!w->flag)
         {
@@ -253,7 +255,7 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
         }
     }
     else
-        traceRays(showWindow, writeImagePPM, w, world, image, cam, myfile);
+        traceRays(showWindow, writeImagePPM, writeImagePNG, w, world, image, cam, myfile);
 
     if (showWindow)
     {
