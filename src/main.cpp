@@ -43,6 +43,30 @@ SOFTWARE.
 #define ny 700
 #define ns 100          // sample size
 
+class SystemManager {
+    public:
+        bool running;
+        SDL_Event events;
+        const Uint8* keys;
+        void inputManager(); 
+
+        SystemManager()
+        {
+            keys = SDL_GetKeyboardState(NULL);
+            if (keys == NULL)
+            { 
+                std::cout << "Keys could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
+            }
+        }
+};
+
+void SystemManager::inputManager() {
+    while(SDL_PollEvent(&events)) {
+        if(events.type == SDL_QUIT || keys[SDL_SCANCODE_ESCAPE])
+            running = false;
+    }
+}
+
 struct Window
 {
     // x,y,w,h
@@ -53,7 +77,6 @@ struct Window
 
     Uint32 *windowPixels;   
     SDL_Event event;
-    const Uint8* keys;
 
     Window()
     {
@@ -73,11 +96,6 @@ struct Window
             { 
                 std::cout << "Renderer could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
             }
-            keys = SDL_GetKeyboardState(NULL);
-            if (keys == NULL)
-            { 
-                std::cout << "Keys could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
-            }
         }
 
         SDL_RenderSetLogicalSize(renderer, windowRect.w, windowRect.h);
@@ -91,17 +109,6 @@ struct Window
                                     nx, ny);
 
         windowPixels = new Uint32[nx*ny];
-    }
-
-    bool quit() 
-    {
-        // Get the current pressed key
-        SDL_PollEvent(&event);
-
-        if (keys[SDL_SCANCODE_ESCAPE] || event.type == SDL_QUIT)
-            return true;
-        else
-            return false;
     }
 
     ~Window()
@@ -139,7 +146,7 @@ bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofs
     // collapses the two nested fors into the same parallel for
     #pragma omp parallel for collapse(2)
     // j track rows - from top to bottom
-    for (int j = ny-1; j >= 0; j--)
+    for (int j = 0; j < ny; j++)
     {
         // i tracks columns - left to right
         for (int i = 0; i < nx; i++)
@@ -229,19 +236,24 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
 
     if (showWindow)
     {
+        SystemManager sysManager;
+        sysManager.running = true;
+
         for (int i = 0; i < ns; i++)
         {
+            sysManager.inputManager();
             traceRays(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, fileOutputImage);    
             std::cout << "Sample nr. " << i+1 << std::endl;
-            if (w->quit())
+            if (!sysManager.running)
                 break;
             SDL_UpdateTexture(w->texture, NULL, w->windowPixels, nx * sizeof(Uint32));
             SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
             SDL_RenderPresent(w->renderer);
         }
         std::cout << "Done." << std::endl;
-
-        while (!w->quit());
+        sysManager.running = true;
+        while (sysManager.running)
+            sysManager.inputManager();
 
         // we write the files after the windows is closed
         if (writeImagePPM)
