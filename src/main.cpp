@@ -39,18 +39,23 @@ SOFTWARE.
 #include "materials/material.h"
 #include "util/scene.h"
 
-#define nx 1200
-#define ny 600
+#define nx 400
+#define ny 200
 #define ns 100          // sample size
 
 
 struct window
 {
     // x,y,w,h
+    SDL_Rect windowRect = { 0, 0, nx, ny };
     SDL_Window* SDLwindow;
     SDL_Renderer* renderer;
+    SDL_Texture* texture;
+
+    Uint32 *windowPixels;   
     SDL_Event event;
     const Uint8* keys;
+
 
     window()
     {
@@ -76,8 +81,18 @@ struct window
                 std::cout << "Keys could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
             }
         }
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+
+        SDL_RenderSetLogicalSize(renderer, windowRect.w, windowRect.h);
+        SDL_SetRenderDrawColor(renderer, 128, 0, 0, 255);
+        SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
+
+        texture = SDL_CreateTexture(renderer,
+                                    SDL_PIXELFORMAT_ARGB8888,
+                                    SDL_TEXTUREACCESS_STREAMING,
+                                    nx, ny);
+
+        windowPixels = new Uint32[nx*ny];
     }
 
     bool quit() 
@@ -147,14 +162,14 @@ bool traceRays(bool showWindow, bool writeImage, window* w, hitable* world, uint
 
             if (showWindow)
             {
-                SDL_SetRenderDrawColor(w->renderer, ir, ig, ib, 255);
-                SDL_RenderDrawPoint(w->renderer, i, ny - j - 1);
+                //SDL_SetRenderDrawColor(w->renderer, ir, ig, ib, 255);
+                //SDL_RenderDrawPoint(w->renderer, i, ny - j - 1);
+                w->windowPixels[(ny-j-1)*nx + i] = (ir << 16) | (ig << 8) | (ib);
             }
         }
 
         if (showWindow)
         {
-            SDL_RenderPresent(w->renderer);
             if (w->quit())
                 return false;
         }
@@ -203,6 +218,20 @@ void draw(bool showWindow, bool writeImage)
     {
         traceRays(showWindow, writeImage, w, world, image, cam, myfile);    
         
+        SDL_UpdateTexture(w->texture, NULL, w->windowPixels, nx * sizeof(Uint32));
+        SDL_RenderClear(w->renderer);
+        SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
+        SDL_RenderPresent(w->renderer);
+
+         if (writeImage)
+        {
+            myfile.close();
+
+            // write png
+            stbi_write_png("test.png", nx, ny, 3, image, nx * 3);
+            delete[] image;
+        }
+
         while (!w->quit())
         {
             // wait for user input
@@ -214,15 +243,6 @@ void draw(bool showWindow, bool writeImage)
     if (showWindow)
     {
         delete w;
-    }
-    
-    if (writeImage)
-    {
-        myfile.close();
-
-        // write png
-        stbi_write_png("test.png", nx, ny, 3, image, nx * 3);
-        delete[] image;
     }
 }
 
