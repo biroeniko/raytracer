@@ -41,7 +41,7 @@ SOFTWARE.
 
 #define nx 1400
 #define ny 700
-#define ns 6          // sample size
+#define ns 100          // sample size
 
 struct Window
 {
@@ -54,8 +54,6 @@ struct Window
     Uint32 *windowPixels;   
     SDL_Event event;
     const Uint8* keys;
-
-    bool flag = false;
 
     Window()
     {
@@ -138,16 +136,11 @@ struct Image
 
 bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, camera& cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
 {
-    volatile bool flag = w->flag;
-
-    #pragma omp parallel for shared(flag)
+    // collapses the two nested fors into the same parallel for
+    #pragma omp parallel for collapse(2)
     // j track rows - from top to bottom
     for (int j = ny-1; j >= 0; j--)
     {
-        // this is how I break from omp parallel for
-        if (flag)
-            continue;
-
         // i tracks columns - left to right
         for (int i = 0; i < nx; i++)
         {
@@ -184,15 +177,10 @@ bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofs
             }
 
             if (showWindow)
-            {
                 w->windowPixels[(ny-j-1)*nx + i] = (ir << 16) | (ig << 8) | (ib);
-                if (w->quit())
-                    flag = true;
-            }
         }
     }
 
-    w->flag = flag;
     return true;
 }
 
@@ -224,7 +212,7 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     }
 
     //hitable *world = randomScene();
-    hitable *world = simpleScene();
+    hitable *world = simpleScene2();
 
     vec3 lookFrom(13.0f, 2.0f, 3.0f);
     vec3 lookAt(0.0f, 0.0f, 0.0f);
@@ -244,23 +232,16 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
         for (int i = 0; i < ns; i++)
         {
             traceRays(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, fileOutputImage);    
-            
-            if (!w->flag)
-            {
-                SDL_UpdateTexture(w->texture, NULL, w->windowPixels, nx * sizeof(Uint32));
-                SDL_RenderClear(w->renderer);
-                SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
-                SDL_RenderPresent(w->renderer);
-            }      
+            std::cout << "Sample nr. " << i+1 << std::endl;
+            if (w->quit())
+                break;
+            SDL_UpdateTexture(w->texture, NULL, w->windowPixels, nx * sizeof(Uint32));
+            SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
+            SDL_RenderPresent(w->renderer);
         }
+        std::cout << "Done." << std::endl;
 
-        if (!w->flag)
-        {
-            while (!w->quit())
-            {
-                // wait for user input
-            }
-        }
+        while (!w->quit());
 
         // we write the files after the windows is closed
         if (writeImagePPM)
@@ -286,8 +267,12 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     }
     else
     {
-        for (int i = 0; i < ns; i++)
-            traceRays(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, fileOutputImage);
+       for (int i = 0; i < ns; i++)
+        {
+            traceRays(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, fileOutputImage);    
+            std::cout << "Sample nr. " << i+1 << std::endl;
+        }
+        std::cout << "Done." << std::endl;
     }
     if (showWindow)
     {

@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
-set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -mavx2")
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release")
+endif()
 
 project(raytracer)
 
@@ -15,13 +20,7 @@ if (OPENMP_FOUND)
 endif()
 
 # header files
-include_directories(	include
- 			include/util
-			include/hitables
-			include/examples
-			include/materials
-)
-include_directories(${SDL2_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/src ${SDL2_INCLUDE_DIRS})
 
 # source files
 file(GLOB SOURCES
