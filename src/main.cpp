@@ -136,11 +136,11 @@ struct Image
 };
 
 
-bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, camera& cam, hitable* world, Image* image, int sampleCount, uint8_t *pngimage)
+bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, camera& cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
 {
     volatile bool flag = w->flag;
 
-    #pragma omp parallel for ordered shared(flag)
+    #pragma omp parallel for shared(flag)
     // j track rows - from top to bottom
     for (int j = ny-1; j >= 0; j--)
     {
@@ -171,10 +171,6 @@ bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofs
             int ir = int(255.99f*col[0]);
             int ig = int(255.99f*col[1]);
             int ib = int(255.99f*col[2]);
-
-            #pragma omp ordered
-            if (writeImagePPM)
-                myfile << ir << " " << ig << " " << ib << "\n";
             
             if (writeImagePNG)
             {
@@ -182,9 +178,9 @@ bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofs
                 int index = (ny - 1 - j) * nx + i;
                 int index3 = 3 * index;
 
-                pngimage[index3 + 0] = ir;
-                pngimage[index3 + 1] = ig;
-                pngimage[index3 + 2] = ib;
+                fileOutputImage[index3 + 0] = ir;
+                fileOutputImage[index3 + 1] = ig;
+                fileOutputImage[index3 + 2] = ib;
             }
 
             if (showWindow)
@@ -210,13 +206,13 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
         w = new Window;
     }
 
-    uint8_t *pngimage;
+    uint8_t *fileOutputImage;
     std::ofstream myfile;
     
-    if (writeImagePNG)
+    if (writeImagePNG || writeImagePPM)
     {
         // for png file
-        pngimage = new uint8_t[nx * ny * 3];
+        fileOutputImage = new uint8_t[nx * ny * 3];
     }
     
     if (writeImagePPM)
@@ -247,7 +243,7 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     {
         for (int i = 0; i < ns; i++)
         {
-            traceRays(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, pngimage);    
+            traceRays(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, fileOutputImage);    
             
             if (!w->flag)
             {
@@ -258,16 +254,6 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
             }      
         }
 
-        if (writeImagePPM)
-            myfile.close();
-        
-        if (writeImagePNG)
-        {
-            // write png
-            stbi_write_png("test.png", nx, ny, 3, pngimage, nx * 3);
-            delete[] pngimage;
-        }
-
         if (!w->flag)
         {
             while (!w->quit())
@@ -275,11 +261,33 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
                 // wait for user input
             }
         }
+
+        // we write the files after the windows is closed
+        if (writeImagePPM)
+        {
+            for (int j = 0; j < ny; j++)
+            {
+                for (int i = 0; i < nx; i++)
+                {
+                    myfile << int(fileOutputImage[(j*nx+i)*3]) << " " << int(fileOutputImage[(j*nx+i)*3+1]) << " " << int(fileOutputImage[(j*nx+i)*3+2]) << "\n";
+                }
+            }
+            myfile.close();
+        }
+
+        if (writeImagePNG)
+        {
+            // write png
+            stbi_write_png("test.png", nx, ny, 3, fileOutputImage, nx * 3);
+        }
+
+        if (writeImagePNG || writeImagePPM)
+            delete[] fileOutputImage;
     }
     else
     {
         for (int i = 0; i < ns; i++)
-            traceRays(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, pngimage);
+            traceRays(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, fileOutputImage);
     }
     if (showWindow)
     {
