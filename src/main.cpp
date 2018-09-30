@@ -41,7 +41,7 @@ SOFTWARE.
 
 #define nx 400
 #define ny 200
-#define ns 1          // sample size
+#define ns 20          // sample size
 
 
 struct window
