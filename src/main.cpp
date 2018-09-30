@@ -56,7 +56,6 @@ struct window
     SDL_Event event;
     const Uint8* keys;
 
-
     window()
     {
         SDLwindow = NULL; 
@@ -115,7 +114,7 @@ struct window
 };
 
 
-bool traceRays(bool showWindow, bool writeImage, window* w, hitable* world, uint8_t *image, camera& cam, std::ofstream& myfile)
+bool traceRays(bool showWindow, bool writeImagePPM, window* w, hitable* world, uint8_t *image, camera& cam, std::ofstream& myfile)
 {
     // j track rows - from top to bottom
     for (int j = ny-1; j >= 0; j--)
@@ -148,7 +147,7 @@ bool traceRays(bool showWindow, bool writeImage, window* w, hitable* world, uint
             int ig = int(255.99f*col[1]);
             int ib = int(255.99f*col[2]);
 
-            if (writeImage)
+            if (writeImagePPM)
             {
                 // PNG
                 int index = (ny - 1 - j) * nx + i;
@@ -161,11 +160,7 @@ bool traceRays(bool showWindow, bool writeImage, window* w, hitable* world, uint
             }
 
             if (showWindow)
-            {
-                //SDL_SetRenderDrawColor(w->renderer, ir, ig, ib, 255);
-                //SDL_RenderDrawPoint(w->renderer, i, ny - j - 1);
                 w->windowPixels[(ny-j-1)*nx + i] = (ir << 16) | (ig << 8) | (ib);
-            }
         }
 
         if (showWindow)
@@ -178,7 +173,7 @@ bool traceRays(bool showWindow, bool writeImage, window* w, hitable* world, uint
     return true;
 }
 
-void draw(bool showWindow, bool writeImage)
+void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
 {
     window* w;
 
@@ -189,10 +184,15 @@ void draw(bool showWindow, bool writeImage)
 
     uint8_t *image;
     std::ofstream myfile;
-    if (writeImage)
+    
+    if (writeImagePNG)
     {
         // for png file
         image = new uint8_t[nx * ny * 3];
+    }
+    
+    if (writeImagePPM)
+    {
         myfile.open("test.ppm");
         if (myfile.is_open())
             myfile << "P3\n" << nx << " " << ny << "\n255\n";
@@ -216,17 +216,18 @@ void draw(bool showWindow, bool writeImage)
 
     if (showWindow)
     {
-        traceRays(showWindow, writeImage, w, world, image, cam, myfile);    
+        traceRays(showWindow, writeImagePPM, w, world, image, cam, myfile);    
         
         SDL_UpdateTexture(w->texture, NULL, w->windowPixels, nx * sizeof(Uint32));
         SDL_RenderClear(w->renderer);
         SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
         SDL_RenderPresent(w->renderer);
 
-         if (writeImage)
-        {
+        if (writeImagePPM)
             myfile.close();
-
+        
+        if (writeImagePNG)
+        {
             // write png
             stbi_write_png("test.png", nx, ny, 3, image, nx * 3);
             delete[] image;
@@ -238,7 +239,7 @@ void draw(bool showWindow, bool writeImage)
         }
     }
     else
-        traceRays(showWindow, writeImage, w, world, image, cam, myfile);
+        traceRays(showWindow, writeImagePPM, w, world, image, cam, myfile);
 
     if (showWindow)
     {
@@ -248,9 +249,10 @@ void draw(bool showWindow, bool writeImage)
 
 int main()
 {
-	bool writeImage = true;
+	bool writeImagePPM = true;
+    bool writeImagePNG = true;
     bool showWindow = true;
 
-    draw(showWindow, writeImage);
+    draw(showWindow, writeImagePPM, writeImagePNG);
     return 0;
 }
