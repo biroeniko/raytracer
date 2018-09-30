@@ -41,7 +41,7 @@ SOFTWARE.
 
 #define nx 400
 #define ny 200
-#define ns 100          // sample size
+#define ns 1          // sample size
 
 
 struct window
@@ -55,6 +55,8 @@ struct window
     Uint32 *windowPixels;   
     SDL_Event event;
     const Uint8* keys;
+
+    bool flag = false;
 
     window()
     {
@@ -116,14 +118,20 @@ struct window
 
 bool traceRays(bool showWindow, bool writeImagePPM, window* w, hitable* world, uint8_t *image, camera& cam, std::ofstream& myfile)
 {
+    volatile bool flag = w->flag;
+
+    #pragma omp parallel for ordered shared(flag)
     // j track rows - from top to bottom
     for (int j = ny-1; j >= 0; j--)
     {
+        // this is how I break from omp parallel for
+        if (flag)
+            continue;
+
         // i tracks columns - left to right
         for (int i = 0; i < nx; i++)
         {
             vec3 col(0.0f, 0.0f, 0.0f);
-            #pragma omp parallel for
             for (int s = 0; s < ns; s++)
             {
                 float u = float(i + dist(mt)) / float(nx); // left to right
@@ -147,6 +155,7 @@ bool traceRays(bool showWindow, bool writeImagePPM, window* w, hitable* world, u
             int ig = int(255.99f*col[1]);
             int ib = int(255.99f*col[2]);
 
+            #pragma omp ordered
             if (writeImagePPM)
             {
                 // PNG
@@ -160,16 +169,15 @@ bool traceRays(bool showWindow, bool writeImagePPM, window* w, hitable* world, u
             }
 
             if (showWindow)
+            {
                 w->windowPixels[(ny-j-1)*nx + i] = (ir << 16) | (ig << 8) | (ib);
-        }
-
-        if (showWindow)
-        {
-            if (w->quit())
-                return false;
+                if (w->quit())
+                    flag = true;
+            }
         }
     }
 
+    w->flag = flag;
     return true;
 }
 
@@ -218,10 +226,13 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     {
         traceRays(showWindow, writeImagePPM, w, world, image, cam, myfile);    
         
-        SDL_UpdateTexture(w->texture, NULL, w->windowPixels, nx * sizeof(Uint32));
-        SDL_RenderClear(w->renderer);
-        SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
-        SDL_RenderPresent(w->renderer);
+        if (!w->flag)
+        {
+            SDL_UpdateTexture(w->texture, NULL, w->windowPixels, nx * sizeof(Uint32));
+            SDL_RenderClear(w->renderer);
+            SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
+            SDL_RenderPresent(w->renderer);
+        }
 
         if (writeImagePPM)
             myfile.close();
@@ -233,9 +244,12 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
             delete[] image;
         }
 
-        while (!w->quit())
+        if (!w->flag)
         {
-            // wait for user input
+            while (!w->quit())
+            {
+                // wait for user input
+            }
         }
     }
     else
