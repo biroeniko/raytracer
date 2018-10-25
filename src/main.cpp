@@ -42,8 +42,12 @@ SOFTWARE.
 #define nx 1400
 #define ny 700
 #define ns 100          // sample size
+#define thetaInit 1.34888
+#define phiInit 1.32596
 
-class SystemManager {
+/*
+class SystemManager 
+{
     public:
         bool running;
         SDL_Event events;
@@ -60,64 +64,16 @@ class SystemManager {
         }
 };
 
-void SystemManager::inputManager() {
-    while(SDL_PollEvent(&events)) {
+void SystemManager::inputManager() 
+{
+    while(SDL_PollEvent(&events)) 
+    {
         if(events.type == SDL_QUIT || keys[SDL_SCANCODE_ESCAPE])
             running = false;
     }
 }
+*/
 
-struct Window
-{
-    // x,y,w,h
-    SDL_Rect windowRect = { 0, 0, nx, ny };
-    SDL_Window* SDLWindow;
-    SDL_Renderer* renderer;
-    SDL_Texture* texture;
-
-    Uint32 *windowPixels;   
-    SDL_Event event;
-
-    Window()
-    {
-        SDLWindow = NULL; 
-        SDL_Surface* screenSurface = NULL;
-        if (SDL_Init(SDL_INIT_VIDEO) < 0) 
-            std::cout << "SDL could not initialize! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;
-        else 
-        { 
-            SDLWindow = SDL_CreateWindow("Ray tracer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, nx, ny, SDL_WINDOW_SHOWN); 
-            if (SDLWindow == NULL) 
-            { 
-                std::cout << "Window could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
-            }
-            renderer = SDL_CreateRenderer(SDLWindow, -1, SDL_RENDERER_SOFTWARE);
-            if (renderer == NULL) 
-            { 
-                std::cout << "Renderer could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
-            }
-        }
-
-        SDL_RenderSetLogicalSize(renderer, windowRect.w, windowRect.h);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
-
-        texture = SDL_CreateTexture(renderer,
-                                    SDL_PIXELFORMAT_ARGB8888,
-                                    SDL_TEXTUREACCESS_STREAMING,
-                                    nx, ny);
-
-        windowPixels = new Uint32[nx*ny];
-    }
-
-    ~Window()
-    {
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(SDLWindow); 
-        SDL_Quit();
-    }
-};
 
 struct Image
 {
@@ -140,8 +96,149 @@ struct Image
     }
 };
 
+struct Window;
 
-bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, camera& cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+
+struct Window
+{
+    // x,y,w,h
+    SDL_Rect SDLWindowRect = { 0, 0, nx, ny };
+    SDL_Window* SDLWindow;
+    SDL_Renderer* SDLRenderer;
+    SDL_Texture* SDLTexture;
+
+    Uint32 *windowPixels;   
+
+    bool quit;
+    bool mouseDragIsInProgress;
+    bool refresh;
+
+	float theta;
+	float phi;
+	const float delta = 0.1 * M_PI / 180.0f;
+
+    camera* windowCamera;
+
+    Window(camera* cam): windowCamera(cam)
+    {
+
+	    theta = thetaInit;
+	    phi = phiInit;
+
+        quit = false;
+        mouseDragIsInProgress = false;
+        refresh = false;
+
+        SDLWindow = NULL; 
+        SDL_Surface* screenSurface = NULL;
+        if (SDL_Init(SDL_INIT_VIDEO) < 0) 
+            std::cout << "SDL could not initialize! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;
+        else 
+        { 
+            SDLWindow = SDL_CreateWindow("Ray tracer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, nx, ny, SDL_WINDOW_SHOWN); 
+            if (SDLWindow == NULL) 
+            { 
+                std::cout << "Window could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
+            }
+            SDLRenderer = SDL_CreateRenderer(SDLWindow, -1, SDL_RENDERER_SOFTWARE);
+            if (SDLRenderer == NULL) 
+            { 
+                std::cout << "Renderer could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
+            }
+        }
+
+        SDL_RenderSetLogicalSize(SDLRenderer, SDLWindowRect.w, SDLWindowRect.h);
+        SDL_SetRenderDrawColor(SDLRenderer, 0, 0, 0, 255);
+        SDL_RenderClear(SDLRenderer);
+        SDL_RenderPresent(SDLRenderer);
+
+        SDLTexture = SDL_CreateTexture(SDLRenderer,
+                                    SDL_PIXELFORMAT_ARGB8888,
+                                    SDL_TEXTUREACCESS_STATIC,
+                                    nx, ny);
+
+        windowPixels = new Uint32[nx*ny];
+
+        windowCamera->setLookFrom(theta, phi);
+    }
+
+    ~Window()
+    {
+        SDL_DestroyTexture(SDLTexture);
+        SDL_DestroyRenderer(SDLRenderer);
+        SDL_DestroyWindow(SDLWindow); 
+        delete[] windowPixels;
+        SDL_Quit();
+    }
+
+    void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, camera* cam, 
+                        hitable* world, Image* image,  int sampleCount, uint8_t *fileOutputImage) 
+    {
+		    traceRays(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, sampleCount, fileOutputImage);    
+            std::cout << "Sample nr. " << sampleCount << std::endl;
+            SDL_UpdateTexture(w->SDLTexture, NULL, w->windowPixels, nx * sizeof(Uint32));
+            SDL_RenderCopy(w->SDLRenderer, w->SDLTexture, NULL, NULL);
+            SDL_RenderPresent(w->SDLRenderer);
+	}
+
+    bool pollEvents(Image* image, uint8_t *fileOutputImage)
+    {
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            switch(event.type)
+            {
+                case SDL_MOUSEMOTION:
+                    if (mouseDragIsInProgress)
+                    {
+                        int mx = event.motion.xrel;
+                        int my = event.motion.yrel;
+					    theta += -my * delta;
+					    if (theta < delta) 
+                            theta = delta;
+					    if (theta > (M_PI_2 - delta)) 
+                            theta = M_PI_2 - delta;
+					    phi += -mx * delta;
+					    windowCamera->setLookFrom(theta, phi);
+                        for (int i = 0; i < nx*ny; i++)
+	                    {
+                            image->pixels[i/ny][i%ny] = vec3(0, 0, 0);
+                            fileOutputImage = 0;
+	                    }   
+                        refresh = true;
+                    }
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    {
+				        mouseDragIsInProgress = true;
+                    }
+                    break;
+			    case SDL_MOUSEBUTTONUP:
+                    {
+				        mouseDragIsInProgress = false;
+                    }
+				    break;
+			    case SDL_QUIT:
+				    quit = true;
+				    break;
+            }
+        }
+    }
+
+    void waitQuit()
+    {
+        SDL_Event event;
+        while (!quit)
+        {
+            SDL_WaitEvent(&event);
+            quit = (event.type == SDL_QUIT);
+        }
+    }
+};
+
+
+bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
 {
     // collapses the two nested fors into the same parallel for
     #pragma omp parallel for collapse(2)
@@ -154,7 +251,7 @@ bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofs
             float u = float(i + dist(mt)) / float(nx); // left to right
             float v = float(j + dist(mt)) / float(ny); // bottom to top
                 
-            ray r = cam.getRay(u,v);
+            ray r = cam->getRay(u,v);
 
             image->pixels[i][j] += color(r, world, 0);
 
@@ -187,18 +284,27 @@ bool traceRays(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofs
                 w->windowPixels[(ny-j-1)*nx + i] = (ir << 16) | (ig << 8) | (ib);
         }
     }
-
     return true;
 }
 
-void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
+void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG)
 {
     Window* w;
     Image* image = new Image(nx, ny);
 
+    //hitable *world = randomScene();
+    hitable *world = simpleScene2();
+
+    vec3 lookFrom(13.0f, 2.0f, 3.0f);
+    vec3 lookAt(0.0f, 0.0f, 0.0f);
+    float distToFocus = 10.0f;
+    float aperture = 0.1f;
+
+    camera* cam = new camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), aperture, distToFocus);
+
     if (showWindow)
     {
-        w = new Window;
+        w = new Window(cam);
     }
 
     uint8_t *fileOutputImage;
@@ -217,16 +323,6 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
             myfile << "P3\n" << nx << " " << ny << "\n255\n";
         else std::cout << "Unable to open file" << std::endl;
     }
-
-    //hitable *world = randomScene();
-    hitable *world = simpleScene2();
-
-    vec3 lookFrom(13.0f, 2.0f, 3.0f);
-    vec3 lookAt(0.0f, 0.0f, 0.0f);
-    float distToFocus = 10.0f;
-    float aperture = 0.1;
-
-    camera cam(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), aperture, distToFocus);
     
     // create source of randomness, and initialize it with non-deterministic seed
     std::random_device r;
@@ -236,24 +332,19 @@ void draw(bool showWindow, bool writeImagePPM, bool writeImagePNG)
 
     if (showWindow)
     {
-        SystemManager sysManager;
-        sysManager.running = true;
-
         for (int i = 0; i < ns; i++)
         {
-            sysManager.inputManager();
-            traceRays(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, fileOutputImage);    
-            std::cout << "Sample nr. " << i+1 << std::endl;
-            if (!sysManager.running)
+            w->updateImage(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, fileOutputImage);
+			w->pollEvents(image, fileOutputImage);
+            if (w->refresh)
+            {
+                i = -1;
+                w->refresh = false;
+            }
+            if (w->quit)
                 break;
-            SDL_UpdateTexture(w->texture, NULL, w->windowPixels, nx * sizeof(Uint32));
-            SDL_RenderCopy(w->renderer, w->texture, NULL, NULL);
-            SDL_RenderPresent(w->renderer);
         }
         std::cout << "Done." << std::endl;
-        sysManager.running = true;
-        while (sysManager.running)
-            sysManager.inputManager();
 
         // we write the files after the windows is closed
         if (writeImagePPM)
@@ -298,6 +389,6 @@ int main()
     bool writeImagePNG = true;
     bool showWindow = true;
 
-    draw(showWindow, writeImagePPM, writeImagePNG);
+    invokeRenderer(showWindow, writeImagePPM, writeImagePNG);
     return 0;
 }

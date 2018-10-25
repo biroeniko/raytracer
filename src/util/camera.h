@@ -35,6 +35,18 @@ class camera
         vec3 u, v, w;
         float lensRadius;
 
+        vec3 lookFrom;
+        vec3 lookAt;
+
+        vec3 vup;
+        float vfov;
+        float aspect;
+        float aperture;
+        float focusDist;
+
+        float halfWidth;
+	    float halfHeight;
+
         camera():   lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)), 
                     horizontal(vec3(4.0f, 0.0f, 0.0f)),
                     vertical(vec3(0.0f, 2.0f, 0.0f)),
@@ -43,38 +55,64 @@ class camera
         // vfov is top to bottom in degrees
         camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect)
         {
-            vec3 u, v, w;
             float theta = vfov*M_PI/180.0f;
-            float halfHeight = tan(theta/2.0f);
-            float halfWidth = aspect * halfHeight;
+            this->halfHeight = tan(theta/2.0f);
+            this->halfWidth = aspect * halfHeight;
             
-            origin = lookFrom;
-            w = unitVector(lookFrom - lookAt);
-            u = unitVector(cross(vup, w));
-            v = cross(w, u);
+            this->origin = lookFrom;
+            this->w = unitVector(lookFrom - lookAt);
+            this->u = unitVector(cross(vup, w));
+            this->v = cross(w, u);
             
-            lowerLeftCorner = vec3(-halfWidth, -halfHeight, -1.0);
-            lowerLeftCorner = origin - halfWidth*u - halfHeight*v - w;
-            horizontal = 2.0f*halfWidth*u;
-            vertical = 2.0f*halfHeight*v;
+            this->lowerLeftCorner = origin - halfWidth*u - halfHeight*v - w;
+            this->horizontal = 2.0f*halfWidth*u;
+            this->vertical = 2.0f*halfHeight*v;
+            this->lookFrom = lookFrom;
+            this->lookAt = lookAt;
+            this->vup = vup;
+            this->vfov = vfov;
+            this->aspect = aspect;
         } 
 
+        // another constructor
         camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float aperture, float focusDist)
         {
-            lensRadius = aperture/2.0f;
-            float theta = vfov*M_PI/180;
-            float halfHeight = tan(theta/2.0f);
-            float halfWidth = aspect * halfHeight;
+            this->lensRadius = aperture/2.0f;
+            float theta = vfov*M_PI/180.0f;
+            this->halfHeight = tan(theta/2.0f);
+            this->halfWidth = aspect * halfHeight;
             
-            origin = lookFrom;
-            w = unitVector(lookFrom - lookAt);
-            u = unitVector(cross(vup, w));
-            v = cross(w, u);
-            
-            lowerLeftCorner = origin - halfWidth*focusDist*u - halfHeight*focusDist*v - focusDist*w;
-            horizontal = 2.0f*halfWidth*focusDist*u;
-            vertical = 2.0f*halfHeight*focusDist*v;
+            this->lookFrom = lookFrom;
+            this->lookAt = lookAt;
+            this->vup = vup;
+            this->vfov = vfov;
+            this->aspect = aspect;
+            this->aperture = aperture;
+            this->focusDist = focusDist;
+
+            this->initLookFrom(lookFrom);
         } 
+
+        void initLookFrom(vec3 lookFrom) {
+            this->origin = lookFrom;
+            this->w = unitVector(lookFrom - lookAt);
+            this->u = unitVector(cross(vup, w));
+            this->v = cross(w, u);
+            
+            this->lookFrom = lookFrom;
+            this->lowerLeftCorner = origin - halfWidth*focusDist*u - halfHeight*focusDist*v - focusDist*w;
+            this->horizontal = 2.0f*halfWidth*focusDist*u;
+            this->vertical = 2.0f*halfHeight*focusDist*v;
+	    }
+
+        void setLookFrom(float theta, float phi) {
+            float radialDistance = (lookFrom - lookAt).length();
+            initLookFrom(vec3(
+                radialDistance*sinf(theta)*sinf(phi),
+                radialDistance*cosf(theta),
+                radialDistance*sinf(theta)*cosf(phi)) + lookAt
+            );
+	    }
 
         ray getRay(float s, float t) 
         {
