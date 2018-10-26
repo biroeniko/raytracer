@@ -39,41 +39,13 @@ SOFTWARE.
 #include "materials/material.h"
 #include "util/scene.h"
 
-#define nx 1400
-#define ny 700
-#define ns 100          // sample size
-#define thetaInit 1.34888
-#define phiInit 1.32596
-
-/*
-class SystemManager 
-{
-    public:
-        bool running;
-        SDL_Event events;
-        const Uint8* keys;
-        void inputManager(); 
-
-        SystemManager()
-        {
-            keys = SDL_GetKeyboardState(NULL);
-            if (keys == NULL)
-            { 
-                std::cout << "Keys could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
-            }
-        }
-};
-
-void SystemManager::inputManager() 
-{
-    while(SDL_PollEvent(&events)) 
-    {
-        if(events.type == SDL_QUIT || keys[SDL_SCANCODE_ESCAPE])
-            running = false;
-    }
-}
-*/
-
+const int nx = 1400;
+const int ny = 700;
+const int ns = 100;                     // sample size
+const float thetaInit = 1.34888f;
+const float phiInit = 1.32596f;
+const float zoomScale = 0.5f;
+const float stepScale = 0.5f;
 
 struct Image
 {
@@ -160,7 +132,7 @@ struct Window
 
         windowPixels = new Uint32[nx*ny];
 
-        windowCamera->setLookFrom(theta, phi);
+        windowCamera->rotate(theta, phi);
     }
 
     ~Window()
@@ -182,7 +154,7 @@ struct Window
             SDL_RenderPresent(w->SDLRenderer);
 	}
 
-    bool pollEvents(Image* image, uint8_t *fileOutputImage)
+    void pollEvents(Image* image, uint8_t *fileOutputImage)
     {
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -200,12 +172,15 @@ struct Window
 					    if (theta > (M_PI_2 - delta)) 
                             theta = M_PI_2 - delta;
 					    phi += -mx * delta;
-					    windowCamera->setLookFrom(theta, phi);
+					    windowCamera->rotate(theta, phi);
+                        
+                        #pragma omp parallel for
                         for (int i = 0; i < nx*ny; i++)
 	                    {
                             image->pixels[i/ny][i%ny] = vec3(0, 0, 0);
                             fileOutputImage = 0;
 	                    }   
+
                         refresh = true;
                     }
                     break;
@@ -219,6 +194,61 @@ struct Window
 				        mouseDragIsInProgress = false;
                     }
 				    break;
+                case SDL_MOUSEWHEEL:
+                    {
+                        if(event.wheel.y > 0) // scroll up
+                        {
+                            windowCamera->zoom(zoomScale);
+                        }
+                        else if(event.wheel.y < 0) // scroll down
+                        {
+                            windowCamera->zoom(-zoomScale);
+                        }
+                        
+                        #pragma omp parallel for
+                        for (int i = 0; i < nx*ny; i++)
+	                    {
+                            image->pixels[i/ny][i%ny] = vec3(0, 0, 0);
+                            fileOutputImage = 0;
+	                    }   
+
+                        refresh = true;
+                    }
+                    break;
+                case SDL_KEYDOWN:
+                    {
+                        switch( event.key.keysym.sym )
+                        {
+                            case SDLK_UP:
+                                windowCamera->translate(FORWARD, stepScale);
+                            break;
+
+                            case SDLK_DOWN:
+                                windowCamera->translate(BACKWARD, stepScale);
+                            break;
+
+                            case SDLK_LEFT:
+                                windowCamera->translate(LEFT, stepScale);
+                            break;
+
+                            case SDLK_RIGHT:
+                                windowCamera->translate(RIGHT, stepScale);
+                            break;
+
+                            default:
+                                return;
+                            break;
+                        }
+                        #pragma omp parallel for
+                        for (int i = 0; i < nx*ny; i++)
+	                    {
+                            image->pixels[i/ny][i%ny] = vec3(0, 0, 0);
+                            fileOutputImage = 0;
+	                    }   
+
+                        refresh = true;
+                    }
+                    break;
 			    case SDL_QUIT:
 				    quit = true;
 				    break;
@@ -300,7 +330,7 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     float distToFocus = 10.0f;
     float aperture = 0.1f;
 
-    camera* cam = new camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), aperture, distToFocus);
+    camera* cam = new camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
 
     if (showWindow)
     {

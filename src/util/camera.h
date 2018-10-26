@@ -22,8 +22,15 @@ SOFTWARE.
 #include "util/ray.h"
 #include "util/util.h"
 
+enum CameraMovement {
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT
+};
+
 // fov - field of view
-// image is not square => fow is different horizontally and  vertically
+// image is not square => fow is different horizontally and vertically
 
 class camera
 {
@@ -67,51 +74,86 @@ class camera
             this->lowerLeftCorner = origin - halfWidth*u - halfHeight*v - w;
             this->horizontal = 2.0f*halfWidth*u;
             this->vertical = 2.0f*halfHeight*v;
+            
             this->lookFrom = lookFrom;
             this->lookAt = lookAt;
-            this->vup = vup;
+
+            this->vup = unitVector(vup);
             this->vfov = vfov;
             this->aspect = aspect;
         } 
 
         // another constructor
-        camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float aperture, float focusDist)
+        camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float focusDist, float aperture = 0.0f) :
+        camera(lookFrom, lookAt, vup, vfov, aspect)
         {
             this->lensRadius = aperture/2.0f;
+            this->aperture = aperture;
+            this->focusDist = focusDist;
+        } 
+
+        void update() 
+        {
             float theta = vfov*M_PI/180.0f;
             this->halfHeight = tan(theta/2.0f);
             this->halfWidth = aspect * halfHeight;
-            
-            this->lookFrom = lookFrom;
-            this->lookAt = lookAt;
-            this->vup = vup;
-            this->vfov = vfov;
-            this->aspect = aspect;
-            this->aperture = aperture;
-            this->focusDist = focusDist;
 
-            this->initLookFrom(lookFrom);
-        } 
-
-        void initLookFrom(vec3 lookFrom) {
             this->origin = lookFrom;
             this->w = unitVector(lookFrom - lookAt);
             this->u = unitVector(cross(vup, w));
             this->v = cross(w, u);
             
-            this->lookFrom = lookFrom;
             this->lowerLeftCorner = origin - halfWidth*focusDist*u - halfHeight*focusDist*v - focusDist*w;
             this->horizontal = 2.0f*halfWidth*focusDist*u;
             this->vertical = 2.0f*halfHeight*focusDist*v;
 	    }
 
-        void setLookFrom(float theta, float phi) {
+        // Spherical coordinate system implementation - rotate the lookFrom location by theta polar angle and phi azimuth angle - keeping the distance 
+        void rotate(float theta, float phi) 
+        {
             float radialDistance = (lookFrom - lookAt).length();
-            initLookFrom(vec3(
+            this->lookFrom = vec3(
                 radialDistance*sinf(theta)*sinf(phi),
                 radialDistance*cosf(theta),
-                radialDistance*sinf(theta)*cosf(phi)) + lookAt
-            );
+                radialDistance*sinf(theta)*cosf(phi)) + lookAt;
+            update();
+	    }
+
+        void zoom(float zoomScale) 
+        {
+            this->vfov += zoomScale;
+            // min(max())
+            this->vfov = clamp<float>(this->vfov, 0.0f, 180.0f);
+            update();
+	    }
+
+        void translate(CameraMovement direction, float stepScale) 
+        {
+            vec3 positionLookFrom = this->lookFrom;
+            vec3 positionLookAt = this->lookAt;
+            if (direction == FORWARD)
+            {
+                positionLookFrom += this->vup * stepScale;
+                positionLookAt += this->vup * stepScale;;
+            }
+            if (direction == BACKWARD)
+            {
+                positionLookFrom -= this->vup * stepScale;
+                positionLookAt -= this->vup * stepScale;
+            }
+            if (direction == LEFT)
+            {
+                positionLookFrom -= this->u * stepScale;
+                positionLookAt -= this->u * stepScale;
+            }
+            if (direction == RIGHT)
+            {
+                positionLookFrom += this->u * stepScale;
+                positionLookAt += this->u * stepScale;
+            }
+            lookFrom = positionLookFrom;
+            lookAt = positionLookAt;
+            update();
 	    }
 
         ray getRay(float s, float t) 
