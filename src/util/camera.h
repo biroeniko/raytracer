@@ -32,7 +32,7 @@ enum CameraMovement {
 // fov - field of view
 // image is not square => fow is different horizontally and vertically
 
-class camera
+class Camera
 {
     public:
         vec3 origin;
@@ -54,13 +54,13 @@ class camera
         float halfWidth;
 	    float halfHeight;
 
-        camera():   lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)), 
+        Camera():   lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)), 
                     horizontal(vec3(4.0f, 0.0f, 0.0f)),
                     vertical(vec3(0.0f, 2.0f, 0.0f)),
                     origin(vec3(0.0f, 0.0f, 0.0f)) {};
         
         // vfov is top to bottom in degrees
-        camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect)
+        Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect)
         {
             float theta = vfov*M_PI/180.0f;
             this->halfHeight = tan(theta/2.0f);
@@ -84,8 +84,8 @@ class camera
         } 
 
         // another constructor
-        camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float focusDist, float aperture = 0.0f) :
-        camera(lookFrom, lookAt, vup, vfov, aspect)
+        Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float focusDist, float aperture = 0.0f) :
+        Camera(lookFrom, lookAt, vup, vfov, aspect)
         {
             this->lensRadius = aperture/2.0f;
             this->aperture = aperture;
@@ -129,30 +129,26 @@ class camera
 
         void translate(CameraMovement direction, float stepScale) 
         {
-            vec3 positionLookFrom = this->lookFrom;
-            vec3 positionLookAt = this->lookAt;
             if (direction == FORWARD)
             {
-                positionLookFrom += this->vup * stepScale;
-                positionLookAt += this->vup * stepScale;;
+                lookFrom += this->w * stepScale;
+                lookAt += this->w * stepScale;;
             }
             if (direction == BACKWARD)
             {
-                positionLookFrom -= this->vup * stepScale;
-                positionLookAt -= this->vup * stepScale;
+                lookFrom -= this->w * stepScale;
+                lookAt -= this->w * stepScale;
             }
             if (direction == LEFT)
             {
-                positionLookFrom -= this->u * stepScale;
-                positionLookAt -= this->u * stepScale;
+                lookFrom -= this->u * stepScale;
+                lookAt -= this->u * stepScale;
             }
             if (direction == RIGHT)
             {
-                positionLookFrom += this->u * stepScale;
-                positionLookAt += this->u * stepScale;
+                lookFrom += this->u * stepScale;
+                lookAt += this->u * stepScale;
             }
-            lookFrom = positionLookFrom;
-            lookAt = positionLookAt;
             update();
 	    }
 

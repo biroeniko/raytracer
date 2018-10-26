@@ -55,7 +55,7 @@ class lambertian : public material
 };
 
 // diffuse matrials randomly scatter the rays
-bool lambertian::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+inline bool lambertian::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {                    
     vec3 target = rec.point + rec.normal + randomInUnitSphere();
     scattered = ray(rec.point, target-rec.point);
@@ -65,7 +65,7 @@ bool lambertian::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation
 
 // for smooth metals the ray won't be randomly scattered
 // because v points in, we will need a minus sign before the dot product
-vec3 reflect(const vec3& v, const vec3& n)
+inline vec3 reflect(const vec3& v, const vec3& n)
 {
     return v - 2.0f*dot(v,n)*n;
 }
@@ -99,7 +99,7 @@ inline bool metal::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuati
 // n and n' are the refractive indices (air = 1, glass = 1.2-1.7, diamond = 2.4)
 // total internal reflection
 
-bool refract(const vec3& v, const vec3& n, float niOverNt, vec3& refracted)
+inline bool refract(const vec3& v, const vec3& n, float niOverNt, vec3& refracted)
 {
     vec3 uv = unitVector(v);
     float dt = dot(uv, n);
@@ -123,14 +123,14 @@ class dielectric: public material
 
 // real glass has reflectivity that varies with angle
 // Christophe Schlick's simple qeuation:
-float schlick(float cosine, float refIndex)
+inline float schlick(float cosine, float refIndex)
 {
     float r0 = (1-refIndex) / (1+refIndex);
     r0 = r0*r0;
     return r0 + (1-r0)*pow((1-cosine),5);
 }
 
-bool dielectric::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+inline bool dielectric::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
     vec3 outWardNormal;
     vec3 reflected = reflect(rIn.direction(), rec.normal);

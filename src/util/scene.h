@@ -17,52 +17,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <iostream>
-#include <fstream>
+#pragma once
+
 #include <float.h>
-#include <random>
-#include <SDL2/SDL.h>
-
-#ifndef STB_IMAGE_IMPLEMENTATION 
-  #define STB_IMAGE_IMPLEMENTATION
-    #include "stb_image.h"
-#endif /* STB_IMAGE_IMPLEMENTATION */
-
-#ifndef STB_IMAGE_WRITE_IMPLEMENTATION 
-  #define STB_IMAGE_WRITE_IMPLEMENTATION
-    #include "stb_image_write.h"
-#endif /* STB_IMAGE_WRITE_IMPLEMENTATION */
 
 #include "hitables/sphere.h"
 #include "hitables/hitableList.h"
 #include "util/camera.h"
 #include "materials/material.h"
 
-#pragma once
-
-vec3 color(const ray& r, hitable *world, int depth)
-{
-    hitRecord rec;
-    if (world->hit(r, 0.001f, FLT_MAX, rec))        // get rid of shadow acne problem
-    {
-        ray scattered;
-        vec3 attenuation;
-        if (depth < 50 && rec.matPtr->scatter(r, rec, attenuation, scattered))
-            return attenuation*color(scattered, world, depth+1);
-        else
-            return vec3(0.0f, 0.0f, 0.0f);
-    }
-    else
-    {
-        // background
-        vec3 unitDirection = unitVector(r.direction());
-        float t = 0.5f*(unitDirection.y() + 1.0f);
-        return (1.0f-t)*vec3(1.0f, 1.0f, 1.0f) + t*vec3(0.5f, 0.7f, 1.0f);
-    }
-}
-
-
-hitable* simpleScene()
+inline hitable* simpleScene()
 {
     hitable** list = new hitable*[4];
     list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
@@ -73,7 +37,7 @@ hitable* simpleScene()
     return new hitableList(list, 4);
 }
 
-hitable* simpleScene2()
+inline hitable* simpleScene2()
 {
     int count = 20;
     hitable** list = new hitable*[count];
@@ -110,7 +74,7 @@ hitable* simpleScene2()
     return new hitableList(list, count);
 }
 
-hitable* randomScene()
+inline hitable* randomScene()
 {
     int n = 1000;
     hitable** list = new hitable*[n+1];

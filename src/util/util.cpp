@@ -17,36 +17,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-As in Peter Shirley's book:
-- diffuse = matte materials
-- diffuse objects that don't emit light take on the color of their surroundings
-- BUT they modulate that with their own intrinsic colot
-- light that reflects off a diffuse surface has its direction randomized
-- if we send three rays into a crack between two diffuse surfaces they will each have different random behavior
-- rays might be absorbed
-- the darker the durface, the more likely absorption is
-*/
+#include "util/util.h"
 
-#pragma once
+std::random_device r;
+std::mt19937 mt(r());
+std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-#include <random>
-#include "util/vec3.h"
-
-extern std::random_device r;
-extern std::mt19937 mt;
-extern std::uniform_real_distribution<float> dist;
-
-inline vec3 randomInUnitSphere()
-{
-    vec3 point;
-    do {
-        point = 2.0f * vec3(dist(mt), dist(mt), dist(mt)) - vec3(1.0f,1.0f,1.0f);
-    } while (point.squaredLength() >= 1.0f);
-    return point;
-}
-
-template <typename T>
-T clamp(const T& n, const T& lower, const T& upper) {
-  return std::max(lower, std::min(n, upper));
-}
