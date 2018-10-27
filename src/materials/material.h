@@ -33,7 +33,6 @@ As in Peter Shirley's book:
 struct hitable;
 
 #include "util/ray.h"
-#include "hitables/hitable.h"
 #include "util/util.h"
 
 class material

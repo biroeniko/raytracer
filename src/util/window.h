@@ -21,7 +21,6 @@ SOFTWARE.
 
 #include <SDL2/SDL.h>
 
-#include "hitables/hitableList.h"
 #include "util/camera.h"
 #include "util/renderer.h"
 #include "util/image.h"

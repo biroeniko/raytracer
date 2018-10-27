@@ -23,7 +23,6 @@ SOFTWARE.
 
 #include "hitables/sphere.h"
 #include "hitables/hitableList.h"
-#include "util/camera.h"
 #include "materials/material.h"
 
 inline hitable* simpleScene()
