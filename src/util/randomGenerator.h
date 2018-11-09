@@ -19,26 +19,22 @@ SOFTWARE.
 
 #pragma once
 
-#include <iostream>
 #include <random>
-#include <omp.h>
 
-#include "hitables/hitableList.h"
-#include "util/camera.h"
-#include "util/scene.h"
-#include "util/image.h"
-#include "util/randomGenerator.h"
+#include "pcg-cpp-0.98/pcg_random.hpp"
+#include "util/vec3.h"
 
-class Renderer
+class RandomGenerator
 {
-    bool showWindow;
-    bool writeImagePPM;
-    bool writeImagePNG;
-    std::vector<RandomGenerator> rngs;
+    pcg32 rng;
 
-    public:
-        Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG);
+public:
+    RandomGenerator() : rng(pcg_extras::seed_seq_from<std::random_device>{}) { }
 
-        vec3 color(RandomGenerator& rng, const ray& r, hitable *world, int depth);
-        bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+    float getRandomFloat()
+    {
+        return float(rng()) * 0x1.0p-32f; 
+    }
+
+    vec3 randomInUnitSphere();
 };

@@ -30,21 +30,7 @@ As in Peter Shirley's book:
 
 #pragma once
 
-#include <random>
 #include "util/vec3.h"
-
-extern std::random_device r;
-extern std::mt19937 mt;
-extern std::uniform_real_distribution<float> dist;
-
-inline vec3 randomInUnitSphere()
-{
-    vec3 point;
-    do {
-        point = 2.0f * vec3(dist(mt), dist(mt), dist(mt)) - vec3(1.0f,1.0f,1.0f);
-    } while (point.squaredLength() >= 1.0f);
-    return point;
-}
 
 template <typename T>
 T clamp(const T& n, const T& lower, const T& upper) {

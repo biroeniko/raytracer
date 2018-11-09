@@ -21,6 +21,7 @@ SOFTWARE.
 
 #include "util/ray.h"
 #include "util/util.h"
+#include "util/randomGenerator.h"
 
 enum CameraMovement {
     FORWARD,
@@ -74,5 +75,5 @@ class Camera
 
         void translate(CameraMovement direction, float stepScale);
 
-        ray getRay(float s, float t);
+        ray getRay(RandomGenerator& rng, float s, float t);
 };

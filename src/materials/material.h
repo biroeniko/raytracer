@@ -33,12 +33,13 @@ As in Peter Shirley's book:
 struct hitable;
 
 #include "util/ray.h"
-#include "util/util.h"
+#include "hitables/hitable.h"
+#include "util/randomGenerator.h"
 
 class material
 {
     public:
-        virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const = 0;
+        virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const = 0;
 };
 
 // lambertian (diffuse)
@@ -50,13 +51,13 @@ class lambertian : public material
     vec3 albedo; // the proportion of the incident light or radiation that is reflected by a surface
     public:
         lambertian(const vec3& a) : albedo(a) {}
-        virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+        virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
 };
 
 // diffuse matrials randomly scatter the rays
-inline bool lambertian::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+inline bool lambertian::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {                    
-    vec3 target = rec.point + rec.normal + randomInUnitSphere();
+    vec3 target = rec.point + rec.normal + rng.randomInUnitSphere();
     scattered = ray(rec.point, target-rec.point);
     attenuation = albedo;
     return true;
@@ -75,14 +76,14 @@ class metal: public material
     float fuzz;
     public:
         metal(const vec3& a, float f = 0.0f) : albedo(a) {if (f < 1.0f) fuzz = f; else fuzz = 1.0f;}
-        virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+        virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
 };
 
 // metals don't randomly scatter -> they reflect
-inline bool metal::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+inline bool metal::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
     vec3 reflected = reflect(unitVector(rIn.direction()), rec.normal);
-    scattered = ray(rec.point, reflected + fuzz*randomInUnitSphere());
+    scattered = ray(rec.point, reflected + fuzz*rng.randomInUnitSphere());
     attenuation = albedo;
     return (dot(scattered.direction(), rec.normal) > 0);
 }
@@ -117,7 +118,7 @@ class dielectric: public material
     float refIndex;
     public:
         dielectric(float ri) : refIndex(ri) {}
-        virtual bool scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+        virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
 };
 
 // real glass has reflectivity that varies with angle
@@ -129,7 +130,7 @@ inline float schlick(float cosine, float refIndex)
     return r0 + (1-r0)*pow((1-cosine),5);
 }
 
-inline bool dielectric::scatter(const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
     vec3 outWardNormal;
     vec3 reflected = reflect(rIn.direction(), rec.normal);
@@ -162,7 +163,7 @@ inline bool dielectric::scatter(const ray& rIn, const hitRecord& rec, vec3& atte
         reflectProbability = 1.0f;
     }
 
-    if (dist(mt) < reflectProbability)
+    if (rng.getRandomFloat() < reflectProbability)
         scattered = ray(rec.point, reflected);
     else
         scattered = ray(rec.point, refracted);

@@ -18,8 +18,3 @@ SOFTWARE.
 */
 
 #include "util/util.h"
-
-std::random_device r;
-std::mt19937 mt(r());
-std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-

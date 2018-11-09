@@ -111,9 +111,9 @@ void Camera::translate(CameraMovement direction, float stepScale)
     update();
 }
 
-ray Camera::getRay(float s, float t) 
+ray Camera::getRay(RandomGenerator& rng, float s, float t) 
 {
-    vec3 rd = lensRadius*randomInUnitSphere();
+    vec3 rd = lensRadius*rng.randomInUnitSphere();
     vec3 offset = u * rd.x() + v * rd.y();
     return ray(origin + offset, lowerLeftCorner + s*horizontal + t*vertical - origin - offset);
 }

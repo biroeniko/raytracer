@@ -17,28 +17,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include <iostream>
-#include <random>
-#include <omp.h>
-
-#include "hitables/hitableList.h"
-#include "util/camera.h"
-#include "util/scene.h"
-#include "util/image.h"
 #include "util/randomGenerator.h"
 
-class Renderer
+vec3 RandomGenerator::randomInUnitSphere()
 {
-    bool showWindow;
-    bool writeImagePPM;
-    bool writeImagePNG;
-    std::vector<RandomGenerator> rngs;
-
-    public:
-        Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG);
-
-        vec3 color(RandomGenerator& rng, const ray& r, hitable *world, int depth);
-        bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
-};
+    vec3 point;
+    do {
+        point = 2.0f * vec3(getRandomFloat(), getRandomFloat(), getRandomFloat()) - vec3(1.0f,1.0f,1.0f);
+    } while (point.squaredLength() >= 1.0f);
+    return point;
+}

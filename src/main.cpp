@@ -87,12 +87,6 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG)
         else std::cout << "Unable to open file" << std::endl;
     }
     
-    // create source of randomness, and initialize it with non-deterministic seed
-    std::random_device r;
-    std::mt19937 mt(r());
-    // a distribution that takes randomness and produces values in specified range
-    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-
     if (showWindow)
     {
         for (int i = 0; i < ns; i++)

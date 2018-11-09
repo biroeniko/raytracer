@@ -19,15 +19,24 @@ SOFTWARE.
 
 #include "util/renderer.h"
 
-vec3 Renderer::color(const ray& r, hitable *world, int depth)
+Renderer::Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG) 
+{
+    for (int i = 0; i < omp_get_max_threads(); i++)
+    {
+        //rngs.emplace_back(pcg_extras::seed_seq_from<std::random_device>{});
+        rngs.emplace_back();
+    }
+}
+
+vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *world, int depth)
 {
     hitRecord rec;
     if (world->hit(r, 0.001f, FLT_MAX, rec))        // get rid of shadow acne problem
     {
         ray scattered;
         vec3 attenuation;
-        if (depth < 50 && rec.matPtr->scatter(r, rec, attenuation, scattered))
-            return attenuation*color(scattered, world, depth+1);
+        if (depth < 50 && rec.matPtr->scatter(rng, r, rec, attenuation, scattered))
+            return attenuation*color(rng, scattered, world, depth+1);
         else
             return vec3(0.0f, 0.0f, 0.0f);
     }
@@ -50,12 +59,12 @@ bool Renderer::traceRays(uint32_t * windowPixels, Camera* cam, hitable* world, I
         // i tracks columns - left to right
         for (int i = 0; i < image->rows; i++)
         {
-            float u = float(i + dist(mt)) / float(image->rows); // left to right
-            float v = float(j + dist(mt)) / float(image->columns); // bottom to top
+            float u = float(i + rngs[omp_get_thread_num()].getRandomFloat()) / float(image->rows); // left to right
+            float v = float(j + rngs[omp_get_thread_num()].getRandomFloat()) / float(image->columns); // bottom to top
                 
-            ray r = cam->getRay(u,v);
+            ray r = cam->getRay(rngs[omp_get_thread_num()], u,v);
 
-            image->pixels[i][j] += color(r, world, 0);
+            image->pixels[i][j] += color(rngs[omp_get_thread_num()], r, world, 0);
 
             vec3 col = image->pixels[i][j] / sampleCount;
             
