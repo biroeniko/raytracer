@@ -24,6 +24,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src 
     ${SDL2_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/src/stb_image
+    ${PROJECT_SOURCE_DIR}/src/pcg-cpp-0.98
 )
 
 # source files

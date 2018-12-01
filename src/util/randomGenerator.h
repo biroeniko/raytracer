@@ -21,7 +21,7 @@ SOFTWARE.
 
 #include <random>
 
-#include "pcg-cpp-0.98/pcg_random.hpp"
+#include "pcg_random.hpp"
 #include "util/vec3.h"
 
 class RandomGenerator
