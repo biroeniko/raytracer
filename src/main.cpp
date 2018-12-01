@@ -44,19 +44,17 @@ SOFTWARE.
 
 const int nx = 1400;
 const int ny = 700;
-const int ns = 30;                     // sample size
+const int ns = 50;                     // sample size
+const int benchmarkCount = 100;
 const float thetaInit = 1.34888f;
 const float phiInit = 1.32596f;
 const float zoomScale = 0.5f;
 const float stepScale = 0.5f;
 
-void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG)
+void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world)
 {
     Window* w;
     Image* image = new Image(nx, ny);
-
-    //hitable *world = randomScene();
-    hitable *world = simpleScene2();
 
     vec3 lookFrom(13.0f, 2.0f, 3.0f);
     vec3 lookAt(0.0f, 0.0f, 0.0f);
@@ -131,7 +129,7 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG)
        for (int i = 0; i < ns; i++)
         {
             render->traceRays(nullptr, cam, world, image, i+1, fileOutputImage);    
-            std::cout << "Sample nr. " << i+1 << std::endl;
+            //std::cout << "Sample nr. " << i+1 << std::endl;
         }
         std::cout << "Done." << std::endl;
     }
@@ -152,29 +150,33 @@ int main()
     {
         std::ofstream benchmarkStream;
 
-        // Record start time
-        auto start = std::chrono::high_resolution_clock::now();
+        for (int i = 0; i < benchmarkCount; i++)
+        {
+            benchmarkStream.open("../benchmark/benchmarkResult.txt", std::ios_base::app);
+            // Record start time
+            auto start = std::chrono::high_resolution_clock::now();
 
-        // Invoke renderer
-        invokeRenderer(true, true, true);
+            // Invoke renderer
+            hitable *world = simpleScene();
+            invokeRenderer(false, false, false, world);
 
-        // Record end time
-        auto finish = std::chrono::high_resolution_clock::now();
+            // Record end time
+            auto finish = std::chrono::high_resolution_clock::now();
 
-        // Compute elapsed time
-        std::chrono::duration<double> elapsed = finish - start;
+            // Compute elapsed time
+            std::chrono::duration<double> elapsed = finish - start;
 
-        std::cout << "Elapsed time: " << elapsed.count() << " s\n";
+            // Write results to file
+            benchmarkStream << ns << " " <<  elapsed.count() << "s\n";
 
-        benchmarkStream.open("../benchmark/benchmarkResult.txt");
-
-        benchmarkStream << ns << " " <<  elapsed.count() << "s\n";
-        benchmarkStream.close();
+            benchmarkStream.close();
+        }
     }
     else
     {
         // Invoke renderer
-        invokeRenderer(showWindow, writeImagePPM, writeImagePNG);
+        hitable *world = simpleScene2();
+        invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world);
     }
 
     return 0;
