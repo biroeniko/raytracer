@@ -44,7 +44,7 @@ SOFTWARE.
 
 const int nx = 1400;
 const int ny = 700;
-const int ns = 50;                     // sample size
+const int ns = 30;                     // sample size
 const float thetaInit = 1.34888f;
 const float phiInit = 1.32596f;
 const float zoomScale = 0.5f;
@@ -156,7 +156,7 @@ int main()
         auto start = std::chrono::high_resolution_clock::now();
 
         // Invoke renderer
-        invokeRenderer(false, false, false);
+        invokeRenderer(true, true, true);
 
         // Record end time
         auto finish = std::chrono::high_resolution_clock::now();

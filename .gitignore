@@ -31,6 +31,6 @@
 *.out
 *.app
 
-/build
+/build*
 /.vscode
 CMakeLists.txt.user
