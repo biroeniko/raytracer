@@ -21,6 +21,7 @@ SOFTWARE.
 #include <fstream>
 #include <float.h>
 #include <random>
+#include <chrono>
 #include <SDL2/SDL.h>
 
 #ifndef STB_IMAGE_IMPLEMENTATION 
@@ -43,7 +44,7 @@ SOFTWARE.
 
 const int nx = 1400;
 const int ny = 700;
-const int ns = 100;                     // sample size
+const int ns = 50;                     // sample size
 const float thetaInit = 1.34888f;
 const float phiInit = 1.32596f;
 const float zoomScale = 0.5f;
@@ -71,7 +72,7 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     }
 
     uint8_t *fileOutputImage;
-    std::ofstream myfile;
+    std::ofstream ppmImageStream;
     
     if (writeImagePNG || writeImagePPM)
     {
@@ -81,9 +82,9 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     
     if (writeImagePPM)
     {
-        myfile.open("test.ppm");
-        if (myfile.is_open())
-            myfile << "P3\n" << nx << " " << ny << "\n255\n";
+        ppmImageStream.open("test.ppm");
+        if (ppmImageStream.is_open())
+            ppmImageStream << "P3\n" << nx << " " << ny << "\n255\n";
         else std::cout << "Unable to open file" << std::endl;
     }
     
@@ -91,7 +92,7 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     {
         for (int i = 0; i < ns; i++)
         {
-            w->updateImage(showWindow, writeImagePPM, writeImagePNG, myfile, w, cam, world, image, i+1, fileOutputImage);
+            w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, fileOutputImage);
 			w->pollEvents(image, fileOutputImage);
             if (w->refresh)
             {
@@ -110,10 +111,10 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG)
             {
                 for (int i = 0; i < nx; i++)
                 {
-                    myfile << int(fileOutputImage[(j*nx+i)*3]) << " " << int(fileOutputImage[(j*nx+i)*3+1]) << " " << int(fileOutputImage[(j*nx+i)*3+2]) << "\n";
+                    ppmImageStream << int(fileOutputImage[(j*nx+i)*3]) << " " << int(fileOutputImage[(j*nx+i)*3+1]) << " " << int(fileOutputImage[(j*nx+i)*3+2]) << "\n";
                 }
             }
-            myfile.close();
+            ppmImageStream.close();
         }
 
         if (writeImagePNG)
@@ -142,10 +143,39 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG)
 
 int main()
 {
-	bool writeImagePPM = true;
+    bool writeImagePPM = true;
     bool writeImagePNG = true;
     bool showWindow = true;
+    bool runBenchmark = true;
 
-    invokeRenderer(showWindow, writeImagePPM, writeImagePNG);
+    if (runBenchmark)
+    {
+        std::ofstream benchmarkStream;
+
+        // Record start time
+        auto start = std::chrono::high_resolution_clock::now();
+
+        // Invoke renderer
+        invokeRenderer(false, false, false);
+
+        // Record end time
+        auto finish = std::chrono::high_resolution_clock::now();
+
+        // Compute elapsed time
+        std::chrono::duration<double> elapsed = finish - start;
+
+        std::cout << "Elapsed time: " << elapsed.count() << " s\n";
+
+        benchmarkStream.open("../benchmark/benchmarkResult.txt");
+
+        benchmarkStream << ns << " " <<  elapsed.count() << "s\n";
+        benchmarkStream.close();
+    }
+    else
+    {
+        // Invoke renderer
+        invokeRenderer(showWindow, writeImagePPM, writeImagePNG);
+    }
+
     return 0;
 }
