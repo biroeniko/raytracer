@@ -20,7 +20,11 @@ if (OPENMP_FOUND)
 endif()
 
 # header files
-include_directories(${PROJECT_SOURCE_DIR}/src ${SDL2_INCLUDE_DIRS})
+include_directories(
+    ${PROJECT_SOURCE_DIR}/src 
+    ${SDL2_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/src/stb_image
+)
 
 # source files
 file(GLOB SOURCES
