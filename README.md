@@ -2,6 +2,9 @@
 
 My implementation of [Peter Shirley's Ray Tracing in one weekend](https://github.com/petershirley/raytracinginoneweekend/).
 
+## Some versions are available through different branches:
+* [CPU version, accelerated by OpenMP](https://github.com/biroeniko/raytracer/tree/cpu-only)
+
 ## Details:
 This code follows the steps of Peter Shirley's mini book series.
 ### Features implemented so far are:
