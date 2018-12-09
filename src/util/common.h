@@ -32,9 +32,9 @@ SOFTWARE.
 #endif
 
 #ifdef __CUDACC__
-    #define CUDA_HOST __host__
+    #define CUDA_DEV __device__
 #else
-    #define CUDA_HOST
+    #define CUDA_DEV
 #endif
 
 #ifdef __CUDACC__
