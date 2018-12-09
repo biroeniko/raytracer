@@ -163,7 +163,7 @@ inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, const hitR
         reflectProbability = 1.0f;
     }
 
-    if (rng.getRandomFloat() < reflectProbability)
+    if (rng.get1f() < reflectProbability)
         scattered = ray(rec.point, reflected);
     else
         scattered = ray(rec.point, refracted);

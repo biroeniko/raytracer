@@ -53,17 +53,17 @@ inline hitable* simpleScene2()
     {
         for (int b = -2; b < 2; b++)
         {
-            float chooseMat = rng.getRandomFloat();
-            vec3 center(a+0.9f*rng.getRandomFloat(), 0.2f, b+0.9f*rng.getRandomFloat());
+            float chooseMat = rng.get1f();
+            vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
             if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
             {
                 if (chooseMat < 0.5)            // diffuse
                 {
-                    list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.getRandomFloat()*rng.getRandomFloat(), rng.getRandomFloat()*rng.getRandomFloat(), rng.getRandomFloat()*rng.getRandomFloat())));
+                    list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
                 }
                 else if (chooseMat < 0.75)      // metal 
                 {
-                    list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.getRandomFloat()), 0.5*(1+rng.getRandomFloat()), 0.5*(1+rng.getRandomFloat())))); 
+                    list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()))));
                 }
                 else                            // glass
                 {
@@ -88,17 +88,17 @@ inline hitable* randomScene()
     {
         for (int b = -15; b < 15; b++)
         {
-            float chooseMat = rng.getRandomFloat();
-            vec3 center(a+0.9f*rng.getRandomFloat(), 0.2f, b+0.9f*rng.getRandomFloat());
+            float chooseMat = rng.get1f();
+            vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
             if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
             {
                 if (chooseMat < 0.5)            // diffuse
                 {
-                    list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.getRandomFloat()*rng.getRandomFloat(), rng.getRandomFloat()*rng.getRandomFloat(), rng.getRandomFloat()*rng.getRandomFloat())));
+                    list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
                 }
                 else if (chooseMat < 0.75)      // metal 
                 {
-                    list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.getRandomFloat()), 0.5*(1+rng.getRandomFloat()), 0.5*(1+rng.getRandomFloat())))); 
+                    list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()))));
                 }
                 else                            // glass
                 {

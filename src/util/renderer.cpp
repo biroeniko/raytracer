@@ -59,8 +59,8 @@ bool Renderer::traceRays(uint32_t * windowPixels, Camera* cam, hitable* world, I
         // i tracks columns - left to right
         for (int i = 0; i < image->rows; i++)
         {
-            float u = float(i + rngs[omp_get_thread_num()].getRandomFloat()) / float(image->rows); // left to right
-            float v = float(j + rngs[omp_get_thread_num()].getRandomFloat()) / float(image->columns); // bottom to top
+            float u = float(i + rngs[omp_get_thread_num()].get1f()) / float(image->rows); // left to right
+            float v = float(j + rngs[omp_get_thread_num()].get1f()) / float(image->columns); // bottom to top
                 
             ray r = cam->getRay(rngs[omp_get_thread_num()], u,v);
 
