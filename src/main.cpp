@@ -144,7 +144,7 @@ int main()
     bool writeImagePPM = true;
     bool writeImagePNG = true;
     bool showWindow = true;
-    bool runBenchmark = true;
+    bool runBenchmark = false;
 
     if (runBenchmark)
     {
