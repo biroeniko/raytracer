@@ -19,8 +19,6 @@ SOFTWARE.
 
 #pragma once
 
-#include <random>
-
 #include "util/vec3.h"
 
 // PCG32 random number generator
