@@ -23,64 +23,66 @@ SOFTWARE.
 #include <cstdlib>
 #include <iostream>
 
+#include "util/common.h"
+
 class vec3 
 {
     float e[3];
     
     public:
-        vec3() {}
-        vec3(float x, float y, float z) {e[0] = x; e[1] = y; e[2] = z;}
-        float x() const {return e[0];}
-        float y() const {return e[1];}
-        float z() const {return e[2];}
-        float r() const {return e[0];}
-        float g() const {return e[1];}
-        float b() const {return e[2];}
+        CUDA_HOSTDEV vec3() {}
+        CUDA_HOSTDEV vec3(float x, float y, float z) {e[0] = x; e[1] = y; e[2] = z;}
+        CUDA_HOSTDEV float x() const {return e[0];}
+        CUDA_HOSTDEV float y() const {return e[1];}
+        CUDA_HOSTDEV float z() const {return e[2];}
+        CUDA_HOSTDEV float r() const {return e[0];}
+        CUDA_HOSTDEV float g() const {return e[1];}
+        CUDA_HOSTDEV float b() const {return e[2];}
 
-        const vec3& operator+() const;
-        vec3 operator-() const;
+        CUDA_HOSTDEV const vec3& operator+() const;
+        CUDA_HOSTDEV vec3 operator-() const;
 
         // Array subscript operator
         // User-defined classes that provide array-like access that allows both reading and writing typically define two overloads for operator[]: const and non-const variants:
         // like in https://en.cppreference.com/w/cpp/language/operators
-        float operator[](int i) const;
-        float& operator[](int i);
+        CUDA_HOSTDEV float operator[](int i) const;
+        CUDA_HOSTDEV float& operator[](int i);
 
-        vec3& operator+=(const vec3 &v2);
-        vec3& operator-=(const vec3 &v2);
-        vec3& operator*=(const vec3 &v2);
-        vec3& operator/=(const vec3 &v2);
-        vec3& operator*=(const float x);
-        vec3& operator/=(const float x);
+        CUDA_HOSTDEV vec3& operator+=(const vec3 &v2);
+        CUDA_HOSTDEV vec3& operator-=(const vec3 &v2);
+        CUDA_HOSTDEV vec3& operator*=(const vec3 &v2);
+        CUDA_HOSTDEV vec3& operator/=(const vec3 &v2);
+        CUDA_HOSTDEV vec3& operator*=(const float x);
+        CUDA_HOSTDEV vec3& operator/=(const float x);
 
-        float length() const;
-        float squaredLength() const;
-        void  makeUnitVector();
+        CUDA_HOSTDEV float length() const;
+        CUDA_HOSTDEV float squaredLength() const;
+        CUDA_HOSTDEV void  makeUnitVector();
 
         // The friend declaration appears in a class body and grants a function or another class access to private and protected members of the class where the friend declaration appears.
         // the non-member function operator<< will have access to Y's private members
         friend std::istream& operator>>(std::istream &is, vec3 &t);
         friend std::ostream& operator <<(std::ostream &ps, const vec3 &t);
 
-        friend vec3 operator+(const vec3 &v1, const vec3 &v2);
-        friend vec3 operator-(const vec3 &v1, const vec3 &v2);
-        friend vec3 operator*(const vec3 &v1, const vec3 &v2);
-        friend vec3 operator/(const vec3 &v1, const vec3 &v2);
+        CUDA_HOSTDEV friend vec3 operator+(const vec3 &v1, const vec3 &v2);
+        CUDA_HOSTDEV friend vec3 operator-(const vec3 &v1, const vec3 &v2);
+        CUDA_HOSTDEV friend vec3 operator*(const vec3 &v1, const vec3 &v2);
+        CUDA_HOSTDEV friend vec3 operator/(const vec3 &v1, const vec3 &v2);
 
-        friend vec3 operator*(float t, const vec3 &v);
-        friend vec3 operator*(const vec3 &v, float t);
-        friend vec3 operator/(const vec3 &v, float t);
-        friend float dot(const vec3 &v1, const vec3 &v2);
-        friend vec3 cross(const vec3 &v1, const vec3 &v2);
+        CUDA_HOSTDEV friend vec3 operator*(float t, const vec3 &v);
+        CUDA_HOSTDEV friend vec3 operator*(const vec3 &v, float t);
+        CUDA_HOSTDEV friend vec3 operator/(const vec3 &v, float t);
+        CUDA_HOSTDEV friend float dot(const vec3 &v1, const vec3 &v2);
+        CUDA_HOSTDEV friend vec3 cross(const vec3 &v1, const vec3 &v2);
 };
 
-vec3 unitVector(const vec3 v);
-vec3 operator+(const vec3 &v1, const vec3 &v2);
-vec3 operator-(const vec3 &v1, const vec3 &v2);
-vec3 operator*(const vec3 &v1, const vec3 &v2);
-vec3 operator/(const vec3 &v1, const vec3 &v2);
-vec3 operator*(float t, const vec3 &v);
-vec3 operator*(const vec3 &v, float t);
-vec3 operator/(const vec3 &v, float t);
-float dot(const vec3 &v1, const vec3 &v2);
-vec3 cross(const vec3 &v1, const vec3 &v2);
+CUDA_HOSTDEV vec3 unitVector(const vec3 v);
+CUDA_HOSTDEV vec3 operator+(const vec3 &v1, const vec3 &v2);
+CUDA_HOSTDEV vec3 operator-(const vec3 &v1, const vec3 &v2);
+CUDA_HOSTDEV vec3 operator*(const vec3 &v1, const vec3 &v2);
+CUDA_HOSTDEV vec3 operator/(const vec3 &v1, const vec3 &v2);
+CUDA_HOSTDEV vec3 operator*(float t, const vec3 &v);
+CUDA_HOSTDEV vec3 operator*(const vec3 &v, float t);
+CUDA_HOSTDEV vec3 operator/(const vec3 &v, float t);
+CUDA_HOSTDEV float dot(const vec3 &v1, const vec3 &v2);
+CUDA_HOSTDEV vec3 cross(const vec3 &v1, const vec3 &v2);

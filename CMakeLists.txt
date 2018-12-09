@@ -24,7 +24,7 @@ if (OPENMP_FOUND)
 endif()
 
 # CUDA
-option(CUDA_SUPPORT "CUDA support" ON)
+option(CUDA_SUPPORT "CUDA support" OFF)
 if(CUDA_SUPPORT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCUDA_SUPPORT -DPRIME_ATOM32_GCC")
     find_package(CUDA REQUIRED)
@@ -57,7 +57,7 @@ set(SRC_HOST
     src/hitables/sphere.cpp
     src/materials/material.h
     src/util/vec3.h
-    src/util/vec3.cpp
+    src/util/vec3.cu
     src/util/ray.h
     src/util/image.h
     src/util/scene.h
@@ -70,6 +70,7 @@ set(SRC_HOST
     src/util/randomGenerator.cpp
     src/util/util.h
     src/util/util.cpp
+    src/util/common.h
     src/main.cpp
 )
 
