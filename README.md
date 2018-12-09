@@ -2,6 +2,22 @@
 
 My implementation of [Peter Shirley's Ray Tracing in one weekend](https://github.com/petershirley/raytracinginoneweekend/).
 
+## Details:
+This code follows the steps of Peter Shirley's mini book series.
+### Features implemented so far are:
+* Cmake support
+* Basic implementation of all features included in [Peter Shirley's Ray Tracing in one weekend](https://github.com/petershirley/raytracinginoneweekend/)
+* Multithreaded implementation with OpenMP
+* Supported output formats: PNG with [STB image library](https://github.com/nothings/stb) and PPM
+* [SDL2](https://www.libsdl.org/) for real-time display support
+* PCG random number generator
+
+### Features to be implemented:
+* Other two books
+* Write my own wrapper class for the PCG random number generator
+* Accelerated versions (CUDA, ispc) 
+  * [CUDA](https://github.com/biroeniko/cuda-raytracer)
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
