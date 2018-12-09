@@ -21,7 +21,6 @@ SOFTWARE.
 
 #include <random>
 
-#include "pcg_random.hpp"
 #include "util/vec3.h"
 
 // PCG32 random number generator

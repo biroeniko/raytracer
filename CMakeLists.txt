@@ -24,7 +24,7 @@ if (OPENMP_FOUND)
 endif()
 
 # CUDA
-option(CUDA_SUPPORT "CUDA support" OFF)
+option(CUDA_SUPPORT "CUDA support" ON)
 if(CUDA_SUPPORT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCUDA_SUPPORT -DPRIME_ATOM32_GCC")
     find_package(CUDA REQUIRED)
@@ -39,7 +39,6 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src 
     ${SDL2_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/src/stb_image
-    ${PROJECT_SOURCE_DIR}/src/pcg-cpp-0.98
 )
 
 # Source files
@@ -57,7 +56,6 @@ set(SRC_HOST
     src/hitables/sphere.cpp
     src/materials/material.h
     src/util/vec3.h
-    src/util/vec3.cu
     src/util/ray.h
     src/util/image.h
     src/util/scene.h
@@ -74,11 +72,6 @@ set(SRC_HOST
     src/main.cpp
 )
 
-
-if(CUDA_SUPPORT)
-    cuda_add_executable(${PROJECT_NAME} ${SRC_HOST})
-else()
-    add_executable(${PROJECT_NAME} ${SRC_HOST})
-endif()
+cuda_add_executable(${PROJECT_NAME} ${SRC_HOST})
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
