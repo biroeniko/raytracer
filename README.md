@@ -18,8 +18,9 @@ This code follows the steps of Peter Shirley's mini book series.
 ### Features to be implemented:
 * Other two books
 * Write my own wrapper class for the PCG random number generator
-* Accelerated versions (CUDA, ispc) 
-  * [CUDA](https://github.com/biroeniko/cuda-raytracer)
+* Accelerated versions
+  * CUDA
+  * ispc
 
 ## Getting Started
 
