@@ -27,14 +27,14 @@ struct Image
     int rows;
     int columns;
 
-    Image(int x, int y) : rows(x), columns(y)
+    CUDA_HOSTDEV Image(int x, int y) : rows(x), columns(y)
     {
         pixels = new vec3*[rows];
         for (int i = 0; i < rows; i++)
             pixels[i] = new vec3[columns];
     }
 
-    ~Image()
+    CUDA_HOSTDEV ~Image()
     {
         for (int i = 0; i < rows; ++i)
             delete [] pixels[i];

@@ -19,7 +19,7 @@ SOFTWARE.
 
 #include "util/randomGenerator.h"
 
-vec3 RandomGenerator::randomInUnitSphere()
+CUDA_HOSTDEV vec3 RandomGenerator::randomInUnitSphere()
 {
     vec3 point;
     do {

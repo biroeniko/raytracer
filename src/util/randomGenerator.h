@@ -35,29 +35,29 @@ class RandomGenerator
     static constexpr uint64_t defaultSeq  = 1442695040888963407ULL >> 1;
 
 public:
-    explicit RandomGenerator(uint64_t seed = defaultSeed, uint64_t seq = defaultSeq)
+    CUDA_HOSTDEV explicit RandomGenerator(uint64_t seed = defaultSeed, uint64_t seq = defaultSeq)
     {
         reset(seed, seq);
     }
 
-    void reset(uint64_t seed = defaultSeed, uint64_t seq = defaultSeq)
+    CUDA_HOSTDEV void reset(uint64_t seed = defaultSeed, uint64_t seq = defaultSeq)
     {
         inc = (seq << 1) | 1;
         state = seed + inc;
         next();
     }
 
-    void next()
+    CUDA_HOSTDEV void next()
     {
         state = state * 6364136223846793005ULL + inc;
     }
 
-    uint64_t getSeq() const
+    CUDA_HOSTDEV uint64_t getSeq() const
     {
         return inc >> 1;
     }
 
-    uint32_t get1ui()
+    CUDA_HOSTDEV uint32_t get1ui()
     {
         const uint64_t oldState = state;
         next();
@@ -66,16 +66,15 @@ public:
         return (xorShifted >> rot) | (xorShifted << ((-rot) & 31u));
     }
 
-    float toFloatUnorm(int x)
+    CUDA_HOSTDEV float toFloatUnorm(int x)
     {
         return float(uint32_t(x)) * 0x1.0p-32f;
     }
 
-    float get1f()
+    CUDA_HOSTDEV float get1f()
     {
        return toFloatUnorm(get1ui());
     }
 
-    vec3 randomInUnitSphere();
+    CUDA_HOSTDEV vec3 randomInUnitSphere();
 };
-
