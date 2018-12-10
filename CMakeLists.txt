@@ -51,9 +51,9 @@ set(SRC_HOST
     ${SRC_COMMON}
     src/hitables/hitable.h
     src/hitables/hitableList.h
-    src/hitables/hitableList.cpp
+    src/hitables/hitableList.cu
     src/hitables/sphere.h
-    src/hitables/sphere.cpp
+    src/hitables/sphere.cu
     src/materials/material.h
     src/util/vec3.h
     src/util/ray.h
@@ -63,7 +63,7 @@ set(SRC_HOST
     src/util/renderer.h
     src/util/renderer.cpp
     src/util/camera.h
-    src/util/camera.cpp
+    src/util/camera.cu
     src/util/randomGenerator.h
     src/util/randomGenerator.cpp
     src/util/util.h

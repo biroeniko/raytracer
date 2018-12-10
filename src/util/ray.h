@@ -27,10 +27,10 @@ class ray
         vec3 B;             // ray direction
 
     public:
-        CUDA_DEV ray() {};
-        CUDA_DEV ray(const vec3& a, const vec3& b) {A = a; B = b;}
+        CUDA_HOSTDEV ray() {}
+        CUDA_HOSTDEV ray(const vec3& a, const vec3& b) {A = a; B = b;}
 
-        CUDA_DEV vec3 origin() const                     { return A;}
-        CUDA_DEV vec3 direction() const                  { return B;}
-        CUDA_DEV vec3 pointAtParameter(float t) const    { return A + t*B;}
+        CUDA_HOSTDEV vec3 origin() const                     { return A;}
+        CUDA_HOSTDEV vec3 direction() const                  { return B;}
+        CUDA_HOSTDEV vec3 pointAtParameter(float t) const    { return A + t*B;}
 };

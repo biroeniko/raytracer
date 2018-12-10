@@ -39,5 +39,5 @@ class hitable
         // compute the normal if we hit something?
         // we will only need the normal of the closest thing
         // we want motion blur => time input variable
-        virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const = 0;
+        CUDA_HOSTDEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const = 0;
 };

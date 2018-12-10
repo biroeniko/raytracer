@@ -26,7 +26,7 @@ class hitableList: public hitable
     public: 
         hitable **list;
         int listSize;
-        hitableList() {}
-        hitableList(hitable **l, int n) {list = l, listSize = n;}
-        virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const;
+        CUDA_HOSTDEV hitableList() {}
+        CUDA_HOSTDEV hitableList(hitable **l, int n) {list = l, listSize = n;}
+        CUDA_HOSTDEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const;
 };

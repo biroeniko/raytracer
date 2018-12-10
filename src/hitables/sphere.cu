@@ -17,23 +17,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "hitables/hitableList.h"
+#include "hitables/sphere.h"
 
-bool hitableList::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+CUDA_HOSTDEV bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
 {
-    hitRecord tempRec;
-    bool hitAnything = false;
-    double closestSoFar = tMax;
+    vec3 oc = r.origin() - center;
+    float a = dot(r.direction(), r.direction());
+    float b = dot(oc, r.direction());
+    float c = dot(oc, oc) - radius*radius;
+    float discriminant = b*b - a*c;
 
-    for (int i = 0; i < listSize; i++)
+    if (discriminant > 0)
     {
-        // if the list item was hit
-        if (list[i]->hit(r, tMin, closestSoFar, tempRec))
+        float temp = (-b - sqrt(discriminant))/a;
+        if (temp < tMax && temp > tMin)
         {
-            hitAnything = true;
-            closestSoFar = tempRec.time;
-            rec = tempRec;
+            rec.time = temp;
+            rec.point = r.pointAtParameter(rec.time);
+            rec.normal = (rec.point - center) / radius;
+            rec.matPtr = matPtr;
+            return true;
         }
+        temp = (-b + sqrt(discriminant))/a;
+        if (temp < tMax && temp > tMin)
+        {
+            rec.time = temp;
+            rec.point = r.pointAtParameter(rec.time);
+            rec.normal = (rec.point - center) / radius;
+            rec.matPtr = matPtr;
+            return true;
+        } 
     }
-    return hitAnything;
+    return false;
 }
