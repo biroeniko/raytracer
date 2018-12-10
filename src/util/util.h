@@ -31,8 +31,10 @@ As in Peter Shirley's book:
 #pragma once
 
 #include "util/vec3.h"
+#include "util/common.h"
 
 template <typename T>
-T clamp(const T& n, const T& lower, const T& upper) {
-  return std::max(lower, std::min(n, upper));
+CUDA_HOSTDEV T clamp(const T& n, const T& lower, const T& upper) {
+    T min = n < upper ? n : upper;
+    return lower > min ? lower : min;
 }
