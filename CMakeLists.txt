@@ -61,15 +61,15 @@ set(SRC_HOST
     src/util/scene.h
     src/util/window.h
     src/util/renderer.h
-    src/util/renderer.cpp
+    src/util/renderer.cu
     src/util/camera.h
     src/util/camera.cu
     src/util/randomGenerator.h
-    src/util/randomGenerator.cpp
+    src/util/randomGenerator.cu
     src/util/util.h
-    src/util/util.cpp
+    src/util/util.cu
     src/util/common.h
-    src/main.cpp
+    src/raytracer.cu
 )
 
 cuda_add_executable(${PROJECT_NAME} ${SRC_HOST})
