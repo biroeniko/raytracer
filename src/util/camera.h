@@ -55,25 +55,25 @@ class Camera
         float halfWidth;
 	    float halfHeight;
 
-        Camera():   lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)), 
-                    horizontal(vec3(4.0f, 0.0f, 0.0f)),
-                    vertical(vec3(0.0f, 2.0f, 0.0f)),
-                    origin(vec3(0.0f, 0.0f, 0.0f)) {};
+        CUDA_HOSTDEV Camera():   lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)),
+                                 horizontal(vec3(4.0f, 0.0f, 0.0f)),
+                                 vertical(vec3(0.0f, 2.0f, 0.0f)),
+                                 origin(vec3(0.0f, 0.0f, 0.0f)) {};
         
         // vfov is top to bottom in degrees
-        Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect);
+        CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect);
 
         // another constructor
-        Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float focusDist, float aperture = 0.0f);
+        CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float focusDist, float aperture = 0.0f);
 
-        void update();
+        CUDA_HOSTDEV void update();
 
         // Spherical coordinate system implementation - rotate the lookFrom location by theta polar angle and phi azimuth angle - keeping the distance 
-        void rotate(float theta, float phi);
+        CUDA_HOSTDEV void rotate(float theta, float phi);
 
-        void zoom(float zoomScale);
+        CUDA_HOSTDEV void zoom(float zoomScale);
 
-        void translate(CameraMovement direction, float stepScale);
+        CUDA_HOSTDEV void translate(CameraMovement direction, float stepScale);
 
-        ray getRay(RandomGenerator& rng, float s, float t);
+        CUDA_HOSTDEV ray getRay(RandomGenerator& rng, float s, float t);
 };

@@ -20,7 +20,7 @@ SOFTWARE.
 #include "util/camera.h"
 
 // vfov is top to bottom in degrees
-Camera::Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect)
+CUDA_HOSTDEV Camera::Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect)
 {
     float theta = vfov*M_PI/180.0f;
     this->halfHeight = tan(theta/2.0f);
@@ -43,7 +43,7 @@ Camera::Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect)
     this->aspect = aspect;
 } 
 
-Camera::Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float focusDist, float aperture) :
+CUDA_HOSTDEV Camera::Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float focusDist, float aperture) :
 Camera(lookFrom, lookAt, vup, vfov, aspect)
 {
     this->lensRadius = aperture/2.0f;
@@ -51,7 +51,7 @@ Camera(lookFrom, lookAt, vup, vfov, aspect)
     this->focusDist = focusDist;
 } 
 
-void Camera::update() 
+CUDA_HOSTDEV void Camera::update()
 {
     float theta = vfov*M_PI/180.0f;
     this->halfHeight = tan(theta/2.0f);
@@ -67,7 +67,7 @@ void Camera::update()
     this->vertical = 2.0f*halfHeight*focusDist*v;
 }
 
-void Camera::rotate(float theta, float phi) 
+CUDA_HOSTDEV void Camera::rotate(float theta, float phi)
 {
     float radialDistance = (lookFrom - lookAt).length();
     this->lookFrom = vec3(
@@ -77,8 +77,7 @@ void Camera::rotate(float theta, float phi)
     update();
 }
 
-
-void Camera::zoom(float zoomScale) 
+CUDA_HOSTDEV void Camera::zoom(float zoomScale)
 {
     this->vfov += zoomScale;
     // min(max())
@@ -86,7 +85,7 @@ void Camera::zoom(float zoomScale)
     update();
 }
 
-void Camera::translate(CameraMovement direction, float stepScale) 
+CUDA_HOSTDEV void Camera::translate(CameraMovement direction, float stepScale)
 {
     if (direction == FORWARD)
     {
@@ -111,7 +110,7 @@ void Camera::translate(CameraMovement direction, float stepScale)
     update();
 }
 
-ray Camera::getRay(RandomGenerator& rng, float s, float t) 
+CUDA_HOSTDEV ray Camera::getRay(RandomGenerator& rng, float s, float t)
 {
     vec3 rd = lensRadius*rng.randomInUnitSphere();
     vec3 offset = u * rd.x() + v * rd.y();
