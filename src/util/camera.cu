@@ -89,13 +89,13 @@ CUDA_HOSTDEV void Camera::translate(CameraMovement direction, float stepScale)
 {
     if (direction == FORWARD)
     {
-        lookFrom += this->w * stepScale;
-        lookAt += this->w * stepScale;;
+        lookFrom += this->v * stepScale;
+        lookAt += this->v * stepScale;;
     }
     if (direction == BACKWARD)
     {
-        lookFrom -= this->w * stepScale;
-        lookAt -= this->w * stepScale;
+        lookFrom -= this->v * stepScale;
+        lookAt -= this->v * stepScale;
     }
     if (direction == LEFT)
     {
