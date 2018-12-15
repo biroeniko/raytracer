@@ -34,6 +34,10 @@ if(CUDA_SUPPORT)
     include_directories(${CUDA_INCLUDE_DIRS})
 endif()
 
+if(CUDA_SUPPORT)
+    add_definitions(-DCUDA_ENABLED)
+endif()
+
 # Header files
 include_directories(
     ${PROJECT_SOURCE_DIR}/src 
