@@ -37,8 +37,8 @@ class Renderer
     std::vector<RandomGenerator> rngs;
 
     public:
-        Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG);
+        CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG);
 
-        vec3 color(RandomGenerator& rng, const ray& r, hitable *world, int depth);
-        bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+        CUDA_HOSTDEV vec3 color(RandomGenerator& rng, const ray& r, hitable *world, int depth);
+        CUDA_HOSTDEV bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
 };

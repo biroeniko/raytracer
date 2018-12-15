@@ -19,7 +19,7 @@ SOFTWARE.
 
 #include "util/renderer.h"
 
-Renderer::Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG) 
+CUDA_HOSTDEV Renderer::Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG)
 {
     for (int i = 0; i < omp_get_max_threads(); i++)
     {
@@ -28,7 +28,7 @@ Renderer::Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : sh
     }
 }
 
-vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *world, int depth)
+CUDA_HOSTDEV vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *world, int depth)
 {
     hitRecord rec;
     if (world->hit(r, 0.001f, FLT_MAX, rec))        // get rid of shadow acne problem
@@ -49,7 +49,7 @@ vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *world, int dep
     }
 }
 
-bool Renderer::traceRays(uint32_t * windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+CUDA_HOSTDEV bool Renderer::traceRays(uint32_t * windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
 {
     // collapses the two nested fors into the same parallel for
     #pragma omp parallel for collapse(2)
