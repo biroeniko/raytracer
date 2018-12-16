@@ -55,9 +55,9 @@ set(SRC_HOST
     ${SRC_COMMON}
     src/hitables/hitable.h
     src/hitables/hitableList.h
-    src/hitables/hitableList.cu
+    src/hitables/hitableList.cpp
     src/hitables/sphere.h
-    src/hitables/sphere.cu
+    src/hitables/sphere.cpp
     src/materials/material.h
     src/util/vec3.h
     src/util/ray.h
@@ -65,17 +65,21 @@ set(SRC_HOST
     src/util/scene.h
     src/util/window.h
     src/util/renderer.h
-    src/util/renderer.cu
+    src/util/renderer.cpp
     src/util/camera.h
-    src/util/camera.cu
+    src/util/camera.cpp
     src/util/randomGenerator.h
-    src/util/randomGenerator.cu
+    src/util/randomGenerator.cpp
     src/util/util.h
-    src/util/util.cu
+    src/util/util.cpp
     src/util/common.h
-    src/raytracer.cu
+    src/raytracer.cpp
 )
 
-cuda_add_executable(${PROJECT_NAME} ${SRC_HOST})
+if (CUDA_SUPPORT)
+    cuda_add_executable(${PROJECT_NAME} ${SRC_HOST})
+else()
+    add_executable(${PROJECT_NAME} ${SRC_HOST})
+endif()
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})

@@ -19,6 +19,11 @@ SOFTWARE.
 
 #pragma once
 
+#ifdef CUDA_ENABLED
+    #include <cuda_runtime_api.h>
+    #include <cuda.h>
+#endif
+
 #ifdef __CUDACC__
     #define CUDA_HOST __host__
 #else

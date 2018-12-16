@@ -20,6 +20,7 @@ SOFTWARE.
 #pragma once
 
 #include "util/vec3.h"
+#include "util/util.h"
 
 struct Image
 {
@@ -29,9 +30,18 @@ struct Image
 
     CUDA_HOSTDEV Image(int x, int y) : rows(x), columns(y)
     {
+        #ifdef CUDA_ENABLED
+        int pixelCount = x*y;
+        size_t frameBufferSize = pixelCount*sizeof(vec3);
+        // allocate Frame Buffer
+        vec3 *frameBuffer;
+        checkCudaErrors(cudaMallocManaged((void **)&frameBuffer, frameBufferSize));
+        #else
         pixels = new vec3*[rows];
         for (int i = 0; i < rows; i++)
             pixels[i] = new vec3[columns];
+        #endif // CUDA_ENABLED
+
     }
 
     CUDA_HOSTDEV ~Image()

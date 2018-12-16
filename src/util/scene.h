@@ -25,8 +25,9 @@ SOFTWARE.
 #include "hitables/hitableList.h"
 #include "materials/material.h"
 #include "util/randomGenerator.h"
+#include "util/common.h"
 
-inline hitable* simpleScene()
+CUDA_HOSTDEV inline hitable* simpleScene()
 {
     hitable** list = new hitable*[4];
     list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
@@ -37,7 +38,7 @@ inline hitable* simpleScene()
     return new hitableList(list, 4);
 }
 
-inline hitable* simpleScene2()
+CUDA_HOSTDEV  inline hitable* simpleScene2()
 {
     RandomGenerator rng;
 

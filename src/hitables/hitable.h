@@ -40,4 +40,5 @@ class hitable
         // we will only need the normal of the closest thing
         // we want motion blur => time input variable
         CUDA_HOSTDEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const = 0;
+        CUDA_HOSTDEV virtual ~hitable() {}
 };

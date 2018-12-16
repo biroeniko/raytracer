@@ -28,7 +28,8 @@ class sphere: public hitable
         float radius;
         material *matPtr;
 
-        CUDA_HOSTDEV sphere() {};
-        CUDA_HOSTDEV sphere(vec3 cen, float r, material *m) : center(cen), radius(r), matPtr(m) {};
+        CUDA_HOSTDEV sphere() {}
+        CUDA_HOSTDEV sphere(vec3 cen, float r, material *m) : center(cen), radius(r), matPtr(m) {}
         CUDA_HOSTDEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const;
+        CUDA_HOSTDEV ~sphere() {}
 };

@@ -38,3 +38,14 @@ CUDA_HOSTDEV T clamp(const T& n, const T& lower, const T& upper) {
     T min = n < upper ? n : upper;
     return lower > min ? lower : min;
 }
+
+// limited version of checkCudaErrors from helper_cuda.h in CUDA examples
+#ifdef CUDA_ENABLED
+    #ifndef checkCudaErrors
+        #define checkCudaErrors(val) check_cuda( (val), #val, __FILE__, __LINE__ )
+    #endif
+#endif
+
+#ifdef CUDA_ENABLED
+    CUDA_HOST void check_cuda(cudaError_t result, char const *const func, const char *const file, int const line);
+#endif

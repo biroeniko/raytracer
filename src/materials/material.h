@@ -40,6 +40,7 @@ class material
 {
     public:
         CUDA_HOSTDEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const = 0;
+        CUDA_HOSTDEV virtual ~material() {}
 };
 
 // lambertian (diffuse)

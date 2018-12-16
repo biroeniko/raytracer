@@ -50,13 +50,13 @@ struct Window
     Camera* windowCamera;
     Renderer* rend;
 
-    Window(Camera* cam, Renderer* rend, 
-            const int nx, const int ny, 
-            const float thetaInit, const float phiInit, 
-            const float zoomScale, const float stepScale) : 
+    Window(Camera* cam, Renderer* rend,
+            const int nx, const int ny,
+            const float thetaInit, const float phiInit,
+            const float zoomScale, const float stepScale) :
             windowCamera(cam), rend(rend),
-            nx(nx), ny(ny), 
-            thetaInit(thetaInit), phiInit(phiInit), 
+            nx(nx), ny(ny),
+            thetaInit(thetaInit), phiInit(phiInit),
             zoomScale(zoomScale), stepScale(stepScale)
     {
         SDLWindowRect = { 0, 0, nx, ny };
@@ -109,7 +109,7 @@ struct Window
         SDL_Quit();
     }
 
-    void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, Camera* cam, 
+    void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, Camera* cam,
                         hitable* world, Image* image,  int sampleCount, uint8_t *fileOutputImage) 
     {
 		    rend->traceRays(windowPixels, cam, world, image, sampleCount, fileOutputImage);    
