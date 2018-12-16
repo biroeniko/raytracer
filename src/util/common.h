@@ -24,25 +24,25 @@ SOFTWARE.
     #include <cuda.h>
 #endif
 
-#ifdef __CUDACC__
+#ifdef CUDA_ENABLED
     #define CUDA_HOST __host__
 #else
     #define CUDA_HOST
 #endif
 
-#ifdef __CUDACC__
+#ifdef CUDA_ENABLED
     #define CUDA_GLOBAL __global__
 #else
     #define CUDA_GLOBAL
 #endif
 
-#ifdef __CUDACC__
+#ifdef CUDA_ENABLED
     #define CUDA_DEV __device__
 #else
     #define CUDA_DEV
 #endif
 
-#ifdef __CUDACC__
+#ifdef CUDA_ENABLED
     #define CUDA_HOSTDEV __host__ __device__
 #else
     #define CUDA_HOSTDEV
