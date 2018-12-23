@@ -49,7 +49,7 @@ CUDA_HOSTDEV vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *w
     }
 }
 
-CUDA_HOSTDEV bool Renderer::traceRays(uint32_t * windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+CUDA_HOSTDEV bool Renderer::traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
 {
     #ifdef CUDA_ENABLED
 
