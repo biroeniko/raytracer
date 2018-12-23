@@ -51,8 +51,6 @@ const float phiInit = 1.32596f;
 const float zoomScale = 0.5f;
 const float stepScale = 0.5f;
 
-bool cudaSupport = false;
-
 void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world)
 {
     Window* w;
@@ -143,19 +141,6 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
 
 int main(int argc, char **argv)
 {
-    if (argc > 0)
-    {
-        if (strcmp(argv[1],"cuda") == 0)
-            cudaSupport = true;
-        else
-            cudaSupport = false;
-    }
-
-    if (cudaSupport)
-        std::cout << "CUDA support enabled." << std::endl;
-    else
-        std::cout << "CUDA support not enabled, CPU acceleration is on." << std::endl;
-
     bool writeImagePPM = true;
     bool writeImagePNG = true;
     bool showWindow = true;
