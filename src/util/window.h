@@ -138,13 +138,8 @@ struct Window
                             theta = M_PI_2 - delta;
 					    phi += -mx * delta;
 					    windowCamera->rotate(theta, phi);
-                        
-                        #pragma omp parallel for
-                        for (int i = 0; i < nx*ny; i++)
-	                    {
-                            image->pixels[i/ny][i%ny] = vec3(0, 0, 0);
-                            fileOutputImage = 0;
-	                    }   
+
+                        image->resetImage();
 
                         refresh = true;
                     }
@@ -170,12 +165,7 @@ struct Window
                             windowCamera->zoom(+zoomScale);
                         }
                         
-                        #pragma omp parallel for
-                        for (int i = 0; i < nx*ny; i++)
-	                    {
-                            image->pixels[i/ny][i%ny] = vec3(0, 0, 0);
-                            fileOutputImage = 0;
-	                    }   
+                        image->resetImage();
 
                         refresh = true;
                     }
