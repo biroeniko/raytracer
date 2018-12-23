@@ -52,11 +52,11 @@ struct Image
         #ifdef CUDA_ENABLED
 
         #else
-        #pragma omp parallel for
-        for (int i = 0; i < rows*columns; i++)
-        {
-            pixels[i/rows][i%columns] = vec3(0, 0, 0);
-        }
+            #pragma omp parallel for
+            for (int i = 0; i < rows*columns; i++)
+            {
+                pixels[i/columns][i%columns] = vec3(0, 0, 0);
+            }
         #endif // CUDA_ENABLED
     }
 
