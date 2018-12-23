@@ -45,6 +45,8 @@ SOFTWARE.
 const int nx = 1400;
 const int ny = 700;
 const int ns = 50;                     // sample size
+const int tx = 8;                      // block size
+const int ty = 8;
 const int benchmarkCount = 100;
 const float thetaInit = 1.34888f;
 const float phiInit = 1.32596f;
@@ -54,7 +56,7 @@ const float stepScale = 0.5f;
 void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world)
 {
     Window* w;
-    Image* image = new Image(nx, ny);
+    Image* image = new Image(nx, ny, tx, ty);
 
     vec3 lookFrom(13.0f, 2.0f, 3.0f);
     vec3 lookAt(0.0f, 0.0f, 0.0f);

@@ -29,10 +29,13 @@ struct Image
     #else
         vec3** pixels;
     #endif // CUDA_ENABLED
-    int rows;
-    int columns;
 
-    CUDA_HOSTDEV Image(int x, int y) : rows(x), columns(y)
+    const int rows;
+    const int columns;
+    const int tx;
+    const int ty;
+
+    CUDA_HOSTDEV Image(int x, int y, int tx, int ty) : rows(x), columns(y), tx(tx), ty(ty)
     {
         #ifdef CUDA_ENABLED
             int pixelCount = x*y;
@@ -47,10 +50,14 @@ struct Image
 
     }
 
+    #ifdef CUDA_ENABLED
+        void cudaResetImage();
+    #endif // CUDA_ENABLED
+
     CUDA_HOSTDEV void resetImage()
     {
         #ifdef CUDA_ENABLED
-
+            cudaResetImage();
         #else
             #pragma omp parallel for
             for (int i = 0; i < rows*columns; i++)

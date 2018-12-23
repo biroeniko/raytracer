@@ -62,6 +62,7 @@ set(SRC_HOST
     src/util/vec3.h
     src/util/ray.h
     src/util/image.h
+    src/util/image.cu
     src/util/scene.h
     src/util/window.h
     src/util/renderer.h
@@ -77,7 +78,15 @@ set(SRC_HOST
 )
 
 if (CUDA_SUPPORT)
-    cuda_add_executable(${PROJECT_NAME} ${SRC_HOST})
+    set(SRC_HOST
+        ${SRC_HOST}
+        src/util/image.cu
+    )
+endif()
+
+
+if (CUDA_SUPPORT)
+    cuda_add_executable(${PROJECT_NAME} ${SRC_HOST} OPTIONS -x cu)
 else()
     add_executable(${PROJECT_NAME} ${SRC_HOST})
 endif()
