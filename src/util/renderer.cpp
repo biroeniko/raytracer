@@ -49,6 +49,47 @@ CUDA_HOSTDEV vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *w
     }
 }
 
+#ifdef CUDA_ENABLED
+#else
+CUDA_HOSTDEV void Renderer::render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+{
+    float u = float(i + rngs[omp_get_thread_num()].get1f()) / float(image->rows); // left to right
+    float v = float(j + rngs[omp_get_thread_num()].get1f()) / float(image->columns); // bottom to top
+
+    ray r = cam->getRay(rngs[omp_get_thread_num()], u,v);
+
+    image->pixels[i][j] += color(rngs[omp_get_thread_num()], r, world, 0);
+
+    vec3 col = image->pixels[i][j] / sampleCount;
+
+    // Gamma encoding of images is used to optimize the usage of bits
+    // when encoding an image, or bandwidth used to transport an image,
+    // by taking advantage of the non-linear manner in which humans perceive
+    // light and color. (wikipedia)
+
+    // we use gamma 2: raising the color to the power 1/gamma (1/2)
+    col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+
+    int ir = int(255.99f*col[0]);
+    int ig = int(255.99f*col[1]);
+    int ib = int(255.99f*col[2]);
+
+    if (writeImagePNG)
+    {
+        // PNG
+        int index = (image->columns - 1 - j) * image->rows + i;
+        int index3 = 3 * index;
+
+        fileOutputImage[index3 + 0] = ir;
+        fileOutputImage[index3 + 1] = ig;
+        fileOutputImage[index3 + 2] = ib;
+    }
+
+    if (showWindow)
+        windowPixels[(image->columns-j-1)*image->rows + i] = (ir << 16) | (ig << 8) | (ib);
+}
+#endif
+
 CUDA_HOSTDEV bool Renderer::traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
 {
     #ifdef CUDA_ENABLED
@@ -62,40 +103,7 @@ CUDA_HOSTDEV bool Renderer::traceRays(uint32_t* windowPixels, Camera* cam, hitab
             // i tracks columns - left to right
             for (int i = 0; i < image->rows; i++)
             {
-                float u = float(i + rngs[omp_get_thread_num()].get1f()) / float(image->rows); // left to right
-                float v = float(j + rngs[omp_get_thread_num()].get1f()) / float(image->columns); // bottom to top
-
-                ray r = cam->getRay(rngs[omp_get_thread_num()], u,v);
-
-                image->pixels[i][j] += color(rngs[omp_get_thread_num()], r, world, 0);
-
-                vec3 col = image->pixels[i][j] / sampleCount;
-
-                // Gamma encoding of images is used to optimize the usage of bits
-                // when encoding an image, or bandwidth used to transport an image,
-                // by taking advantage of the non-linear manner in which humans perceive
-                // light and color. (wikipedia)
-
-                // we use gamma 2: raising the color to the power 1/gamma (1/2)
-                col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
-
-                int ir = int(255.99f*col[0]);
-                int ig = int(255.99f*col[1]);
-                int ib = int(255.99f*col[2]);
-
-                if (writeImagePNG)
-                {
-                    // PNG
-                    int index = (image->columns - 1 - j) * image->rows + i;
-                    int index3 = 3 * index;
-
-                    fileOutputImage[index3 + 0] = ir;
-                    fileOutputImage[index3 + 1] = ig;
-                    fileOutputImage[index3 + 2] = ib;
-                }
-
-                if (showWindow)
-                    windowPixels[(image->columns-j-1)*image->rows + i] = (ir << 16) | (ig << 8) | (ib);
+                render(i, j, windowPixels, cam, world, image, sampleCount, fileOutputImage);
             }
         }
 
