@@ -53,12 +53,13 @@ CUDA_HOSTDEV vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *w
 #else
 CUDA_HOSTDEV void Renderer::render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
 {
-    float u = float(i + rngs[omp_get_thread_num()].get1f()) / float(image->rows); // left to right
-    float v = float(j + rngs[omp_get_thread_num()].get1f()) / float(image->columns); // bottom to top
+    RandomGenerator rng(sampleCount, i*image->rows + j);
+    float u = float(i + rng.get1f()) / float(image->rows); // left to right
+    float v = float(j + rng.get1f()) / float(image->columns); // bottom to top
 
-    ray r = cam->getRay(rngs[omp_get_thread_num()], u,v);
+    ray r = cam->getRay(rng, u,v);
 
-    image->pixels[i][j] += color(rngs[omp_get_thread_num()], r, world, 0);
+    image->pixels[i][j] += color(rng, r, world, 0);
 
     vec3 col = image->pixels[i][j] / sampleCount;
 
