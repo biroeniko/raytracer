@@ -21,11 +21,7 @@ SOFTWARE.
 
 CUDA_HOSTDEV Renderer::Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG)
 {
-    for (int i = 0; i < omp_get_max_threads(); i++)
-    {
-        //rngs.emplace_back(pcg_extras::seed_seq_from<std::random_device>{});
-        rngs.emplace_back();
-    }
+
 }
 
 CUDA_HOSTDEV vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *world, int depth)

@@ -34,7 +34,6 @@ class Renderer
     bool showWindow;
     bool writeImagePPM;
     bool writeImagePNG;
-    std::vector<RandomGenerator> rngs;
 
     public:
         CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG);
