@@ -17,13 +17,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "util/randomGenerator.h"
+#include <float.h>
 
-CUDA_HOSTDEV vec3 RandomGenerator::randomInUnitSphere()
-{
-    vec3 point;
-    do {
-        point = 2.0f * vec3(get1f(), get1f(), get1f()) - vec3(1.0f,1.0f,1.0f);
-    } while (point.squaredLength() >= 1.0f);
-    return point;
-}
+#include "util/scene.h"
+
+#ifdef CUDA_ENABLED
+    CUDA_GLOBAL void simpleScene(hitable** list, hitable** world)
+    {
+        if (threadIdx.x == 0 && blockIdx.x == 0)
+        {
+            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+            list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
+            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
+            list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
+
+            *world  = new hitableList(list, 4);
+        }
+    }
+#endif // CUDA_ENABLED

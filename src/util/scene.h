@@ -27,6 +27,9 @@ SOFTWARE.
 #include "util/randomGenerator.h"
 #include "util/common.h"
 
+#ifdef CUDA_ENABLED
+CUDA_GLOBAL void simpleScene(hitable** list, hitable** world);
+#else
 CUDA_HOSTDEV inline hitable* simpleScene()
 {
     hitable** list = new hitable*[4];
@@ -37,8 +40,9 @@ CUDA_HOSTDEV inline hitable* simpleScene()
 
     return new hitableList(list, 4);
 }
+#endif // CUDA_ENABLED
 
-CUDA_HOSTDEV  inline hitable* simpleScene2()
+CUDA_HOSTDEV inline hitable* simpleScene2()
 {
     RandomGenerator rng;
 

@@ -66,7 +66,6 @@ struct Window
         refresh = false;
 
         SDLWindow = NULL; 
-        SDL_Surface* screenSurface = NULL;
         if (SDL_Init(SDL_INIT_VIDEO) < 0) 
             std::cout << "SDL could not initialize! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;
         else 
@@ -187,7 +186,6 @@ struct Window
 
                             default:
                                 return;
-                            break;
                         }
 
                         image->resetImage();

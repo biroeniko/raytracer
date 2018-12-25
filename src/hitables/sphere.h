@@ -30,6 +30,40 @@ class sphere: public hitable
 
         CUDA_HOSTDEV sphere() {}
         CUDA_HOSTDEV sphere(vec3 cen, float r, material *m) : center(cen), radius(r), matPtr(m) {}
-        CUDA_HOSTDEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const;
+
+        CUDA_HOSTDEV bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+        {
+            {
+                vec3 oc = r.origin() - center;
+                float a = dot(r.direction(), r.direction());
+                float b = dot(oc, r.direction());
+                float c = dot(oc, oc) - radius*radius;
+                float discriminant = b*b - a*c;
+
+                if (discriminant > 0)
+                {
+                    float temp = (-b - sqrt(discriminant))/a;
+                    if (temp < tMax && temp > tMin)
+                    {
+                        rec.time = temp;
+                        rec.point = r.pointAtParameter(rec.time);
+                        rec.normal = (rec.point - center) / radius;
+                        rec.matPtr = matPtr;
+                        return true;
+                    }
+                    temp = (-b + sqrt(discriminant))/a;
+                    if (temp < tMax && temp > tMin)
+                    {
+                        rec.time = temp;
+                        rec.point = r.pointAtParameter(rec.time);
+                        rec.normal = (rec.point - center) / radius;
+                        rec.matPtr = matPtr;
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         CUDA_HOSTDEV ~sphere() {}
 };

@@ -1,4 +1,4 @@
-/* MIT License
+﻿/* MIT License
 Copyright (c) 2018 Biro Eniko
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -17,23 +17,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "hitables/sphere.h"
 #include "hitables/hitableList.h"
+#include "util/camera.h"
+#include "materials/material.h"
+#include "util/scene.h"
+#include "util/renderer.h"
+#include "util/window.h"
+#include "util/common.h"
 
-CUDA_HOSTDEV bool hitableList::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
 {
-    hitRecord tempRec;
-    bool hitAnything = false;
-    double closestSoFar = tMax;
+    hitable** list;
+    int num_hitables = 500;
+    checkCudaErrors(cudaMallocManaged((void **)&list, num_hitables*sizeof(hitable *)));
+    checkCudaErrors(cudaMallocManaged((void **)&world, sizeof(hitable *)));
+    checkCudaErrors(cudaMallocManaged((void **)&cam, sizeof(Camera *)));
+    simpleScene<<<1,1>>>(list, world);
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
+}
 
-    for (int i = 0; i < listSize; i++)
-    {
-        // if the list item was hit
-        if (list[i]->hit(r, tMin, closestSoFar, tempRec))
-        {
-            hitAnything = true;
-            closestSoFar = tempRec.time;
-            rec = tempRec;
-        }
-    }
-    return hitAnything;
+void destroyWorldCuda(bool showWindow, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
+{
+
 }

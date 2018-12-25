@@ -28,5 +28,23 @@ class hitableList: public hitable
         int listSize;
         CUDA_HOSTDEV hitableList() {}
         CUDA_HOSTDEV hitableList(hitable **l, int n) {list = l, listSize = n;}
-        CUDA_HOSTDEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const;
+        CUDA_HOSTDEV bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+        {
+            hitRecord tempRec;
+            bool hitAnything = false;
+            double closestSoFar = tMax;
+
+            for (int i = 0; i < listSize; i++)
+            {
+                // if the list item was hit
+                if (list[i]->hit(r, tMin, closestSoFar, tempRec))
+                {
+                    hitAnything = true;
+                    closestSoFar = tempRec.time;
+                    rec = tempRec;
+                }
+            }
+            return hitAnything;
+        }
+
 };

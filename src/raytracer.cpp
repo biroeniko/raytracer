@@ -54,6 +54,10 @@ const float phiInit = 1.32596f;
 const float zoomScale = 0.5f;
 const float stepScale = 0.5f;
 
+void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render);
+
+void destroyWorldCuda(bool showWindow, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render);
+
 void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
 {
     *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
@@ -128,40 +132,36 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
         }
         std::cout << "Done." << std::endl;
     }
-    if (showWindow)
-    {
-        delete w;
-    }
 }
 
 void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
 {
-/*
-    hitable **d_list;
-    int num_hitables = 22*22+1+3;
-    checkCudaErrors(cudaMalloc((void **)&d_list, num_hitables*sizeof(hitable *)));
-    hitable **d_world;
-    checkCudaErrors(cudaMalloc((void **)&d_world, sizeof(hitable *)));
-    camera **d_camera;
-    checkCudaErrors(cudaMalloc((void **)&d_camera, sizeof(camera *)));
-    create_world<<<1,1>>>(d_list, d_world, d_camera, nx, ny, d_rand_state2);
-    checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaDeviceSynchronize());
-*/
     Window* w;
     Image* image;
     Camera* cam;
     Renderer* render;
     hitable* world;
 
+    #ifdef CUDA_ENABLED
+        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
+    #else
+        initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
+    #endif // CUDA_ENABLED
     initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
 
     invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, render);
 
-    delete image;
-    delete cam;
-    delete render;
-    delete[] world;
+    #ifdef CUDA_ENABLED
+        destroyWorldCuda(showWindow, world, w, image, cam, render);
+    #else
+        delete image;
+        delete cam;
+        delete render;
+        delete world;
+        if (showWindow)
+            delete w;
+    #endif // CUDA_ENABLED
+
 }
 
 int main(int argc, char **argv)
