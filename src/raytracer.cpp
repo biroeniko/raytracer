@@ -56,7 +56,7 @@ const float stepScale = 0.5f;
 void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world)
 {
     Window* w;
-    Image* image = new Image(nx, ny, tx, ty);
+    Image* image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
 
     vec3 lookFrom(13.0f, 2.0f, 3.0f);
     vec3 lookAt(0.0f, 0.0f, 0.0f);
@@ -71,14 +71,7 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
         w = new Window(cam, render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
     }
 
-    uint8_t *fileOutputImage;
     std::ofstream ppmImageStream;
-    
-    if (writeImagePNG || writeImagePPM)
-    {
-        // for png file
-        fileOutputImage = new uint8_t[nx * ny * 3];
-    }
     
     if (writeImagePPM)
     {
@@ -92,8 +85,8 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
     {
         for (int i = 0; i < ns; i++)
         {
-            w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, fileOutputImage);
-			w->pollEvents(image, fileOutputImage);
+            w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, image->fileOutputImage);
+            w->pollEvents(image, image->fileOutputImage);
             if (w->refresh)
             {
                 i = -1;
@@ -111,7 +104,7 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
             {
                 for (int i = 0; i < nx; i++)
                 {
-                    ppmImageStream << int(fileOutputImage[(j*nx+i)*3]) << " " << int(fileOutputImage[(j*nx+i)*3+1]) << " " << int(fileOutputImage[(j*nx+i)*3+2]) << "\n";
+                    ppmImageStream << int(image->fileOutputImage[(j*nx+i)*3]) << " " << int(image->fileOutputImage[(j*nx+i)*3+1]) << " " << int(image->fileOutputImage[(j*nx+i)*3+2]) << "\n";
                 }
             }
             ppmImageStream.close();
@@ -120,17 +113,14 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
         if (writeImagePNG)
         {
             // write png
-            stbi_write_png("test.png", nx, ny, 3, fileOutputImage, nx * 3);
+            stbi_write_png("test.png", nx, ny, 3, image->fileOutputImage, nx * 3);
         }
-
-        if (writeImagePNG || writeImagePPM)
-            delete[] fileOutputImage;
     }
     else
     {
        for (int i = 0; i < ns; i++)
         {
-            render->traceRays(nullptr, cam, world, image, i+1, fileOutputImage);    
+            render->traceRays(nullptr, cam, world, image, i+1, image->fileOutputImage);
             //std::cout << "Sample nr. " << i+1 << std::endl;
         }
         std::cout << "Done." << std::endl;

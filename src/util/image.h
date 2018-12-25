@@ -31,13 +31,17 @@ struct Image
     #endif // CUDA_ENABLED
 
     uint32_t *windowPixels;
+    uint8_t *fileOutputImage;
 
     const int nx;
     const int ny;
     const int tx;
     const int ty;
 
-    CUDA_HOSTDEV Image(int x, int y, int tx, int ty) : nx(x), ny(y), tx(tx), ty(ty)
+    bool showWindow;
+    bool writeImage;
+
+    CUDA_HOSTDEV Image(bool showWindow, bool writeImage, int x, int y, int tx, int ty ) : showWindow(showWindow), writeImage(writeImage), nx(x), ny(y), tx(tx), ty(ty)
     {
         #ifdef CUDA_ENABLED
             int pixelCount = nx*ny;
@@ -49,7 +53,12 @@ struct Image
             for (int i = 0; i < nx; i++)
                 pixels[i] = new vec3[ny];
 
-            windowPixels = new uint32_t[nx*ny];
+            if (showWindow)
+                windowPixels = new uint32_t[nx*ny];
+
+            if (writeImage)
+                fileOutputImage = new uint8_t[nx * ny * 3];
+
         #endif // CUDA_ENABLED
 
     }
@@ -80,7 +89,11 @@ struct Image
                 delete [] pixels[i];
             delete [] pixels;
 
-            delete[] windowPixels;
+            if (showWindow)
+                delete[] windowPixels;
+
+            if (writeImage)
+                delete[] fileOutputImage;
         #endif // CUDA_ENABLED
     }
 };
