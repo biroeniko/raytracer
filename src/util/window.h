@@ -37,8 +37,6 @@ struct Window
     SDL_Renderer* SDLRenderer;
     SDL_Texture* SDLTexture;
 
-    uint32_t *windowPixels;   
-
     bool quit;
     bool mouseDragIsInProgress;
     bool refresh;
@@ -95,8 +93,6 @@ struct Window
                                     SDL_TEXTUREACCESS_STATIC,
                                     nx, ny);
 
-        windowPixels = new uint32_t[nx*ny];
-
         windowCamera->rotate(theta, phi);
     }
 
@@ -105,16 +101,15 @@ struct Window
         SDL_DestroyTexture(SDLTexture);
         SDL_DestroyRenderer(SDLRenderer);
         SDL_DestroyWindow(SDLWindow); 
-        delete[] windowPixels;
         SDL_Quit();
     }
 
     void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, Camera* cam,
                         hitable* world, Image* image,  int sampleCount, uint8_t *fileOutputImage) 
     {
-		    rend->traceRays(windowPixels, cam, world, image, sampleCount, fileOutputImage);    
+            rend->traceRays(image->windowPixels, cam, world, image, sampleCount, fileOutputImage);
             //std::cout << "Sample nr. " << sampleCount << std::endl;
-            SDL_UpdateTexture(w->SDLTexture, NULL, w->windowPixels, nx * sizeof(Uint32));
+            SDL_UpdateTexture(w->SDLTexture, NULL, image->windowPixels, nx * sizeof(Uint32));
             SDL_RenderCopy(w->SDLRenderer, w->SDLTexture, NULL, NULL);
             SDL_RenderPresent(w->SDLRenderer);
 	}

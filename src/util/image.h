@@ -30,6 +30,8 @@ struct Image
         vec3** pixels;
     #endif // CUDA_ENABLED
 
+    uint32_t *windowPixels;
+
     const int nx;
     const int ny;
     const int tx;
@@ -46,6 +48,8 @@ struct Image
             pixels = new vec3*[nx];
             for (int i = 0; i < nx; i++)
                 pixels[i] = new vec3[ny];
+
+            windowPixels = new uint32_t[nx*ny];
         #endif // CUDA_ENABLED
 
     }
@@ -75,6 +79,8 @@ struct Image
             for (int i = 0; i < nx; ++i)
                 delete [] pixels[i];
             delete [] pixels;
+
+            delete[] windowPixels;
         #endif // CUDA_ENABLED
     }
 };
