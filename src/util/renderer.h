@@ -40,5 +40,10 @@ class Renderer
 
         CUDA_HOSTDEV vec3 color(RandomGenerator& rng, const ray& r, hitable *world, int depth);
         CUDA_HOSTDEV bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
-        CUDA_HOSTDEV void render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+
+        #ifdef CUDA_ENABLED
+            void cudaRender(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+        #else
+            CUDA_HOSTDEV void render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+        #endif // CUDA_ENABLED
 };

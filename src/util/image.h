@@ -25,27 +25,27 @@ SOFTWARE.
 struct Image
 {
     #ifdef CUDA_ENABLED
-        vec3 *frameBuffer;
+        vec3* frameBuffer;
     #else
         vec3** pixels;
     #endif // CUDA_ENABLED
 
-    const int rows;
-    const int columns;
+    const int nx;
+    const int ny;
     const int tx;
     const int ty;
 
-    CUDA_HOSTDEV Image(int x, int y, int tx, int ty) : rows(x), columns(y), tx(tx), ty(ty)
+    CUDA_HOSTDEV Image(int x, int y, int tx, int ty) : nx(x), ny(y), tx(tx), ty(ty)
     {
         #ifdef CUDA_ENABLED
-            int pixelCount = x*y;
+            int pixelCount = nx*ny;
             size_t frameBufferSize = pixelCount*sizeof(vec3);
             // allocate Frame Buffer
             checkCudaErrors(cudaMallocManaged((void **)&frameBuffer, frameBufferSize));
         #else
-            pixels = new vec3*[rows];
-            for (int i = 0; i < rows; i++)
-                pixels[i] = new vec3[columns];
+            pixels = new vec3*[nx];
+            for (int i = 0; i < nx; i++)
+                pixels[i] = new vec3[ny];
         #endif // CUDA_ENABLED
 
     }
@@ -60,9 +60,9 @@ struct Image
             cudaResetImage();
         #else
             #pragma omp parallel for
-            for (int i = 0; i < rows*columns; i++)
+            for (int i = 0; i < nx*ny; i++)
             {
-                pixels[i/columns][i%columns] = vec3(0, 0, 0);
+                pixels[i/ny][i%ny] = vec3(0, 0, 0);
             }
         #endif // CUDA_ENABLED
     }
@@ -72,7 +72,7 @@ struct Image
         #ifdef CUDA_ENABLED
             checkCudaErrors(cudaFree(frameBuffer));
         #else
-            for (int i = 0; i < rows; ++i)
+            for (int i = 0; i < nx; ++i)
                 delete [] pixels[i];
             delete [] pixels;
         #endif // CUDA_ENABLED
