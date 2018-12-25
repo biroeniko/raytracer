@@ -26,11 +26,13 @@ SOFTWARE.
 #include "util/window.h"
 #include "util/common.h"
 
-CUDA_GLOBAL void createWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, Camera** cam)
+CUDA_GLOBAL void createWorld(Camera** cam)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0)
     {
-        *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
+        vec3 lookFrom(13.0f, 2.0f, 3.0f);
+        vec3 lookAt(0.0f, 0.0f, 0.0f);
+        //*cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
     }
 }
 
@@ -45,15 +47,16 @@ void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG
     checkCudaErrors(cudaDeviceSynchronize());
 
     checkCudaErrors(cudaMallocManaged((void **)&cam, sizeof(Camera *)));
-    checkCudaErrors(cudaMallocManaged((void **)&image, sizeof(Image *)));
-    checkCudaErrors(cudaMallocManaged((void **)&cam, sizeof(Renderer *)));
-
-    if (showWindow)
-        checkCudaErrors(cudaMallocManaged((void **)&w, sizeof(Window *)));
-
-    createWorld<<<1,1>>>(showWindow, writeImagePPM, writeImagePNG, cam);
+    createWorld<<<1,1>>>(cam);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
+
+    *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
+    *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
+
+    if (showWindow)
+        *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
+
 }
 
 void destroyWorldCuda(bool showWindow, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)

@@ -1,4 +1,4 @@
-﻿/* MIT License
+/* MIT License
 Copyright (c) 2018 Biro Eniko
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -127,7 +127,7 @@ void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     hitable* world;
 
     #ifdef CUDA_ENABLED
-        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
+        initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
     #else
         initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
     #endif // CUDA_ENABLED
