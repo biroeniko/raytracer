@@ -21,7 +21,7 @@ SOFTWARE.
 #include "util/renderer.h"
 
 #ifdef CUDA_ENABLED
-    CUDA_GLOBAL void render(vec3* frameBuffer, int nx, int ny)
+    CUDA_GLOBAL void render(vec3* pixels, uint32_t* windowPixels, uint8_t* fileOutputImage, bool writeImagePNG, bool showWindow, int nx, int ny)
     {
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -31,7 +31,26 @@ SOFTWARE.
 
         vec3 col(0.0f,1.0f,0.0f);
 
-        frameBuffer[pixelIndex] = col;
+        pixels[pixelIndex] = col;
+
+        int ir = int(255.99f*col[0]);
+        int ig = int(255.99f*col[1]);
+        int ib = int(255.99f*col[2]);
+
+        if (writeImagePNG)
+        {
+            // PNG
+            int index = (ny - 1 - j) * nx + i;
+            int index3 = 3 * index;
+
+            fileOutputImage[index3 + 0] = ir;
+            fileOutputImage[index3 + 1] = ig;
+            fileOutputImage[index3 + 2] = ib;
+        }
+
+        if (showWindow)
+            windowPixels[(ny-j-1)*nx + i] = (ir << 16) | (ig << 8) | (ib);
+
 
         /*
         RandomGenerator rng(sampleCount, i*image->rows + j);
@@ -77,16 +96,11 @@ SOFTWARE.
 #ifdef CUDA_ENABLED
     void Renderer::cudaRender(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
     {
-        std::cout << image->nx << std::endl;
-        std::cout << image->ny << std::endl;
-
         dim3 blocks(image->nx/image->tx+1, image->ny/image->ty+1);
         dim3 threads(image->tx, image->ty);
 
-        render<<<blocks, threads>>>(image->frameBuffer, image->nx, image->ny);
+        render<<<blocks, threads>>>(image->pixels, image->windowPixels, image->fileOutputImage, writeImagePNG, showWindow, image->nx, image->ny);
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
-
-        std::cout << image->frameBuffer[0] << std::endl;
     }
 #endif // CUDA_ENABLED

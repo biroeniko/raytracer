@@ -25,13 +25,13 @@ SOFTWARE.
 struct Image
 {
     #ifdef CUDA_ENABLED
-        vec3* frameBuffer;
+        vec3* pixels;
     #else
         vec3** pixels;
     #endif // CUDA_ENABLED
 
-    uint32_t *windowPixels;
-    uint8_t *fileOutputImage;
+    uint32_t* windowPixels;
+    uint8_t* fileOutputImage;
 
     const int nx;
     const int ny;
@@ -45,9 +45,14 @@ struct Image
     {
         #ifdef CUDA_ENABLED
             int pixelCount = nx*ny;
-            size_t frameBufferSize = pixelCount*sizeof(vec3);
-            // allocate Frame Buffer
-            checkCudaErrors(cudaMallocManaged((void **)&frameBuffer, frameBufferSize));
+            size_t pixelsFrameBufferSize = pixelCount*sizeof(vec3);
+            size_t windowPixelsFrameBufferSize = pixelCount*sizeof(uint32_t);
+            size_t fileOutputImageFrameBufferSize = 3*pixelCount*sizeof(uint8_t);
+
+            // allocate Frame Buffers
+            checkCudaErrors(cudaMallocManaged((void **)&pixels, pixelsFrameBufferSize));
+            checkCudaErrors(cudaMallocManaged((void **)&windowPixels, windowPixelsFrameBufferSize));
+            checkCudaErrors(cudaMallocManaged((void **)&fileOutputImage, fileOutputImageFrameBufferSize));
         #else
             pixels = new vec3*[nx];
             for (int i = 0; i < nx; i++)
@@ -83,7 +88,9 @@ struct Image
     CUDA_HOSTDEV ~Image()
     {
         #ifdef CUDA_ENABLED
-            checkCudaErrors(cudaFree(frameBuffer));
+            checkCudaErrors(cudaFree(pixels));
+            checkCudaErrors(cudaFree(windowPixels));
+            checkCudaErrors(cudaFree(fileOutputImage));
         #else
             for (int i = 0; i < nx; ++i)
                 delete [] pixels[i];

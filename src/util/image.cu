@@ -20,14 +20,14 @@ SOFTWARE.
 #include "util/image.h"
 
 #ifdef CUDA_ENABLED
-    CUDA_GLOBAL void cudaResetImageKernel(vec3 *frameBuffer, int nx, int ny)
+    CUDA_GLOBAL void cudaResetImageKernel(vec3 *pixels, int nx, int ny)
     {
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
         if ((i >= nx) || (j >= ny))
             return;
         int pixelIndex = j*nx + i;
-        frameBuffer[pixelIndex] = vec3(0,0,0);
+        pixels[pixelIndex] = vec3(0,0,0);
     }
 #endif // CUDA_ENABLED
 
@@ -36,7 +36,7 @@ SOFTWARE.
     {
         dim3 blocks(nx/tx+1, ny/ty+1);
         dim3 threads(tx,ty);
-        cudaResetImageKernel<<<blocks, threads>>>(frameBuffer, nx, ny);
+        cudaResetImageKernel<<<blocks, threads>>>(pixels, nx, ny);
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
     }
