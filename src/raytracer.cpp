@@ -43,9 +43,9 @@ SOFTWARE.
 #include "util/window.h"
 #include "util/common.h"
 
-void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render);
+void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render);
 
-void destroyWorldCuda(bool showWindow, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render);
+void destroyWorldCuda(bool showWindow, hitable* list, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render);
 
 void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
 {
@@ -125,9 +125,10 @@ void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     Camera* cam;
     Renderer* render;
     hitable* world;
+    hitable* list;
 
     #ifdef CUDA_ENABLED
-        initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
+        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &list, &world, &w, &image, &cam, &render);
     #else
         initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
     #endif // CUDA_ENABLED
@@ -135,7 +136,7 @@ void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, render);
 
     #ifdef CUDA_ENABLED
-        destroyWorldCuda(showWindow, world, w, image, cam, render);
+        destroyWorldCuda(showWindow, list, world, w, image, cam, render);
     #else
         delete image;
         delete cam;

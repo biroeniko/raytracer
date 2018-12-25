@@ -21,20 +21,21 @@ SOFTWARE.
 #include "util/renderer.h"
 
 #ifdef CUDA_ENABLED
-    CUDA_GLOBAL void render(vec3* pixels, uint32_t* windowPixels, uint8_t* fileOutputImage, bool writeImagePNG, bool showWindow, int nx, int ny, int sampleCount)
+    CUDA_GLOBAL void render(Camera* cam, vec3* pixels, uint32_t* windowPixels, uint8_t* fileOutputImage, bool writeImagePNG, bool showWindow, int nx, int ny, int sampleCount)
     {
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
+
+        if ((i >= nx) || (j >= ny))
+            return;
 
         RandomGenerator rng(sampleCount, i*nx + j);
         float u = float(i + rng.get1f()) / float(nx); // left to right
         float v = float(j + rng.get1f()) / float(ny); // bottom to top
 
-        //ray r = cam->getRay(rng, u,v);
-
-        if ((i >= nx) || (j >= ny))
-            return;
         int pixelIndex = j*nx + i;
+
+        //ray r = cam->getRay(rng, u, v);
 
         vec3 col(0.0f,1.0f,0.0f);
 
@@ -106,7 +107,7 @@ SOFTWARE.
         dim3 blocks(image->nx/image->tx+1, image->ny/image->ty+1);
         dim3 threads(image->tx, image->ty);
 
-        render<<<blocks, threads>>>(image->pixels, image->windowPixels, image->fileOutputImage, writeImagePNG, showWindow, image->nx, image->ny, sampleCount);
+        render<<<blocks, threads>>>(cam, image->pixels, image->windowPixels, image->fileOutputImage, writeImagePNG, showWindow, image->nx, image->ny, sampleCount);
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
     }

@@ -36,9 +36,8 @@ CUDA_GLOBAL void createWorld(Camera** cam)
     }
 }
 
-void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
+void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
 {
-    hitable** list;
     int num_hitables = 4;
     checkCudaErrors(cudaMallocManaged((void **)&list, num_hitables*sizeof(hitable *)));
     checkCudaErrors(cudaMallocManaged((void **)&world, sizeof(hitable *)));
@@ -46,20 +45,29 @@ void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
+    /*
     checkCudaErrors(cudaMallocManaged((void **)&cam, sizeof(Camera *)));
     createWorld<<<1,1>>>(cam);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
+    */
+    vec3 lookFrom(13.0f, 2.0f, 3.0f);
+    vec3 lookAt(0.0f, 0.0f, 0.0f);
+    *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
 
     *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
     *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
 
     if (showWindow)
         *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
-
 }
 
-void destroyWorldCuda(bool showWindow, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
+void destroyWorldCuda(bool showWindow, hitable* list, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
 {
-
+    // TODO
+    /*
+    checkCudaErrors(cudaFree(cam));
+    checkCudaErrors(cudaFree(world));
+    checkCudaErrors(cudaFree(list));
+    */
 }
