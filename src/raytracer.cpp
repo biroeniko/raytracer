@@ -53,23 +53,30 @@ const float phiInit = 1.32596f;
 const float zoomScale = 0.5f;
 const float stepScale = 0.5f;
 
-void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world)
+void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, Window** w, Image** image, Camera** cam, Renderer** render)
 {
-    Window* w;
-    Image* image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
+    *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
 
     vec3 lookFrom(13.0f, 2.0f, 3.0f);
     vec3 lookAt(0.0f, 0.0f, 0.0f);
     float distToFocus = 10.0f;
     float aperture = 0.1f;
 
-    Camera* cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
-    Renderer* render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
+    *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
+    *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
 
     if (showWindow)
-    {
-        w = new Window(cam, render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
-    }
+        *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
+}
+
+void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world)
+{
+    Window* w;
+    Image* image;
+    Camera* cam;
+    Renderer* render;
+
+    initializeWorld(showWindow, writeImagePPM, writeImagePNG, &w, &image, &cam, &render);
 
     std::ofstream ppmImageStream;
     
@@ -129,6 +136,10 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
     {
         delete w;
     }
+
+    delete image;
+    delete cam;
+    delete render;
 }
 
 int main(int argc, char **argv)
@@ -162,6 +173,8 @@ int main(int argc, char **argv)
             benchmarkStream << ns << " " <<  elapsed.count() << "s\n";
 
             benchmarkStream.close();
+
+            delete[] world;
         }
     }
     else
@@ -169,6 +182,7 @@ int main(int argc, char **argv)
         // Invoke renderer
         hitable *world = simpleScene2();
         invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world);
+        delete[] world;
     }
 
     return 0;
