@@ -48,7 +48,7 @@ struct Window
     Camera* windowCamera;
     Renderer* rend;
 
-    Window(Camera* cam, Renderer* rend,
+    CUDA_HOSTDEV Window(Camera* cam, Renderer* rend,
             const int nx, const int ny,
             const float thetaInit, const float phiInit,
             const float zoomScale, const float stepScale) :
@@ -67,18 +67,20 @@ struct Window
 
         SDLWindow = NULL; 
         if (SDL_Init(SDL_INIT_VIDEO) < 0)
-            std::cout << "SDL could not initialize! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;
-        else 
+        {
+            //std::cout << "SDL could not initialize! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;
+        }
+        else
         { 
             SDLWindow = SDL_CreateWindow("Ray tracer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, nx, ny, SDL_WINDOW_SHOWN); 
             if (SDLWindow == NULL) 
             { 
-                std::cout << "Window could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
+                //std::cout << "Window could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
             }
             SDLRenderer = SDL_CreateRenderer(SDLWindow, -1, SDL_RENDERER_SOFTWARE);
             if (SDLRenderer == NULL) 
             { 
-                std::cout << "Renderer could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
+                //std::cout << "Renderer could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
             }
         }
 
@@ -95,7 +97,7 @@ struct Window
         windowCamera->rotate(theta, phi);
     }
 
-    ~Window()
+    CUDA_HOSTDEV ~Window()
     {
         SDL_DestroyTexture(SDLTexture);
         SDL_DestroyRenderer(SDLRenderer);
@@ -103,7 +105,7 @@ struct Window
         SDL_Quit();
     }
 
-    void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, Camera* cam,
+    CUDA_HOSTDEV void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, Camera* cam,
                         hitable* world, Image* image,  int sampleCount, uint8_t *fileOutputImage) 
     {
             rend->traceRays(image->windowPixels, cam, world, image, sampleCount, fileOutputImage);
@@ -113,7 +115,7 @@ struct Window
             SDL_RenderPresent(w->SDLRenderer);
 	}
 
-    void pollEvents(Image* image, uint8_t *fileOutputImage)
+    CUDA_HOSTDEV void pollEvents(Image* image, uint8_t *fileOutputImage)
     {
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -200,7 +202,7 @@ struct Window
         }
     }
 
-    void waitQuit()
+    CUDA_HOSTDEV void waitQuit()
     {
         SDL_Event event;
         while (!quit)

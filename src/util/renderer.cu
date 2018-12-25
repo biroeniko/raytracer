@@ -59,7 +59,6 @@ SOFTWARE.
         if (showWindow)
             windowPixels[(ny-j-1)*nx + i] = (ir << 16) | (ig << 8) | (ib);
 
-
         /*
         RandomGenerator rng(sampleCount, i*image->rows + j);
         float u = float(i + rng.get1f()) / float(image->rows); // left to right
@@ -110,5 +109,7 @@ SOFTWARE.
         render<<<blocks, threads>>>(cam, image->pixels, image->windowPixels, image->fileOutputImage, writeImagePNG, showWindow, image->nx, image->ny, sampleCount);
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
+
+        std::cout << image->pixels[0] << std::endl;
     }
 #endif // CUDA_ENABLED

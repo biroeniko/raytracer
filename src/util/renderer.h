@@ -36,7 +36,7 @@ class Renderer
     bool writeImagePNG;
 
     public:
-        CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG);
+        CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG) {};
 
         CUDA_HOSTDEV vec3 color(RandomGenerator& rng, const ray& r, hitable *world, int depth);
         CUDA_HOSTDEV bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);

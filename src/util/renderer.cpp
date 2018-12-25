@@ -19,11 +19,6 @@ SOFTWARE.
 
 #include "util/renderer.h"
 
-CUDA_HOSTDEV Renderer::Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG)
-{
-
-}
-
 CUDA_HOSTDEV vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *world, int depth)
 {
     hitRecord rec;
