@@ -43,17 +43,6 @@ SOFTWARE.
 #include "util/window.h"
 #include "util/common.h"
 
-const int nx = 1400;
-const int ny = 700;
-const int ns = 50;                     // sample size
-const int tx = 8;                      // block size
-const int ty = 8;
-const int benchmarkCount = 100;
-const float thetaInit = 1.34888f;
-const float phiInit = 1.32596f;
-const float zoomScale = 0.5f;
-const float stepScale = 0.5f;
-
 void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render);
 
 void destroyWorldCuda(bool showWindow, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render);
