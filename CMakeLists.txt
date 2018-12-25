@@ -30,7 +30,7 @@ if(CUDA_SUPPORT)
     find_package(CUDA REQUIRED)
     set(CUDA_HOST_COMPILER gcc)
     set(CUDA_PROPAGATE_HOST_FLAGS OFF)
-    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std=c++11 -O3 -DNDEBUG -use_fast_math -Xptxas -v -keep -gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_52,code=sm_52 -gencode arch=compute_53,code=sm_53 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_62,code=sm_62 -gencode arch=compute_70,code=sm_70")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -g -G -std=c++11 -O3 -DNDEBUG -use_fast_math -Xptxas -v -keep -gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_52,code=sm_52 -gencode arch=compute_53,code=sm_53 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_62,code=sm_62 -gencode arch=compute_70,code=sm_70")
     include_directories(${CUDA_INCLUDE_DIRS})
 endif()
 
@@ -62,7 +62,6 @@ set(SRC_HOST
     src/util/vec3.h
     src/util/ray.h
     src/util/image.h
-    src/util/image.cu
     src/util/scene.h
     src/util/window.h
     src/util/renderer.h
@@ -81,9 +80,14 @@ if (CUDA_SUPPORT)
     set(SRC_HOST
         ${SRC_HOST}
         src/util/image.cu
+        src/util/renderer.cu
     )
 endif()
 
+if (CUDA_SUPPORT)
+    set_source_files_properties(src/util/image.cu
+                                PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ )
+endif()
 
 if (CUDA_SUPPORT)
     cuda_add_executable(${PROJECT_NAME} ${SRC_HOST} OPTIONS -x cu)
@@ -91,4 +95,4 @@ else()
     add_executable(${PROJECT_NAME} ${SRC_HOST})
 endif()
 
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} -lcudart)
