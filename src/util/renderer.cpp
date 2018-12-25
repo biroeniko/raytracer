@@ -101,6 +101,7 @@ CUDA_HOSTDEV bool Renderer::traceRays(uint32_t* windowPixels, Camera* cam, hitab
             // i tracks columns - left to right
             for (int i = 0; i < image->nx; i++)
             {
+
                 render(i, j, windowPixels, cam, world, image, sampleCount, fileOutputImage);
             }
         }

@@ -50,15 +50,10 @@ void destroyWorldCuda(bool showWindow, hitable* world, Window* w, Image* image, 
 void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
 {
     *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
-
     vec3 lookFrom(13.0f, 2.0f, 3.0f);
     vec3 lookAt(0.0f, 0.0f, 0.0f);
-    float distToFocus = 10.0f;
-    float aperture = 0.1f;
-
     *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
     *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
-
     *world = simpleScene2();
 
     if (showWindow)
@@ -136,7 +131,6 @@ void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     #else
         initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
     #endif // CUDA_ENABLED
-    initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
 
     invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, render);
 

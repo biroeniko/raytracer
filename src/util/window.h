@@ -66,19 +66,19 @@ struct Window
         refresh = false;
 
         SDLWindow = NULL; 
-        if (SDL_Init(SDL_INIT_VIDEO) < 0) 
+        if (SDL_Init(SDL_INIT_VIDEO) < 0)
             std::cout << "SDL could not initialize! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;
         else 
         { 
             SDLWindow = SDL_CreateWindow("Ray tracer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, nx, ny, SDL_WINDOW_SHOWN); 
             if (SDLWindow == NULL) 
             { 
-                std::cout << "Window could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
+                std::cout << "Window could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
             }
             SDLRenderer = SDL_CreateRenderer(SDLWindow, -1, SDL_RENDERER_SOFTWARE);
             if (SDLRenderer == NULL) 
             { 
-                std::cout << "Renderer could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;; 
+                std::cout << "Renderer could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
             }
         }
 

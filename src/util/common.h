@@ -58,3 +58,6 @@ const float thetaInit = 1.34888f;
 const float phiInit = 1.32596f;
 const float zoomScale = 0.5f;
 const float stepScale = 0.5f;
+
+const float distToFocus = 10.0f;
+const float aperture = 0.1f;

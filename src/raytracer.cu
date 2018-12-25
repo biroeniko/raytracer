@@ -26,6 +26,14 @@ SOFTWARE.
 #include "util/window.h"
 #include "util/common.h"
 
+CUDA_GLOBAL void createWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, Camera** cam)
+{
+    if (threadIdx.x == 0 && blockIdx.x == 0)
+    {
+        *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
+    }
+}
+
 void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
 {
     hitable** list;
@@ -39,24 +47,13 @@ void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG
     checkCudaErrors(cudaMallocManaged((void **)&cam, sizeof(Camera *)));
     checkCudaErrors(cudaMallocManaged((void **)&image, sizeof(Image *)));
     checkCudaErrors(cudaMallocManaged((void **)&cam, sizeof(Renderer *)));
-    *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
-
-    vec3 lookFrom(13.0f, 2.0f, 3.0f);
-    vec3 lookAt(0.0f, 0.0f, 0.0f);
-    float distToFocus = 10.0f;
-    float aperture = 0.1f;
-
-    *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
-    *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
-
-    *world = simpleScene2();
 
     if (showWindow)
-    {
         checkCudaErrors(cudaMallocManaged((void **)&w, sizeof(Window *)));
-        *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
-    }
 
+    createWorld<<<1,1>>>(showWindow, writeImagePPM, writeImagePNG, cam);
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
 }
 
 void destroyWorldCuda(bool showWindow, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
