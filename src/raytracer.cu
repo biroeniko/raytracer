@@ -32,7 +32,7 @@ CUDA_GLOBAL void createWorld(Camera** cam)
     {
         vec3 lookFrom(13.0f, 2.0f, 3.0f);
         vec3 lookAt(0.0f, 0.0f, 0.0f);
-        //*cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
+        *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
     }
 }
 

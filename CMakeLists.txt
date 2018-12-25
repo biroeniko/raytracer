@@ -65,7 +65,6 @@ set(SRC_HOST
     src/util/renderer.h
     src/util/renderer.cpp
     src/util/camera.h
-    src/util/camera.cpp
     src/util/randomGenerator.h
     src/util/util.h
     src/util/util.cpp

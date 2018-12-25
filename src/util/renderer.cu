@@ -26,9 +26,11 @@ SOFTWARE.
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
 
-        //RandomGenerator rng(sampleCount, i*nx + j);
-        //float u = float(i + rng.get1f()) / float(nx); // left to right
-        //float v = float(j + rng.get1f()) / float(ny); // bottom to top
+        RandomGenerator rng(sampleCount, i*nx + j);
+        float u = float(i + rng.get1f()) / float(nx); // left to right
+        float v = float(j + rng.get1f()) / float(ny); // bottom to top
+
+        //ray r = cam->getRay(rng, u,v);
 
         if ((i >= nx) || (j >= ny))
             return;
