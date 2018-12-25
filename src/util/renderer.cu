@@ -21,16 +21,17 @@ SOFTWARE.
 #include "util/renderer.h"
 
 #ifdef CUDA_ENABLED
-    CUDA_GLOBAL void render(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+    CUDA_GLOBAL void render(vec3* frameBuffer, int nx, int ny)
     {
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
-        if ((i >= image->nx) || (j >= image->ny))
+        if ((i >= nx) || (j >= ny))
             return;
-        int pixelIndex = j*image->nx + i;
+        int pixelIndex = j*nx + i;
+
         vec3 col(0.0f,1.0f,0.0f);
 
-        image->frameBuffer[pixelIndex] = col;
+        frameBuffer[pixelIndex] = col;
 
         /*
         RandomGenerator rng(sampleCount, i*image->rows + j);
@@ -82,10 +83,10 @@ SOFTWARE.
         dim3 blocks(image->nx/image->tx+1, image->ny/image->ty+1);
         dim3 threads(image->tx, image->ty);
 
-        render<<<blocks, threads>>>(windowPixels, cam, world, image, sampleCount, fileOutputImage);
+        render<<<blocks, threads>>>(image->frameBuffer, image->nx, image->ny);
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
 
-        //std::cout << image->frameBuffer[0] << std::endl;
+        std::cout << image->frameBuffer[0] << std::endl;
     }
 #endif // CUDA_ENABLED

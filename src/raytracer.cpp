@@ -177,7 +177,8 @@ int main(int argc, char **argv)
     else
     {
         // Invoke renderer
-        hitable *world = simpleScene2();
+        //hitable *world = simpleScene2();
+        hitable *world;
         invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world);
     }
 
