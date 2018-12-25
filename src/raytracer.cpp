@@ -41,6 +41,7 @@ SOFTWARE.
 #include "util/scene.h"
 #include "util/renderer.h"
 #include "util/window.h"
+#include "util/common.h"
 
 const int nx = 1400;
 const int ny = 700;
@@ -69,17 +70,10 @@ void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, Wi
         *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
 }
 
-void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world)
+void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
 {
-    Window* w;
-    Image* image;
-    Camera* cam;
-    Renderer* render;
-
-    initializeWorld(showWindow, writeImagePPM, writeImagePNG, &w, &image, &cam, &render);
-
     std::ofstream ppmImageStream;
-    
+
     if (writeImagePPM)
     {
         ppmImageStream.open("test.ppm");
@@ -87,7 +81,7 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
             ppmImageStream << "P3\n" << nx << " " << ny << "\n255\n";
         else std::cout << "Unable to open file" << std::endl;
     }
-    
+
     if (showWindow)
     {
         for (int i = 0; i < ns; i++)
@@ -136,6 +130,19 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
     {
         delete w;
     }
+}
+
+void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world)
+{
+
+    Window* w;
+    Image* image;
+    Camera* cam;
+    Renderer* render;
+
+    initializeWorld(showWindow, writeImagePPM, writeImagePNG, &w, &image, &cam, &render);
+
+    invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, render);
 
     delete image;
     delete cam;
@@ -161,7 +168,7 @@ int main(int argc, char **argv)
 
             // Invoke renderer
             hitable *world = simpleScene();
-            invokeRenderer(false, false, false, world);
+            setup(false, false, false, world);
 
             // Record end time
             auto finish = std::chrono::high_resolution_clock::now();
@@ -181,7 +188,7 @@ int main(int argc, char **argv)
     {
         // Invoke renderer
         hitable *world = simpleScene2();
-        invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world);
+        setup(showWindow, writeImagePPM, writeImagePNG, world);
         delete[] world;
     }
 
