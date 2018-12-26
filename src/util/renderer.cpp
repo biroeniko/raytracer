@@ -67,7 +67,7 @@ CUDA_HOSTDEV vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *w
         int ig = int(255.99f*col[1]);
         int ib = int(255.99f*col[2]);
 
-        if (writeImagePNG)
+        if (writeImagePNG || writeImagePPM)
         {
             // PNG
             int index = (image->ny - 1 - j) * image->nx + i;
