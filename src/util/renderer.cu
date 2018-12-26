@@ -21,43 +21,54 @@ SOFTWARE.
 #include "util/renderer.h"
 
 #ifdef CUDA_ENABLED
-    CUDA_GLOBAL void render(Camera* cam, vec3* pixels, uint32_t* windowPixels, uint8_t* fileOutputImage, bool writeImagePNG, bool showWindow, int nx, int ny, int sampleCount)
+    CUDA_GLOBAL void render(Camera* cam, Image* image, hitable* world, Renderer* render, int sampleCount)
     {
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
 
-        if ((i >= nx) || (j >= ny))
+        if ((i >= image->nx) || (j >= image->ny))
             return;
 
-        RandomGenerator rng(sampleCount, i*nx + j);
-        float u = float(i + rng.get1f()) / float(nx); // left to right
-        float v = float(j + rng.get1f()) / float(ny); // bottom to top
+        RandomGenerator rng(sampleCount, i*image->nx + j);
+        float u = float(i + rng.get1f()) / float(image->nx); // left to right
+        float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
 
-        int pixelIndex = j*nx + i;
+        int pixelIndex = j*image->nx + i;
 
-        //ray r = cam->getRay(rng, u, v);
+        ray r = cam->getRay(rng, u, v);
 
-        vec3 col(0.0f,1.0f,0.0f);
+        //render->color(rng, r, world, 0);
+        //image->pixels[pixelIndex] += render->color(rng, r, world, 0);
 
-        pixels[pixelIndex] = col;
+        //vec3 col = image->pixels[pixelIndex] / sampleCount;
 
+        // Gamma encoding of images is used to optimize the usage of bits
+        // when encoding an image, or bandwidth used to transport an image,
+        // by taking advantage of the non-linear manner in which humans perceive
+        // light and color. (wikipedia)
+
+        // we use gamma 2: raising the color to the power 1/gamma (1/2)
+        //col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+
+        vec3 col = vec3(1,0,0);
+        image->pixels[pixelIndex] = col;
         int ir = int(255.99f*col[0]);
         int ig = int(255.99f*col[1]);
         int ib = int(255.99f*col[2]);
 
-        if (writeImagePNG)
+        if (image->writeImage)
         {
             // PNG
-            int index = (ny - 1 - j) * nx + i;
+            int index = (image->ny - 1 - j) * image->nx + i;
             int index3 = 3 * index;
 
-            fileOutputImage[index3 + 0] = ir;
-            fileOutputImage[index3 + 1] = ig;
-            fileOutputImage[index3 + 2] = ib;
+            image->fileOutputImage[index3 + 0] = ir;
+            image->fileOutputImage[index3 + 1] = ig;
+            image->fileOutputImage[index3 + 2] = ib;
         }
 
-        if (showWindow)
-            windowPixels[(ny-j-1)*nx + i] = (ir << 16) | (ig << 8) | (ib);
+        if (image->showWindow)
+            image->windowPixels[(image->ny-j-1)*image->nx + i] = (ir << 16) | (ig << 8) | (ib);
 
         /*
         RandomGenerator rng(sampleCount, i*image->rows + j);
@@ -106,7 +117,7 @@ SOFTWARE.
         dim3 blocks(image->nx/image->tx+1, image->ny/image->ty+1);
         dim3 threads(image->tx, image->ty);
 
-        render<<<blocks, threads>>>(cam, image->pixels, image->windowPixels, image->fileOutputImage, writeImagePNG, showWindow, image->nx, image->ny, sampleCount);
+        render<<<blocks, threads>>>(cam, image, world, this, sampleCount);
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
     }
