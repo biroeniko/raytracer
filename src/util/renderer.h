@@ -38,7 +38,27 @@ class Renderer
     public:
         CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG) {};
 
-        CUDA_HOSTDEV vec3 color(RandomGenerator& rng, const ray& r, hitable *world, int depth);
+        CUDA_HOSTDEV vec3 color(RandomGenerator& rng, const ray& r, hitable *world, int depth)
+        {
+            hitRecord rec;
+            if (world->hit(r, 0.001f, FLT_MAX, rec))        // get rid of shadow acne problem
+            {
+                ray scattered;
+                vec3 attenuation;
+                if (depth < 50 && rec.matPtr->scatter(rng, r, rec, attenuation, scattered))
+                    return attenuation*color(rng, scattered, world, depth+1);
+                else
+                    return vec3(0.0f, 0.0f, 0.0f);
+            }
+            else
+            {
+                // background
+                vec3 unitDirection = unitVector(r.direction());
+                float t = 0.5f*(unitDirection.y() + 1.0f);
+                return (1.0f-t)*vec3(1.0f, 1.0f, 1.0f) + t*vec3(0.5f, 0.7f, 1.0f);
+            }
+        }
+
         CUDA_HOSTDEV bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
 
         #ifdef CUDA_ENABLED

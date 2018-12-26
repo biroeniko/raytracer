@@ -19,27 +19,6 @@ SOFTWARE.
 
 #include "util/renderer.h"
 
-CUDA_HOSTDEV vec3 Renderer::color(RandomGenerator& rng, const ray& r, hitable *world, int depth)
-{
-    hitRecord rec;
-    if (world->hit(r, 0.001f, FLT_MAX, rec))        // get rid of shadow acne problem
-    {
-        ray scattered;
-        vec3 attenuation;
-        if (depth < 50 && rec.matPtr->scatter(rng, r, rec, attenuation, scattered))
-            return attenuation*color(rng, scattered, world, depth+1);
-        else
-            return vec3(0.0f, 0.0f, 0.0f);
-    }
-    else
-    {
-        // background
-        vec3 unitDirection = unitVector(r.direction());
-        float t = 0.5f*(unitDirection.y() + 1.0f);
-        return (1.0f-t)*vec3(1.0f, 1.0f, 1.0f) + t*vec3(0.5f, 0.7f, 1.0f);
-    }
-}
-
 #ifdef CUDA_ENABLED
 
 #else

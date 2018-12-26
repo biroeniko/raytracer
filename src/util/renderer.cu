@@ -38,7 +38,7 @@ SOFTWARE.
         ray r = cam->getRay(rng, u, v);
 
         //render->color(rng, r, world, 0);
-        //image->pixels[pixelIndex] += render->color(rng, r, world, 0);
+        image->pixels[pixelIndex] += render->color(rng, r, world, 0);
 
         //vec3 col = image->pixels[pixelIndex] / sampleCount;
 
@@ -50,8 +50,8 @@ SOFTWARE.
         // we use gamma 2: raising the color to the power 1/gamma (1/2)
         //col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
-        vec3 col = vec3(1,0,0);
-        image->pixels[pixelIndex] = col;
+        vec3 col = image->pixels[pixelIndex];
+        //image->pixels[pixelIndex] = col;
         int ir = int(255.99f*col[0]);
         int ig = int(255.99f*col[1]);
         int ib = int(255.99f*col[2]);
