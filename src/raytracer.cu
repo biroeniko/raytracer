@@ -26,24 +26,6 @@ SOFTWARE.
 #include "util/window.h"
 #include "util/common.h"
 
-CUDA_GLOBAL void createCamera(Camera** cam)
-{
-    if (threadIdx.x == 0 && blockIdx.x == 0)
-    {
-        vec3 lookFrom(13.0f, 2.0f, 3.0f);
-        vec3 lookAt(0.0f, 0.0f, 0.0f);
-        *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
-    }
-}
-
-CUDA_GLOBAL void createWindow(Window** w, Camera** cam, Renderer** render)
-{
-    if (threadIdx.x == 0 && blockIdx.x == 0)
-    {
-        *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
-    }
-}
-
 void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
 {
     int num_hitables = 4;
@@ -53,16 +35,11 @@ void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-    /*
-    checkCudaErrors(cudaMallocManaged((void **)&cam, sizeof(Camera*)));
-    createCamera<<<1,1>>>(cam);
-    checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaDeviceSynchronize());
-    */
-
     vec3 lookFrom(13.0f, 2.0f, 3.0f);
     vec3 lookAt(0.0f, 0.0f, 0.0f);
-    *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
+
+    cudaMallocManaged(cam, sizeof(Camera));
+    new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
 
     *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
     *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
