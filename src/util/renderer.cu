@@ -109,7 +109,5 @@ SOFTWARE.
         render<<<blocks, threads>>>(cam, image->pixels, image->windowPixels, image->fileOutputImage, writeImagePNG, showWindow, image->nx, image->ny, sampleCount);
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
-
-        std::cout << image->pixels[0] << std::endl;
     }
 #endif // CUDA_ENABLED

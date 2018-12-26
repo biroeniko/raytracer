@@ -38,16 +38,17 @@ void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG
     vec3 lookFrom(13.0f, 2.0f, 3.0f);
     vec3 lookAt(0.0f, 0.0f, 0.0f);
 
-    cudaMallocManaged(cam, sizeof(Camera));
+    checkCudaErrors(cudaMallocManaged(cam, sizeof(Camera)));
     new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
 
-    *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
-    *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
+    checkCudaErrors(cudaMallocManaged(render, sizeof(Renderer)));
+    new (*render) Renderer(showWindow, writeImagePPM, writeImagePNG);
+
+    checkCudaErrors(cudaMallocManaged(image, sizeof(Image)));
+    new (*image) Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
 
     if (showWindow)
-    {
         *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
-    }
 
 }
 
