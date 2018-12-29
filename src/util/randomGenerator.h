@@ -78,7 +78,6 @@ public:
 
     CUDA_DEV vec3 randomInUnitSphere()
     {
-        return vec3(1.0, 1.0, 1.0);
         vec3 point;
         do {
             point = 2.0f * vec3(get1f(), get1f(), get1f()) - vec3(1.0f,1.0f,1.0f);
