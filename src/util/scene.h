@@ -42,6 +42,9 @@ CUDA_HOSTDEV inline hitable* simpleScene()
 }
 #endif // CUDA_ENABLED
 
+
+#ifdef CUDA_ENABLED
+#else
 CUDA_HOSTDEV inline hitable* simpleScene2()
 {
     RandomGenerator rng;
@@ -119,3 +122,4 @@ inline hitable* randomScene()
 
     return new hitableList(list, i);
 }
+#endif // CUDA_ENABLED

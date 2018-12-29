@@ -38,10 +38,66 @@ class Renderer
     public:
         CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG) {};
 
-        CUDA_HOSTDEV vec3 color(RandomGenerator& rng, const ray& r, hitable *world, int depth)
+        #ifdef CUDA_ENABLED
+            CUDA_DEV
+        #else
+            CUDA_HOSTDEV
+        #endif // CUDA_ENABLED
+        vec3 color(RandomGenerator& rng, const ray& r, hitable** world, int depth)
         {
+                ray cur_ray = r;
+                vec3 cur_attenuation = vec3(1.0,1.0,1.0);
+
+
+                hitRecord rec;
+                if ((*world)->hit(r, 0.001f, FLT_MAX, rec)) {
+                    ray scattered;
+                    vec3 attenuation;
+                    rec.matPtr->scatter(rng, cur_ray, rec, attenuation, scattered);
+                    return vec3(0,0,1);
+
+                }
+                else {
+                    return vec3(1.0,0.0,0.0);
+                }
+
+
+
+                /*
+                hitRecord rec;
+                (*world)->hit(r, 0.001f, FLT_MAX, rec);
+                (*world)->test();
+                //return vec3(1,1,0);
+                */
+/*
+                ray cur_ray = r;
+                vec3 cur_attenuation = vec3(1.0,1.0,1.0);
+            for(int i = 0; i < 5; i++)
+            {
+                    hitRecord rec;
+                    if ((*world)->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
+                        ray scattered;
+                        vec3 attenuation;
+                        if(rec.matPtr->scatter(rng, cur_ray, rec, attenuation, scattered)) {
+                            cur_attenuation *= attenuation;
+                            cur_ray = scattered;
+                        }
+                        else {
+                            return vec3(0.0,0.0,0.0);
+                        }
+                    }
+                    else {
+                        vec3 unit_direction = unitVector(cur_ray.direction());
+                        float t = 0.5f*(unit_direction.y() + 1.0f);
+                        vec3 c = (1.0f-t)*vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0);
+                        return cur_attenuation * c;
+                    }
+                }
+             return vec3(0.0,0.0,0.0); // exceeded recursion
+*/
+            /*
             hitRecord rec;
-            if (world->hit(r, 0.001f, FLT_MAX, rec))        // get rid of shadow acne problem
+            if ((*world)->hit(r, 0.001f, FLT_MAX, rec))        // get rid of shadow acne problem
             {
                 ray scattered;
                 vec3 attenuation;
@@ -57,13 +113,14 @@ class Renderer
                 float t = 0.5f*(unitDirection.y() + 1.0f);
                 return (1.0f-t)*vec3(1.0f, 1.0f, 1.0f) + t*vec3(0.5f, 0.7f, 1.0f);
             }
+            */
         }
 
-        CUDA_HOSTDEV bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+        CUDA_HOSTDEV bool traceRays(uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage);
 
         #ifdef CUDA_ENABLED
-            void cudaRender(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+            void cudaRender(uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage);
         #else
-            CUDA_HOSTDEV void render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+            CUDA_HOSTDEV void render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage);
         #endif // CUDA_ENABLED
 };

@@ -26,44 +26,47 @@ SOFTWARE.
 #include "util/window.h"
 #include "util/common.h"
 
-void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
-{
-    // World
-/*
-    hitable** list2 = new hitable*[4];
-    list2[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
-    list2[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-    list2[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
-    list2[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
-
-    hitable* camera =  new hitableList(list2, 4);
-*/
-
-    int numHitables = 4;
-    hitable** list;
-    checkCudaErrors(cudaMallocManaged(&list, numHitables*sizeof(hitable*)));
-    checkCudaErrors(cudaMallocManaged(world, sizeof(hitable)));
-    for (int i = 0; i < numHitables; i++)
+#ifdef CUDA_ENABLED
+    CUDA_GLOBAL void render(Camera* cam, Image* image, hitable** world, Renderer* render, int sampleCount)
     {
-        checkCudaErrors(cudaMallocManaged(&list[i], sizeof(hitable)));
-        new (list[i]) sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+        int i = threadIdx.x + blockIdx.x * blockDim.x;
+        int j = threadIdx.y + blockIdx.y * blockDim.y;
+
+        if ((i >= image->nx) || (j >= image->ny))
+            return;
+
+        RandomGenerator rng(sampleCount, i*image->nx + j);
+        float u = float(i + rng.get1f()) / float(image->nx); // left to right
+        float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
+
+        int pixelIndex = j*image->nx + i;
+
+        ray r = cam->getRay(rng, u, v);
+
+        //render->color(rng, r, world, 0);
+        image->pixels[pixelIndex] += render->color(rng, r, world, 0);
+
+
     }
+#endif // CUDA_ENABLED
 
-    //new (list[0]) sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
-    //new (list[1]) sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-    //new (list[2]) sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
-    //new (list[3]) sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
-    new (*world) hitableList(list, numHitables);
-
-/*
-    hitable** list;
+void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable*** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
+{
+    hitable** list2;
+    hitable** world2;
+    // World
     int num_hitables = 4;
-    checkCudaErrors(cudaMallocManaged((void **)&list, num_hitables*sizeof(hitable*)));
-    checkCudaErrors(cudaMallocManaged((void **)&world, sizeof(hitable*)));
-    simpleScene<<<1,1>>>(list, world);
+    checkCudaErrors(cudaMalloc(&list2, num_hitables*sizeof(hitable*)));
+    checkCudaErrors(cudaMalloc(&world2, sizeof(hitable*)));
+    simpleScene<<<1,1>>>(list2, world2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
-*/
+
+    checkCudaErrors(cudaMalloc(list, num_hitables*sizeof(hitable*)));
+    checkCudaErrors(cudaMalloc(world, sizeof(hitable*)));
+    simpleScene<<<1,1>>>(*list, *world);
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
 
     // Camera
     vec3 lookFrom(13.0f, 2.0f, 3.0f);
@@ -72,8 +75,8 @@ void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG
     new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
 
     // Renderer
-    checkCudaErrors(cudaMallocManaged(render, sizeof(Renderer)));
-    new (*render) Renderer(showWindow, writeImagePPM, writeImagePNG);
+    checkCudaErrors(cudaMallocManaged(renderer, sizeof(Renderer)));
+    new (*renderer) Renderer(showWindow, writeImagePPM, writeImagePNG);
 
     // Image
     checkCudaErrors(cudaMallocManaged(image, sizeof(Image)));
@@ -81,12 +84,22 @@ void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG
 
     // Window
     if (showWindow)
-        *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
+        *w = new Window(*cam, *renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
+
+/*
+    dim3 blocks((*image)->nx/(*image)->tx+1, (*image)->ny/(*image)->ty+1);
+    dim3 threads((*image)->tx, (*image)->ty);
+
+    render<<<blocks, threads>>>(*cam, *image, world, *renderer, 1);
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
+    */
+
 }
 
-void destroyWorldCuda(bool showWindow, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
+void destroyWorldCuda(bool showWindow, hitable*** list, hitable*** world, Window* w, Image* image, Camera* cam, Renderer* render)
 {
-    checkCudaErrors(cudaFree(world));
+    //checkCudaErrors(cudaFree(world));
     checkCudaErrors(cudaFree(cam));
     checkCudaErrors(cudaFree(render));
     checkCudaErrors(cudaFree(image));

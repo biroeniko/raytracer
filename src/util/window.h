@@ -106,7 +106,7 @@ struct Window
     }
 
     CUDA_HOSTDEV void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, Camera* cam,
-                        hitable* world, Image* image,  int sampleCount, uint8_t *fileOutputImage) 
+                        hitable** world, Image* image,  int sampleCount, uint8_t *fileOutputImage)
     {
             rend->traceRays(image->windowPixels, cam, world, image, sampleCount, fileOutputImage);
             //std::cout << "Sample nr. " << sampleCount << std::endl;

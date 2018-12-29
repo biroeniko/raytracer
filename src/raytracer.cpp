@@ -43,24 +43,25 @@ SOFTWARE.
 #include "util/window.h"
 #include "util/common.h"
 
-void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render);
+#ifdef CUDA_ENABLED
+    void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable*** world, Window** w, Image** image, Camera** cam, Renderer** render);
+    void destroyWorldCuda(bool showWindow, hitable*** list, hitable*** world, Window* w, Image* image, Camera* cam, Renderer* render);
+#else
+    void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
+    {
+        *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
+        vec3 lookFrom(13.0f, 2.0f, 3.0f);
+        vec3 lookAt(0.0f, 0.0f, 0.0f);
+        *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
+        *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
+        *world = simpleScene2();
 
-void destroyWorldCuda(bool showWindow, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render);
+        if (showWindow)
+            *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
+    }
+#endif // CUDA_ENABLED
 
-void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
-{
-    *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
-    vec3 lookFrom(13.0f, 2.0f, 3.0f);
-    vec3 lookAt(0.0f, 0.0f, 0.0f);
-    *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
-    *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
-    *world = simpleScene2();
-
-    if (showWindow)
-        *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
-}
-
-void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
+void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window* w, Image* image, Camera* cam, Renderer* render)
 {
     std::ofstream ppmImageStream;
 
@@ -124,20 +125,23 @@ void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     Image* image;
     Camera* cam;
     Renderer* render;
-    hitable* world;
+    #ifdef CUDA_ENABLED
+        hitable** world;
+    #else
+        hitable* world;
+    #endif // CUDA_ENABLED
+
     hitable** list;
 
     #ifdef CUDA_ENABLED
-        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
+        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &list, &world, &w, &image, &cam, &render);
+        invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, render);
+        destroyWorldCuda(showWindow, &list, &world, w, image, cam, render);
+
     #else
         initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
-    #endif // CUDA_ENABLED
+        invokeRenderer(showWindow, writeImagePPM, writeImagePNG, &world, w, image, cam, render);
 
-    invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, render);
-
-    #ifdef CUDA_ENABLED
-        destroyWorldCuda(showWindow, world, w, image, cam, render);
-    #else
         delete image;
         delete cam;
         delete render;
@@ -145,7 +149,6 @@ void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
         if (showWindow)
             delete w;
     #endif // CUDA_ENABLED
-
 }
 
 int main(int argc, char **argv)

@@ -22,7 +22,7 @@ SOFTWARE.
 #ifdef CUDA_ENABLED
 
 #else
-    CUDA_HOSTDEV void Renderer::render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+    CUDA_HOSTDEV void Renderer::render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage)
     {
         RandomGenerator rng(sampleCount, i*image->nx + j);
         float u = float(i + rng.get1f()) / float(image->nx); // left to right
@@ -62,7 +62,7 @@ SOFTWARE.
     }
 #endif // CUDA_ENABLED
 
-CUDA_HOSTDEV bool Renderer::traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+CUDA_HOSTDEV bool Renderer::traceRays(uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage)
 {
     #ifdef CUDA_ENABLED
         cudaRender(windowPixels, cam, world, image, sampleCount, fileOutputImage);

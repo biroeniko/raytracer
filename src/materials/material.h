@@ -30,7 +30,8 @@ As in Peter Shirley's book:
 
 #pragma once
 
-struct hitable;
+struct hitRecord;
+class hitable;
 
 #include "util/ray.h"
 #include "hitables/hitable.h"
@@ -39,8 +40,11 @@ struct hitable;
 class material
 {
     public:
+    #ifdef CUDA_ENABLED
+        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const = 0;
+    #else
         CUDA_HOSTDEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const = 0;
-        CUDA_HOSTDEV virtual ~material() {}
+    #endif // CUDA_ENABLED
 };
 
 // lambertian (diffuse)
@@ -51,13 +55,24 @@ class lambertian : public material
 {
     vec3 albedo; // the proportion of the incident light or radiation that is reflected by a surface
     public:
+    #ifdef CUDA_ENABLED
+        CUDA_DEV lambertian(const vec3& a) : albedo(a) {}
+        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+    #else
         CUDA_HOSTDEV lambertian(const vec3& a) : albedo(a) {}
         CUDA_HOSTDEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+    #endif // CUDA_ENABLED
 };
 
 // diffuse matrials randomly scatter the rays
-CUDA_HOSTDEV inline bool lambertian::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
-{                    
+#ifdef CUDA_ENABLED
+    CUDA_DEV
+#else
+    CUDA_HOSTDEV
+#endif // CUDA_ENABLED
+inline bool lambertian::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+{
+    return true;
     vec3 target = rec.point + rec.normal + rng.randomInUnitSphere();
     scattered = ray(rec.point, target-rec.point);
     attenuation = albedo;
@@ -66,7 +81,12 @@ CUDA_HOSTDEV inline bool lambertian::scatter(RandomGenerator& rng, const ray& rI
 
 // for smooth metals the ray won't be randomly scattered
 // because v points in, we will need a minus sign before the dot product
-CUDA_HOSTDEV inline vec3 reflect(const vec3& v, const vec3& n)
+#ifdef CUDA_ENABLED
+    CUDA_DEV
+#else
+    CUDA_HOSTDEV
+#endif // CUDA_ENABLED
+inline vec3 reflect(const vec3& v, const vec3& n)
 {
     return v - 2.0f*dot(v,n)*n;
 }
@@ -76,12 +96,22 @@ class metal: public material
     vec3 albedo;
     float fuzz;
     public:
+    #ifdef CUDA_ENABLED
+        CUDA_DEV metal(const vec3& a, float f = 0.0f) : albedo(a) {if (f < 1.0f) fuzz = f; else fuzz = 1.0f;}
+        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+    #else
         CUDA_HOSTDEV metal(const vec3& a, float f = 0.0f) : albedo(a) {if (f < 1.0f) fuzz = f; else fuzz = 1.0f;}
         CUDA_HOSTDEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+    #endif // CUDA_ENABLED
 };
 
 // metals don't randomly scatter -> they reflect
-CUDA_HOSTDEV inline bool metal::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+#ifdef CUDA_ENABLED
+    CUDA_DEV
+#else
+    CUDA_HOSTDEV
+#endif // CUDA_ENABLED
+inline bool metal::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
     vec3 reflected = reflect(unitVector(rIn.direction()), rec.normal);
     scattered = ray(rec.point, reflected + fuzz*rng.randomInUnitSphere());
@@ -99,8 +129,12 @@ CUDA_HOSTDEV inline bool metal::scatter(RandomGenerator& rng, const ray& rIn, co
 // n sin(theta) = n' sin(theta')
 // n and n' are the refractive indices (air = 1, glass = 1.2-1.7, diamond = 2.4)
 // total internal reflection
-
-CUDA_HOSTDEV inline bool refract(const vec3& v, const vec3& n, float niOverNt, vec3& refracted)
+#ifdef CUDA_ENABLED
+    CUDA_DEV
+#else
+    CUDA_HOSTDEV
+#endif // CUDA_ENABLED
+inline bool refract(const vec3& v, const vec3& n, float niOverNt, vec3& refracted)
 {
     vec3 uv = unitVector(v);
     float dt = dot(uv, n);
@@ -114,24 +148,44 @@ CUDA_HOSTDEV inline bool refract(const vec3& v, const vec3& n, float niOverNt, v
         return false;
 }
 
-CUDA_HOSTDEV class dielectric: public material
+#ifdef CUDA_ENABLED
+    CUDA_DEV
+#else
+    CUDA_HOSTDEV
+#endif // CUDA_ENABLED
+class dielectric: public material
 {
     float refIndex;
     public:
+    #ifdef CUDA_ENABLED
+        CUDA_DEV dielectric(float ri) : refIndex(ri) {}
+        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+    #else
         CUDA_HOSTDEV dielectric(float ri) : refIndex(ri) {}
         CUDA_HOSTDEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+    #endif // CUDA_ENABLED
 };
 
 // real glass has reflectivity that varies with angle
 // Christophe Schlick's simple qeuation:
-CUDA_HOSTDEV inline float schlick(float cosine, float refIndex)
+#ifdef CUDA_ENABLED
+    CUDA_DEV
+#else
+    CUDA_HOSTDEV
+#endif // CUDA_ENABLED
+inline float schlick(float cosine, float refIndex)
 {
     float r0 = (1-refIndex) / (1+refIndex);
     r0 = r0*r0;
     return r0 + (1-r0)*pow((1-cosine),5);
 }
 
-CUDA_HOSTDEV inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+#ifdef CUDA_ENABLED
+    CUDA_DEV
+#else
+    CUDA_HOSTDEV
+#endif // CUDA_ENABLED
+inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
     vec3 outWardNormal;
     vec3 reflected = reflect(rIn.direction(), rec.normal);

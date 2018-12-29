@@ -21,7 +21,7 @@ SOFTWARE.
 #include "util/renderer.h"
 
 #ifdef CUDA_ENABLED
-    CUDA_GLOBAL void render(Camera* cam, Image* image, hitable* world, Renderer* render, int sampleCount)
+    CUDA_GLOBAL void render2(Camera* cam, Image* image, hitable** world, Renderer* render, int sampleCount)
     {
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -112,13 +112,15 @@ SOFTWARE.
 #endif // CUDA_ENABLED
 
 #ifdef CUDA_ENABLED
-    void Renderer::cudaRender(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+    void Renderer::cudaRender(uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage)
     {
+
         dim3 blocks(image->nx/image->tx+1, image->ny/image->ty+1);
         dim3 threads(image->tx, image->ty);
 
-        render<<<blocks, threads>>>(cam, image, world, this, sampleCount);
+        render2<<<blocks, threads>>>(cam, image, world, this, sampleCount);
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
+
     }
 #endif // CUDA_ENABLED
