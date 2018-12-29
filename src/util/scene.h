@@ -29,6 +29,7 @@ SOFTWARE.
 
 #ifdef CUDA_ENABLED
 CUDA_GLOBAL void simpleScene(hitable** list, hitable** world);
+CUDA_GLOBAL void simpleScene2(hitable** list, hitable** world);
 #else
 CUDA_HOSTDEV inline hitable* simpleScene()
 {
@@ -40,11 +41,7 @@ CUDA_HOSTDEV inline hitable* simpleScene()
 
     return new hitableList(list, 4);
 }
-#endif // CUDA_ENABLED
 
-
-#ifdef CUDA_ENABLED
-#else
 CUDA_HOSTDEV inline hitable* simpleScene2()
 {
     RandomGenerator rng;

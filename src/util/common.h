@@ -50,7 +50,7 @@ SOFTWARE.
 
 const int nx = 1400;
 const int ny = 700;
-const int ns = 50000;                     // sample size
+const int ns = 50;                     // sample size
 const int tx = 8;                      // block size
 const int ty = 8;
 const int benchmarkCount = 100;

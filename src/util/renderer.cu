@@ -21,7 +21,7 @@ SOFTWARE.
 #include "util/renderer.h"
 
 #ifdef CUDA_ENABLED
-    CUDA_GLOBAL void render2(Camera* cam, Image* image, hitable** world, Renderer* render, int sampleCount)
+    CUDA_GLOBAL void render(Camera* cam, Image* image, hitable** world, Renderer* render, int sampleCount)
     {
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -66,56 +66,16 @@ SOFTWARE.
 
         if (image->showWindow)
             image->windowPixels[(image->ny-j-1)*image->nx + i] = (ir << 16) | (ig << 8) | (ib);
-
-        /*
-        RandomGenerator rng(sampleCount, i*image->rows + j);
-        float u = float(i + rng.get1f()) / float(image->rows); // left to right
-        float v = float(j + rng.get1f()) / float(image->columns); // bottom to top
-
-        ray r = cam->getRay(rng, u,v);
-
-        image->pixels[i][j] += color(rng, r, world, 0);
-
-        vec3 col = image->pixels[i][j] / sampleCount;
-
-        // Gamma encoding of images is used to optimize the usage of bits
-        // when encoding an image, or bandwidth used to transport an image,
-        // by taking advantage of the non-linear manner in which humans perceive
-        // light and color. (wikipedia)
-
-        // we use gamma 2: raising the color to the power 1/gamma (1/2)
-        col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
-
-        int ir = int(255.99f*col[0]);
-        int ig = int(255.99f*col[1]);
-        int ib = int(255.99f*col[2]);
-
-        if (writeImagePNG)
-        {
-            // PNG
-            int index = (image->columns - 1 - j) * image->rows + i;
-            int index3 = 3 * index;
-
-            fileOutputImage[index3 + 0] = ir;
-            fileOutputImage[index3 + 1] = ig;
-            fileOutputImage[index3 + 2] = ib;
-        }
-
-        if (showWindow)
-            windowPixels[(image->columns-j-1)*image->rows + i] = (ir << 16) | (ig << 8) | (ib);
-
-        */
     }
 #endif // CUDA_ENABLED
 
 #ifdef CUDA_ENABLED
     void Renderer::cudaRender(uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage)
     {
-
         dim3 blocks(image->nx/image->tx+1, image->ny/image->ty+1);
         dim3 threads(image->tx, image->ty);
 
-        render2<<<blocks, threads>>>(cam, image, world, this, sampleCount);
+        render<<<blocks, threads>>>(cam, image, world, this, sampleCount);
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
 

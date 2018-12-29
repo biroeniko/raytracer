@@ -164,7 +164,7 @@ int main(int argc, char **argv)
 
         for (int i = 0; i < benchmarkCount; i++)
         {
-            benchmarkStream.open("../benchmark/benchmarkResult.txt", std::ios_base::app);
+            benchmarkStream.open("../benchmark/benchmarkResultCUDA.txt", std::ios_base::app);
             // Record start time
             auto start = std::chrono::high_resolution_clock::now();
 

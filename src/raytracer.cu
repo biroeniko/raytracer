@@ -26,37 +26,13 @@ SOFTWARE.
 #include "util/window.h"
 #include "util/common.h"
 
-#ifdef CUDA_ENABLED
-    CUDA_GLOBAL void render(Camera* cam, Image* image, hitable** world, Renderer* render, int sampleCount)
-    {
-        int i = threadIdx.x + blockIdx.x * blockDim.x;
-        int j = threadIdx.y + blockIdx.y * blockDim.y;
-
-        if ((i >= image->nx) || (j >= image->ny))
-            return;
-
-        RandomGenerator rng(sampleCount, i*image->nx + j);
-        float u = float(i + rng.get1f()) / float(image->nx); // left to right
-        float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
-
-        int pixelIndex = j*image->nx + i;
-
-        ray r = cam->getRay(rng, u, v);
-
-        //render->color(rng, r, world, 0);
-        image->pixels[pixelIndex] += render->color(rng, r, world, 0);
-
-
-    }
-#endif // CUDA_ENABLED
-
 void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable*** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
 {
     // World
     int numHitables = 4;
     checkCudaErrors(cudaMalloc(list, numHitables*sizeof(hitable*)));
     checkCudaErrors(cudaMalloc(world, sizeof(hitable*)));
-    simpleScene<<<1,1>>>(*list, *world);
+    simpleScene2<<<1,1>>>(*list, *world);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -82,7 +58,8 @@ void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG
 
 void destroyWorldCuda(bool showWindow, hitable*** list, hitable*** world, Window* w, Image* image, Camera* cam, Renderer* render)
 {
-    //checkCudaErrors(cudaFree(world));
+    checkCudaErrors(cudaFree(*world));
+    checkCudaErrors(cudaFree(*list));
     checkCudaErrors(cudaFree(cam));
     checkCudaErrors(cudaFree(render));
     checkCudaErrors(cudaFree(image));
