@@ -28,21 +28,10 @@ class sphere: public hitable
         float radius;
         material *matPtr;
 
-        #ifdef CUDA_ENABLED
-            CUDA_DEV sphere() {}
-            CUDA_DEV sphere(vec3 cen, float r, material *m) : center(cen), radius(r), matPtr(m) {}
-            CUDA_DEV virtual bool test() {return true;}
-        #else
-            CUDA_HOSTDEV sphere() {}
-            CUDA_HOSTDEV sphere(vec3 cen, float r, material *m) : center(cen), radius(r), matPtr(m) {}
-        #endif // CUDA_ENABLED
+        CUDA_DEV sphere() {}
+        CUDA_DEV sphere(vec3 cen, float r, material *m) : center(cen), radius(r), matPtr(m) {}
 
-        #ifdef CUDA_ENABLED
-            CUDA_DEV
-        #else
-            CUDA_HOSTDEV
-        #endif // CUDA_ENABLED
-        virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+        CUDA_DEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
         {
 
             vec3 oc = r.origin() - center;
@@ -73,6 +62,5 @@ class sphere: public hitable
                 }
             }
             return false;
-
         }
 };

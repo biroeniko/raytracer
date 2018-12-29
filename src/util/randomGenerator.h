@@ -35,29 +35,29 @@ class RandomGenerator
     static constexpr uint64_t defaultSeq  = 1442695040888963407ULL >> 1;
 
 public:
-    CUDA_HOSTDEV explicit RandomGenerator(uint64_t seed = defaultSeed, uint64_t seq = defaultSeq)
+    CUDA_DEV explicit RandomGenerator(uint64_t seed = defaultSeed, uint64_t seq = defaultSeq)
     {
         reset(seed, seq);
     }
 
-    CUDA_HOSTDEV void reset(uint64_t seed = defaultSeed, uint64_t seq = defaultSeq)
+    CUDA_DEV void reset(uint64_t seed = defaultSeed, uint64_t seq = defaultSeq)
     {
         inc = (seq << 1) | 1;
         state = seed + inc;
         next();
     }
 
-    CUDA_HOSTDEV void next()
+    CUDA_DEV void next()
     {
         state = state * 6364136223846793005ULL + inc;
     }
 
-    CUDA_HOSTDEV uint64_t getSeq() const
+    CUDA_DEV uint64_t getSeq() const
     {
         return inc >> 1;
     }
 
-    CUDA_HOSTDEV uint32_t get1ui()
+    CUDA_DEV uint32_t get1ui()
     {
         const uint64_t oldState = state;
         next();
@@ -66,18 +66,19 @@ public:
         return (xorShifted >> rot) | (xorShifted << ((-rot) & 31u));
     }
 
-    CUDA_HOSTDEV float toFloatUnorm(int x)
+    CUDA_DEV float toFloatUnorm(int x)
     {
         return float(uint32_t(x)) * 0x1.0p-32f;
     }
 
-    CUDA_HOSTDEV float get1f()
+    CUDA_DEV float get1f()
     {
        return toFloatUnorm(get1ui());
     }
 
-    CUDA_HOSTDEV vec3 randomInUnitSphere()
+    CUDA_DEV vec3 randomInUnitSphere()
     {
+        return vec3(1.0, 1.0, 1.0);
         vec3 point;
         do {
             point = 2.0f * vec3(get1f(), get1f(), get1f()) - vec3(1.0f,1.0f,1.0f);

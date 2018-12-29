@@ -48,6 +48,7 @@ class vec3
         CUDA_HOSTDEV float operator[](int i) const;
         CUDA_HOSTDEV float& operator[](int i);
 
+        CUDA_HOSTDEV vec3& operator=(const vec3 &v2);
         CUDA_HOSTDEV vec3& operator+=(const vec3 &v2);
         CUDA_HOSTDEV vec3& operator-=(const vec3 &v2);
         CUDA_HOSTDEV vec3& operator*=(const vec3 &v2);
@@ -98,6 +99,14 @@ inline CUDA_HOSTDEV float& vec3::operator[](int i)
 }
 
 // binary operators
+inline CUDA_HOSTDEV vec3& vec3::operator=(const vec3 &v2)
+{
+    e[0] = v2.e[0];
+    e[1] = v2.e[1];
+    e[2] = v2.e[2];
+    return *this;
+}
+
 inline CUDA_HOSTDEV vec3& vec3::operator+=(const vec3 &v2)
 {
     e[0] += v2.e[0];

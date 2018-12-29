@@ -37,10 +37,9 @@ SOFTWARE.
 
         ray r = cam->getRay(rng, u, v);
 
-        //render->color(rng, r, world, 0);
         image->pixels[pixelIndex] += render->color(rng, r, world, 0);
 
-        //vec3 col = image->pixels[pixelIndex] / sampleCount;
+        vec3 col = image->pixels[pixelIndex] / sampleCount;
 
         // Gamma encoding of images is used to optimize the usage of bits
         // when encoding an image, or bandwidth used to transport an image,
@@ -48,10 +47,8 @@ SOFTWARE.
         // light and color. (wikipedia)
 
         // we use gamma 2: raising the color to the power 1/gamma (1/2)
-        //col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+        col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
-        vec3 col = image->pixels[pixelIndex];
-        //image->pixels[pixelIndex] = col;
         int ir = int(255.99f*col[0]);
         int ig = int(255.99f*col[1]);
         int ib = int(255.99f*col[2]);

@@ -52,17 +52,9 @@ SOFTWARE.
 
 void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable*** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
 {
-    hitable** list2;
-    hitable** world2;
     // World
-    int num_hitables = 4;
-    checkCudaErrors(cudaMalloc(&list2, num_hitables*sizeof(hitable*)));
-    checkCudaErrors(cudaMalloc(&world2, sizeof(hitable*)));
-    simpleScene<<<1,1>>>(list2, world2);
-    checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaDeviceSynchronize());
-
-    checkCudaErrors(cudaMalloc(list, num_hitables*sizeof(hitable*)));
+    int numHitables = 4;
+    checkCudaErrors(cudaMalloc(list, numHitables*sizeof(hitable*)));
     checkCudaErrors(cudaMalloc(world, sizeof(hitable*)));
     simpleScene<<<1,1>>>(*list, *world);
     checkCudaErrors(cudaGetLastError());
@@ -85,15 +77,6 @@ void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG
     // Window
     if (showWindow)
         *w = new Window(*cam, *renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
-
-/*
-    dim3 blocks((*image)->nx/(*image)->tx+1, (*image)->ny/(*image)->ty+1);
-    dim3 threads((*image)->tx, (*image)->ty);
-
-    render<<<blocks, threads>>>(*cam, *image, world, *renderer, 1);
-    checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaDeviceSynchronize());
-    */
 
 }
 

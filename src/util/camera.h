@@ -153,7 +153,7 @@ class Camera
             update();
         }
 
-        CUDA_HOSTDEV ray getRay(RandomGenerator& rng, float s, float t)
+        CUDA_DEV ray getRay(RandomGenerator& rng, float s, float t)
         {
             vec3 rd = lensRadius*rng.randomInUnitSphere();
             vec3 offset = u * rd.x() + v * rd.y();
