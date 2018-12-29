@@ -51,6 +51,11 @@ SOFTWARE.
 const int nx = 1400;
 const int ny = 700;
 const int ns = 50;                     // sample size
+#ifdef CUDA_ENABLED
+    const int nsBatch = 5;
+#else
+    const int nsBatch = 1;
+#endif
 const int tx = 8;                      // block size
 const int ty = 8;
 const int benchmarkCount = 100;

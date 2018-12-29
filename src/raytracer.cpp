@@ -73,9 +73,11 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
         else std::cout << "Unable to open file" << std::endl;
     }
 
+    int numberOfIterations = (ns % nsBatch) ? (ns / nsBatch + 1) : (ns / nsBatch);
+
     if (showWindow)
     {
-        for (int i = 0; i < ns; i++)
+        for (int i = 0; i < numberOfIterations; i++)
         {
             w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, image->fileOutputImage);
             w->pollEvents(image, image->fileOutputImage);
@@ -110,7 +112,7 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
     }
     else
     {
-       for (int i = 0; i < ns; i++)
+        for (int i = 0; i < numberOfIterations; i++)
         {
             render->traceRays(nullptr, cam, world, image, i+1, image->fileOutputImage);
             //std::cout << "Sample nr. " << i+1 << std::endl;

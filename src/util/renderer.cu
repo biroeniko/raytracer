@@ -29,17 +29,18 @@ SOFTWARE.
         if ((i >= image->nx) || (j >= image->ny))
             return;
 
-        RandomGenerator rng(sampleCount, i*image->nx + j);
-        float u = float(i + rng.get1f()) / float(image->nx); // left to right
-        float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
-
         int pixelIndex = j*image->nx + i;
-
-        ray r = cam->getRay(rng, u, v);
-
-        image->pixels[pixelIndex] += render->color(rng, r, world, 0);
-
-        vec3 col = image->pixels[pixelIndex] / sampleCount;
+        vec3 col = image->pixels[pixelIndex];
+        for(int s = 0; s < nsBatch; s++)
+        {
+            RandomGenerator rng(sampleCount, i*image->nx + j);
+            float u = float(i + rng.get1f()) / float(image->nx); // left to right
+            float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
+            ray r = cam->getRay(rng, u, v);
+            col += render->color(rng, r, world, 0);
+        }
+        image->pixels[pixelIndex] = col;
+        col /= float(sampleCount*nsBatch);
 
         // Gamma encoding of images is used to optimize the usage of bits
         // when encoding an image, or bandwidth used to transport an image,
