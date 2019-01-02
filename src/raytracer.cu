@@ -26,40 +26,9 @@ SOFTWARE.
 #include "util/window.h"
 #include "util/common.h"
 
-void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable*** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
+void destroyWorldCuda(bool showWindow, hitable** list, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
 {
-    // World
-    int numHitables = 4;
-    checkCudaErrors(cudaMalloc(list, numHitables*sizeof(hitable*)));
-    checkCudaErrors(cudaMalloc(world, sizeof(hitable*)));
-    simpleScene2<<<1,1>>>(*list, *world);
-    checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaDeviceSynchronize());
-
-    // Camera
-    vec3 lookFrom(13.0f, 2.0f, 3.0f);
-    vec3 lookAt(0.0f, 0.0f, 0.0f);
-    checkCudaErrors(cudaMallocManaged(cam, sizeof(Camera)));
-    new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
-
-    // Renderer
-    checkCudaErrors(cudaMallocManaged(renderer, sizeof(Renderer)));
-    new (*renderer) Renderer(showWindow, writeImagePPM, writeImagePNG);
-
-    // Image
-    checkCudaErrors(cudaMallocManaged(image, sizeof(Image)));
-    new (*image) Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
-
-    // Window
-    if (showWindow)
-        *w = new Window(*cam, *renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
-
-}
-
-void destroyWorldCuda(bool showWindow, hitable*** list, hitable*** world, Window* w, Image* image, Camera* cam, Renderer* render)
-{
-    checkCudaErrors(cudaFree(*world));
-    checkCudaErrors(cudaFree(*list));
+    checkCudaErrors(cudaFree(list));
     checkCudaErrors(cudaFree(cam));
     checkCudaErrors(cudaFree(render));
     checkCudaErrors(cudaFree(image));

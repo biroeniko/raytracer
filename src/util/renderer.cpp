@@ -62,7 +62,7 @@ SOFTWARE.
     }
 #endif // CUDA_ENABLED
 
-CUDA_HOSTDEV bool Renderer::traceRays(uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+CUDA_HOSTDEV bool Renderer::traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
 {
     #ifdef CUDA_ENABLED
         cudaRender(windowPixels, cam, world, image, sampleCount, fileOutputImage);

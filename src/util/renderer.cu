@@ -20,8 +20,60 @@ SOFTWARE.
 #include "util/common.h"
 #include "util/renderer.h"
 
+#include "hitables/sphere.h"
+#include "hitables/hitableList.h"
+#include "util/camera.h"
+#include "materials/material.h"
+#include "util/scene.h"
+#include "util/window.h"
+
 #ifdef CUDA_ENABLED
-    CUDA_GLOBAL void render(Camera* cam, Image* image, hitable** world, Renderer* render, int sampleCount)
+void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
+{
+    // World
+    int numHitables = 4;
+    checkCudaErrors(cudaMallocManaged(list, numHitables*sizeof(hitable*)));
+    hitable** worldPtr;
+    checkCudaErrors(cudaMallocManaged(&worldPtr, sizeof(hitable*)));
+    simpleScene<<<1,1>>>(*list, worldPtr);
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
+    *world = *worldPtr;
+    checkCudaErrors(cudaFree(worldPtr));
+
+    // Camera
+    vec3 lookFrom(13.0f, 2.0f, 3.0f);
+    vec3 lookAt(0.0f, 0.0f, 0.0f);
+    checkCudaErrors(cudaMallocManaged(cam, sizeof(Camera)));
+    new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
+
+    // Renderer
+    checkCudaErrors(cudaMallocManaged(renderer, sizeof(Renderer)));
+    new (*renderer) Renderer(showWindow, writeImagePPM, writeImagePNG);
+
+    // Image
+    checkCudaErrors(cudaMallocManaged(image, sizeof(Image)));
+    new (*image) Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
+
+    // Window
+    if (showWindow)
+        *w = new Window(*cam, *renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
+}
+
+CUDA_GLOBAL void simpleScene(hitable** list, hitable** world)
+{
+    if (threadIdx.x == 0 && blockIdx.x == 0)
+    {
+        list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+        list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
+        list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
+        list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
+
+        *world  = new hitableList(list, 4);
+    }
+}
+
+    CUDA_GLOBAL void render(Camera* cam, Image* image, hitable* world, Renderer* render, int sampleCount)
     {
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -30,17 +82,14 @@ SOFTWARE.
             return;
 
         int pixelIndex = j*image->nx + i;
-        vec3 col = image->pixels[pixelIndex];
-        for(int s = 0; s < nsBatch; s++)
-        {
-            RandomGenerator rng(sampleCount, i*image->nx + j);
-            float u = float(i + rng.get1f()) / float(image->nx); // left to right
-            float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
-            ray r = cam->getRay(rng, u, v);
-            col += render->color(rng, r, world, 0);
-        }
-        image->pixels[pixelIndex] = col;
-        col /= float(sampleCount*nsBatch);
+
+        RandomGenerator rng(sampleCount, i*image->nx + j);
+        float u = float(i + rng.get1f()) / float(image->nx); // left to right
+        float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
+        ray r = cam->getRay(rng, u, v);
+
+        image->pixels[pixelIndex] += render->color(rng, r, world, 0);
+        vec3 col = image->pixels[pixelIndex] / sampleCount;
 
         // Gamma encoding of images is used to optimize the usage of bits
         // when encoding an image, or bandwidth used to transport an image,
@@ -71,12 +120,13 @@ SOFTWARE.
 #endif // CUDA_ENABLED
 
 #ifdef CUDA_ENABLED
-    void Renderer::cudaRender(uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+    void Renderer::cudaRender(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
     {
-        dim3 blocks(image->nx/image->tx+1, image->ny/image->ty+1);
+        dim3 blocks( (image->nx + image->tx - 1)/image->tx, (image->ny + image->ty - 1)/image->ty);
         dim3 threads(image->tx, image->ty);
 
         render<<<blocks, threads>>>(cam, image, world, this, sampleCount);
+        //std::cout << (image->nx + image->tx - 1)/image->tx;
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
 

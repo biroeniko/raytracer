@@ -48,16 +48,16 @@ SOFTWARE.
     #define CUDA_HOSTDEV
 #endif
 
-const int nx = 1400;
-const int ny = 700;
+const int nx = 2800;
+const int ny = 1400;
 const int ns = 50;                     // sample size
 #ifdef CUDA_ENABLED
-    const int nsBatch = 5;
+    const int nsBatch = 1;
 #else
     const int nsBatch = 1;
 #endif
-const int tx = 8;                      // block size
-const int ty = 8;
+const int tx = 16;                      // block size
+const int ty = 16;
 const int benchmarkCount = 100;
 const float thetaInit = 1.34888f;
 const float phiInit = 1.32596f;

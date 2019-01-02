@@ -33,7 +33,7 @@ class hitableList: public hitable
         {
             hitRecord tempRec;
             bool hitAnything = false;
-            double closestSoFar = tMax;
+            float closestSoFar = tMax;
 
             for (int i = 0; i < listSize; i++)
             {
@@ -47,4 +47,5 @@ class hitableList: public hitable
             }
             return hitAnything;
         }
+
 };

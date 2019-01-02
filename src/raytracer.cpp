@@ -38,14 +38,13 @@ SOFTWARE.
 #include "hitables/hitableList.h"
 #include "util/camera.h"
 #include "materials/material.h"
-#include "util/scene.h"
 #include "util/renderer.h"
 #include "util/window.h"
 #include "util/common.h"
 
 #ifdef CUDA_ENABLED
-    void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable*** world, Window** w, Image** image, Camera** cam, Renderer** render);
-    void destroyWorldCuda(bool showWindow, hitable*** list, hitable*** world, Window* w, Image* image, Camera* cam, Renderer* render);
+    void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render);
+    void destroyWorldCuda(bool showWindow, hitable** list, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render);
 #else
     void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
     {
@@ -61,7 +60,7 @@ SOFTWARE.
     }
 #endif // CUDA_ENABLED
 
-void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window* w, Image* image, Camera* cam, Renderer* render)
+void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
 {
     std::ofstream ppmImageStream;
 
@@ -127,18 +126,14 @@ void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
     Image* image;
     Camera* cam;
     Renderer* render;
-    #ifdef CUDA_ENABLED
-        hitable** world;
-    #else
-        hitable* world;
-    #endif // CUDA_ENABLED
+    hitable* world;
 
     hitable** list;
 
     #ifdef CUDA_ENABLED
         initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &list, &world, &w, &image, &cam, &render);
         invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, render);
-        destroyWorldCuda(showWindow, &list, &world, w, image, cam, render);
+        destroyWorldCuda(showWindow, list, world, w, image, cam, render);
 
     #else
         initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);

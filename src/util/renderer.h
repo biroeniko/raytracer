@@ -36,27 +36,27 @@ class Renderer
     bool writeImagePNG;
 
     public:
-        CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG) {};
+        CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG) {}
 
-        CUDA_DEV vec3 color(RandomGenerator& rng, const ray& r, hitable** world, int depth)
+        CUDA_DEV vec3 color(RandomGenerator& rng, const ray& r, hitable* world, int depth)
         {
             ray curRay = r;
             vec3 curAttenuation = vec3(1.0f, 1.0f, 1.0f);
-            for(int i = 0; i < 50; i++)
+            for (int i = 0; i < 50; i++)
             {
                 hitRecord rec;
-                if ((*world)->hit(curRay, 0.001f, FLT_MAX, rec))
+                if (world->hit(curRay, 0.001f, FLT_MAX, rec))
                 {
                     ray scattered;
                     vec3 attenuation;
-                    if(rec.matPtr->scatter(rng, curRay, rec, attenuation, scattered))
+                    if (rec.matPtr->scatter(rng, curRay, rec, attenuation, scattered))
                     {
                         curAttenuation *= attenuation;
                         curRay = scattered;
                     }
                     else
                         return vec3(0.0f, 0.0f, 0.0f);
-                    }
+                }
                 else
                 {
                     vec3 unit_direction = unitVector(curRay.direction());
@@ -68,11 +68,11 @@ class Renderer
             return vec3(0.0f, 0.0f, 0.0f); // exceeded recursion
         }
 
-        CUDA_HOSTDEV bool traceRays(uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+        CUDA_HOSTDEV bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
 
         #ifdef CUDA_ENABLED
-            void cudaRender(uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+            void cudaRender(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
         #else
-            CUDA_HOSTDEV void render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+            CUDA_HOSTDEV void render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
         #endif // CUDA_ENABLED
 };
