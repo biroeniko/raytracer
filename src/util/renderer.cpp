@@ -18,11 +18,12 @@ SOFTWARE.
 */
 
 #include "util/renderer.h"
+#include "util/scene.h"
 
 #ifdef CUDA_ENABLED
 
 #else
-    CUDA_HOSTDEV void Renderer::render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable** world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+    CUDA_HOSTDEV void Renderer::render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
     {
         RandomGenerator rng(sampleCount, i*image->nx + j);
         float u = float(i + rng.get1f()) / float(image->nx); // left to right
@@ -40,7 +41,7 @@ SOFTWARE.
         // light and color. (wikipedia)
 
         // we use gamma 2: raising the color to the power 1/gamma (1/2)
-        col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+        col = vec3(sqrtf(col[0]), sqrtf(col[1]), sqrtf(col[2]));
 
         int ir = int(255.99f*col[0]);
         int ig = int(255.99f*col[1]);

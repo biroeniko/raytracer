@@ -41,6 +41,7 @@ SOFTWARE.
 #include "util/renderer.h"
 #include "util/window.h"
 #include "util/common.h"
+#include "util/scene.h"
 
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render);
@@ -53,7 +54,7 @@ SOFTWARE.
         vec3 lookAt(0.0f, 0.0f, 0.0f);
         *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
         *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
-        *world = simpleScene2();
+        *world = randomScene();
 
         if (showWindow)
             *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
@@ -94,12 +95,8 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
         if (writeImagePPM)
         {
             for (int j = 0; j < ny; j++)
-            {
                 for (int i = 0; i < nx; i++)
-                {
                     ppmImageStream << int(image->fileOutputImage[(j*nx+i)*3]) << " " << int(image->fileOutputImage[(j*nx+i)*3+1]) << " " << int(image->fileOutputImage[(j*nx+i)*3+2]) << "\n";
-                }
-            }
             ppmImageStream.close();
         }
 
@@ -112,10 +109,7 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
     else
     {
         for (int i = 0; i < numberOfIterations; i++)
-        {
             render->traceRays(nullptr, cam, world, image, i+1, image->fileOutputImage);
-            //std::cout << "Sample nr. " << i+1 << std::endl;
-        }
         std::cout << "Done." << std::endl;
     }
 }
@@ -137,7 +131,7 @@ void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
 
     #else
         initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
-        invokeRenderer(showWindow, writeImagePPM, writeImagePNG, &world, w, image, cam, render);
+        invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, render);
 
         delete image;
         delete cam;

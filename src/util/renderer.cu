@@ -24,54 +24,66 @@ SOFTWARE.
 #include "hitables/hitableList.h"
 #include "util/camera.h"
 #include "materials/material.h"
-#include "util/scene.h"
+#include "util/scene.cuh"
 #include "util/window.h"
 
+const int numHitables = 101;
+
 #ifdef CUDA_ENABLED
-void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
-{
-    // World
-    int numHitables = 4;
-    checkCudaErrors(cudaMallocManaged(list, numHitables*sizeof(hitable*)));
-    hitable** worldPtr;
-    checkCudaErrors(cudaMallocManaged(&worldPtr, sizeof(hitable*)));
-    simpleScene<<<1,1>>>(*list, worldPtr);
-    checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaDeviceSynchronize());
-    *world = *worldPtr;
-    checkCudaErrors(cudaFree(worldPtr));
-
-    // Camera
-    vec3 lookFrom(13.0f, 2.0f, 3.0f);
-    vec3 lookAt(0.0f, 0.0f, 0.0f);
-    checkCudaErrors(cudaMallocManaged(cam, sizeof(Camera)));
-    new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
-
-    // Renderer
-    checkCudaErrors(cudaMallocManaged(renderer, sizeof(Renderer)));
-    new (*renderer) Renderer(showWindow, writeImagePPM, writeImagePNG);
-
-    // Image
-    checkCudaErrors(cudaMallocManaged(image, sizeof(Image)));
-    new (*image) Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
-
-    // Window
-    if (showWindow)
-        *w = new Window(*cam, *renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
-}
-
-CUDA_GLOBAL void simpleScene(hitable** list, hitable** world)
-{
-    if (threadIdx.x == 0 && blockIdx.x == 0)
+    void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
     {
-        list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
-        list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-        list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
-        list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
+        // World
+        checkCudaErrors(cudaMallocManaged(list, numHitables*sizeof(hitable*)));
+        hitable** worldPtr;
+        checkCudaErrors(cudaMallocManaged(&worldPtr, sizeof(hitable*)));
+        randomScene2<<<1,1>>>(*list, worldPtr);
+        checkCudaErrors(cudaGetLastError());
+        checkCudaErrors(cudaDeviceSynchronize());
+        *world = *worldPtr;
+        checkCudaErrors(cudaFree(worldPtr));
 
-        *world  = new hitableList(list, 4);
+        // Camera
+        vec3 lookFrom(13.0f, 2.0f, 3.0f);
+        vec3 lookAt(0.0f, 0.0f, 0.0f);
+        checkCudaErrors(cudaMallocManaged(cam, sizeof(Camera)));
+        new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
+
+        // Renderer
+        checkCudaErrors(cudaMallocManaged(renderer, sizeof(Renderer)));
+        new (*renderer) Renderer(showWindow, writeImagePPM, writeImagePNG);
+
+        // Image
+        checkCudaErrors(cudaMallocManaged(image, sizeof(Image)));
+        new (*image) Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
+
+        // Window
+        if (showWindow)
+            *w = new Window(*cam, *renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
     }
-}
+
+    CUDA_GLOBAL void freeWorldCuda(hitable** list, hitable** world)
+    {
+        if (threadIdx.x == 0 && blockIdx.x == 0)
+        {
+            for (int i = 0; i < numHitables; i++)
+            {
+                delete ((sphere *)list[i])->matPtr;
+                delete list[i];
+            }
+            //delete *world;
+        }
+    }
+
+    void destroyWorldCuda(bool showWindow, hitable** list, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
+    {
+        freeWorldCuda<<<1,1>>>(list, &world);
+        checkCudaErrors(cudaGetLastError());
+        checkCudaErrors(cudaDeviceSynchronize());
+
+        checkCudaErrors(cudaFree(cam));
+        checkCudaErrors(cudaFree(render));
+        checkCudaErrors(cudaFree(image));
+    }
 
     CUDA_GLOBAL void render(Camera* cam, Image* image, hitable* world, Renderer* render, int sampleCount)
     {

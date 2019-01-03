@@ -21,13 +21,15 @@ SOFTWARE.
 
 #include <iostream>
 #include <random>
+#include <float.h>
 #include <omp.h>
 
 #include "hitables/hitableList.h"
 #include "util/camera.h"
-#include "util/scene.h"
 #include "util/image.h"
 #include "util/randomGenerator.h"
+#include "materials/material.h"
+#include "hitables/sphere.h"
 
 class Renderer
 {

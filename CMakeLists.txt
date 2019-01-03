@@ -77,8 +77,7 @@ if (CUDA_SUPPORT)
         ${SRC_HOST}
         src/util/image.cu
         src/util/renderer.cu
-        src/util/scene.cu
-        src/raytracer.cu
+        src/util/scene.cuh
     )
 endif()
 

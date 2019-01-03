@@ -27,11 +27,6 @@ SOFTWARE.
 #include "util/randomGenerator.h"
 #include "util/common.h"
 
-#ifdef CUDA_ENABLED
-CUDA_GLOBAL void simpleScene(hitable** list, hitable** world);
-CUDA_GLOBAL void simpleScene2(hitable** list, hitable** world);
-CUDA_GLOBAL void randomScene(hitable** list, hitable** world);
-#else
 CUDA_HOSTDEV inline hitable* simpleScene()
 {
     hitable** list = new hitable*[4];
@@ -67,7 +62,7 @@ CUDA_HOSTDEV inline hitable* simpleScene2()
                 {
                     list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
                 }
-                else if (chooseMat < 0.75)      // metal 
+                else if (chooseMat < 0.75)      // metal
                 {
                     list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()))));
                 }
@@ -85,7 +80,7 @@ CUDA_HOSTDEV inline hitable* simpleScene2()
 inline hitable* randomScene()
 {
     RandomGenerator rng;
-    
+
     int n = 1000;
     hitable** list = new hitable*[n+1];
     list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
@@ -102,7 +97,7 @@ inline hitable* randomScene()
                 {
                     list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
                 }
-                else if (chooseMat < 0.75)      // metal 
+                else if (chooseMat < 0.75)      // metal
                 {
                     list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()))));
                 }
@@ -120,4 +115,3 @@ inline hitable* randomScene()
 
     return new hitableList(list, i);
 }
-#endif // CUDA_ENABLED
