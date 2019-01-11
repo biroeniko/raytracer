@@ -48,8 +48,8 @@ SOFTWARE.
     #define CUDA_HOSTDEV
 #endif
 
-const int nx = 2800;
-const int ny = 1400;
+const int nx = 1280;
+const int ny = 720;
 const int ns = 50;                     // sample size
 #ifdef CUDA_ENABLED
     const int nsBatch = 1;

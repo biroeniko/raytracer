@@ -129,7 +129,7 @@ SOFTWARE.
         {
             RandomGenerator rng;
 
-            int n = 101;
+            int n = 102;
             list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
             int i = 1;
             for (int a = -5; a < 5; a++)

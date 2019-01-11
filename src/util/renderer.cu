@@ -27,7 +27,7 @@ SOFTWARE.
 #include "util/scene.cuh"
 #include "util/window.h"
 
-const int numHitables = 101;
+const int numHitables = 102;
 
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
