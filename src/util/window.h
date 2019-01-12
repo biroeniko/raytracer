@@ -202,6 +202,21 @@ struct Window
         }
     }
 
+    CUDA_HOSTDEV void moveCamera(Image* image, uint8_t *fileOutputImage)
+    {
+        theta += -1.5 * delta;
+        if (theta < delta)
+            theta = delta;
+        if (theta > (M_PI_2 - delta))
+            theta = M_PI_2 - delta;
+        phi += -15. * delta;
+        windowCamera->rotate(theta, phi);
+
+        image->resetImage();
+
+        refresh = true;
+    }
+
     CUDA_HOSTDEV void waitQuit()
     {
         SDL_Event event;

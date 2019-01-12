@@ -95,13 +95,17 @@ const int numHitables = 102;
 
         int pixelIndex = j*image->nx + i;
 
-        RandomGenerator rng(sampleCount, i*image->nx + j);
-        float u = float(i + rng.get1f()) / float(image->nx); // left to right
-        float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
-        ray r = cam->getRay(rng, u, v);
+        for (int s = 0; s < nsBatch; s++)
+        {
+            RandomGenerator rng(sampleCount * nsBatch + s, i*image->nx + j);
+            float u = float(i + rng.get1f()) / float(image->nx); // left to right
+            float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
+            ray r = cam->getRay(rng, u, v);
 
-        image->pixels[pixelIndex] += render->color(rng, r, world, 0);
-        vec3 col = image->pixels[pixelIndex] / sampleCount;
+            image->pixels[pixelIndex] += render->color(rng, r, world, 0);
+        }
+
+        vec3 col = image->pixels[pixelIndex] / (sampleCount * nsBatch);
 
         // Gamma encoding of images is used to optimize the usage of bits
         // when encoding an image, or bandwidth used to transport an image,

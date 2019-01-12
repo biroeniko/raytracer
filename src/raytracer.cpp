@@ -73,14 +73,14 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
         else std::cout << "Unable to open file" << std::endl;
     }
 
-    int numberOfIterations = (ns % nsBatch) ? (ns / nsBatch + 1) : (ns / nsBatch);
-
+    int numberOfIterations = ns;
     if (showWindow)
     {
         for (int i = 0; i < numberOfIterations; i++)
         {
             w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, image->fileOutputImage);
             w->pollEvents(image, image->fileOutputImage);
+            //w->moveCamera(image, image->fileOutputImage);
             if (w->refresh)
             {
                 i = -1;

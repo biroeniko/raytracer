@@ -52,7 +52,7 @@ const int nx = 1280;
 const int ny = 720;
 const int ns = 50;                     // sample size
 #ifdef CUDA_ENABLED
-    const int nsBatch = 1;
+    const int nsBatch = 4;
 #else
     const int nsBatch = 1;
 #endif
