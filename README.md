@@ -3,7 +3,8 @@
 My implementation of [Peter Shirley's Ray Tracing in one weekend](https://github.com/petershirley/raytracinginoneweekend/).
 
 ## Some versions are available through different branches:
-* [CPU version, accelerated by OpenMP](https://github.com/biroeniko/raytracer/tree/cpu-only)
+* [CPU version, accelerated with OpenMP](https://github.com/biroeniko/raytracer/tree/cpu-only)
+* [GPU+CPU version, accelerated with CUDA](https://github.com/biroeniko/raytracer/tree/gpu-cpu-first-book)
 
 ## Details:
 This code follows the steps of Peter Shirley's mini book series.
@@ -14,11 +15,11 @@ This code follows the steps of Peter Shirley's mini book series.
 * Supported output formats: PNG with [STB image library](https://github.com/nothings/stb) and PPM
 * [SDL2](https://www.libsdl.org/) for real-time display support + keyboard movement support
 * [PCG](http://www.pcg-random.org/) random number generator (the minimal C implementation)
+* [CUDA](https://developer.nvidia.com/cuda-zone) support
 
 ### Features to be implemented:
 * Other two books
 * Accelerated versions
-  * CUDA
   * ispc
   * use denoising
 
@@ -34,6 +35,10 @@ The basic requirements for building the executable are:
 * a C++ compiler
 * make
 * SDL2
+
+Other requirements:
+* CUDA support
+
 #### Installation on Ubuntu
 
 ```
@@ -83,6 +88,7 @@ Some screenshots along the way of developing:
 
 * [SDL2](https://www.libsdl.org/) - used for display
 * [OpenMP](https://www.openmp.org/) - used for creating multiple threads for the tasks (pixel color calculation)
+* [CUDA](https://developer.nvidia.com/cuda-zone) - used for acceleration
 
 ## Authors
 
