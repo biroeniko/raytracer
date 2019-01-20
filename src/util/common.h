@@ -24,6 +24,8 @@ SOFTWARE.
     #include <cuda.h>
 #endif
 
+#include <string>
+
 #ifdef CUDA_ENABLED
     #define CUDA_HOST __host__
 #else
@@ -50,7 +52,10 @@ SOFTWARE.
 
 const int nx = 1280;
 const int ny = 720;
-const int ns = 50;                     // sample size
+const int ns = INT_MAX;                     // sample size
+static int imageNr = 0;
+const std::string folderName = "output";
+const std::string fileName = "raytracer";
 #ifdef CUDA_ENABLED
     const int nsBatch = 4;
 #else

@@ -32,6 +32,9 @@ As in Peter Shirley's book:
 
 #include "util/vec3.h"
 #include "util/common.h"
+#include <ios>
+#include <iomanip>
+#include <sstream>
 
 template <typename T>
 CUDA_HOSTDEV T clamp(const T& n, const T& lower, const T& upper) {
@@ -49,3 +52,9 @@ CUDA_HOSTDEV T clamp(const T& n, const T& lower, const T& upper) {
 #ifdef CUDA_ENABLED
     CUDA_HOST void check_cuda(cudaError_t result, char const *const func, const char *const file, int const line);
 #endif
+
+inline std::string formatNumber(int n) {
+    std::ostringstream out;
+    out << std::internal << std::setfill('0') << std::setw(4) << n;
+    return out.str();
+}

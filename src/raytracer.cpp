@@ -43,6 +43,9 @@ SOFTWARE.
 #include "util/common.h"
 #include "util/scene.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render);
     void destroyWorldCuda(bool showWindow, hitable** list, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render);
@@ -61,7 +64,7 @@ SOFTWARE.
     }
 #endif // CUDA_ENABLED
 
-void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
+void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Renderer* render, bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile)
 {
     std::ofstream ppmImageStream;
 
@@ -73,16 +76,44 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
         else std::cout << "Unable to open file" << std::endl;
     }
 
+    if (writeEveryImageToFile)
+    {
+        // make the folder
+        std::string path = "./" + folderName;
+        mode_t nMode = 0733; // UNIX style permissions
+        int nError = 0;
+        #if defined(_WIN32)
+            nError = _mkdir(path.c_str()); // can be used on Windows
+        #else
+            nError = mkdir(path.c_str(), nMode);
+        #endif
+        if (nError != 0)
+            std::cerr << "Couldn't create output folder." << std::endl;
+    }
+
     int numberOfIterations = ns;
     if (showWindow)
     {
-        for (int i = 0; i < numberOfIterations; i++)
+        int j = 1;
+        for (int i = 0; i < numberOfIterations; i++, j++)
         {
             w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, image->fileOutputImage);
             w->pollEvents(image, image->fileOutputImage);
-            //w->moveCamera(image, image->fileOutputImage);
+            if (writeEveryImageToFile && (j % 3 == 0))
+            {
+                w->moveCamera(image, image->fileOutputImage);
+                j = 0;
+            }
             if (w->refresh)
             {
+                std::string currentFileName(folderName + "/" + fileName);
+                currentFileName += formatNumber(imageNr);
+                imageNr++;
+                currentFileName += ".png";
+                std::cout << currentFileName << std::endl;
+                // write png
+                stbi_write_png(currentFileName.c_str(), nx, ny, 3, image->fileOutputImage, nx * 3);
+
                 i = -1;
                 w->refresh = false;
             }
@@ -114,7 +145,7 @@ void invokeRenderer(bool showWindow, bool writeImagePPM, bool writeImagePNG, hit
     }
 }
 
-void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
+void raytrace(bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile)
 {
     Window* w;
     Image* image;
@@ -126,7 +157,7 @@ void setup(bool showWindow, bool writeImagePPM, bool writeImagePNG)
 
     #ifdef CUDA_ENABLED
         initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &list, &world, &w, &image, &cam, &render);
-        invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, render);
+        invokeRenderer(world, w, image, cam, render, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile);
         destroyWorldCuda(showWindow, list, world, w, image, cam, render);
 
     #else
@@ -148,6 +179,7 @@ int main(int argc, char **argv)
     bool writeImagePNG = true;
     bool showWindow = true;
     bool runBenchmark = false;
+    bool writeEveryImageToFile = true;
 
     if (runBenchmark)
     {
@@ -160,7 +192,7 @@ int main(int argc, char **argv)
             auto start = std::chrono::high_resolution_clock::now();
 
             // Invoke renderer
-            setup(false, false, false);
+            raytrace(false, false, false, false);
 
             // Record end time
             auto finish = std::chrono::high_resolution_clock::now();
@@ -178,7 +210,7 @@ int main(int argc, char **argv)
     else
     {
         // Invoke renderer
-        setup(showWindow, writeImagePPM, writeImagePNG);
+        raytrace(showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile);
     }
 
     return 0;
