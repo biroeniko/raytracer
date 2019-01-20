@@ -80,14 +80,14 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
     {
         // make the folder
         std::string path = "./" + folderName;
-        mode_t nMode = 0733; // UNIX style permissions
-        int nError = 0;
+        mode_t mode = 0733; // UNIX style permissions
+        int error = 0;
         #if defined(_WIN32)
-            nError = _mkdir(path.c_str()); // can be used on Windows
+            error = _mkdir(path.c_str()); // can be used on Windows
         #else
-            nError = mkdir(path.c_str(), nMode);
+            error = mkdir(path.c_str(), mode);
         #endif
-        if (nError != 0)
+        if (error != 0)
             std::cerr << "Couldn't create output folder." << std::endl;
     }
 
@@ -99,7 +99,7 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
         {
             w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, image->fileOutputImage);
             w->pollEvents(image, image->fileOutputImage);
-            if (writeEveryImageToFile && (j % 3 == 0))
+            if (writeEveryImageToFile && (j % sampleNrToWrite == 0))
             {
                 w->moveCamera(image, image->fileOutputImage);
                 j = 0;
