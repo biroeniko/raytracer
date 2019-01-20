@@ -57,7 +57,7 @@ SOFTWARE.
         vec3 lookAt(0.0f, 0.0f, 0.0f);
         *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
         *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
-        *world = randomScene();
+        *world = simpleScene();
 
         if (showWindow)
             *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
@@ -110,7 +110,6 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
                 currentFileName += formatNumber(imageNr);
                 imageNr++;
                 currentFileName += ".png";
-                std::cout << currentFileName << std::endl;
                 // write png
                 stbi_write_png(currentFileName.c_str(), nx, ny, 3, image->fileOutputImage, nx * 3);
 
@@ -162,7 +161,7 @@ void raytrace(bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writ
 
     #else
         initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
-        invokeRenderer(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, render);
+        invokeRenderer(world, w, image, cam, render, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile);
 
         delete image;
         delete cam;

@@ -25,6 +25,7 @@ SOFTWARE.
 #endif
 
 #include <string>
+#include <limits.h>
 
 #ifdef CUDA_ENABLED
     #define CUDA_HOST __host__
