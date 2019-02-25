@@ -38,6 +38,12 @@ if(CUDA_SUPPORT)
     add_definitions(-DCUDA_ENABLED)
 endif()
 
+# OpenImageDenoise
+find_package(OpenImageDenoise)
+if (OpenImageDenoise_FOUND)
+   add_definitions(-DOIDN_ENABLED)
+endif()
+
 # Header files
 include_directories(
     ${PROJECT_SOURCE_DIR}/src 
