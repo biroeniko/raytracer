@@ -95,6 +95,7 @@ const int numHitables = 102;
 
         int pixelIndex = j*image->nx + i;
 
+        // Render the samples in batches
         for (int s = 0; s < nsBatch; s++)
         {
             RandomGenerator rng(sampleCount * nsBatch + s, i*image->nx + j);

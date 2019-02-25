@@ -78,7 +78,7 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
 
     if (writeEveryImageToFile)
     {
-        // make the folder
+        // Make the folder
         std::string path = "./" + folderName;
         mode_t mode = 0733; // UNIX style permissions
         int error = 0;
@@ -99,7 +99,7 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
         {
             w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, image->fileOutputImage);
             w->pollEvents(image, image->fileOutputImage);
-            if (writeEveryImageToFile && (j % sampleNrToWrite == 0))
+            if (writeEveryImageToFile && (j == sampleNrToWrite))
             {
                 w->moveCamera(image, image->fileOutputImage);
                 j = 0;
@@ -178,8 +178,9 @@ int main(int argc, char **argv)
     bool writeImagePNG = true;
     bool showWindow = true;
     bool runBenchmark = false;
-    bool writeEveryImageToFile = true;
+    bool writeEveryImageToFile = false;
 
+    // Run benchmark.
     if (runBenchmark)
     {
         std::ofstream benchmarkStream;
@@ -206,6 +207,7 @@ int main(int argc, char **argv)
 
         }
     }
+    // Run code without benchmarking.
     else
     {
         // Invoke renderer
