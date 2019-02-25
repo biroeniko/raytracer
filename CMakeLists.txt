@@ -42,6 +42,9 @@ endif()
 find_package(OpenImageDenoise)
 if (OpenImageDenoise_FOUND)
    add_definitions(-DOIDN_ENABLED)
+   include_directories(
+       ${OpenImageDenoise_DIR}/../../../include
+   )
 endif()
 
 # Header files
@@ -96,6 +99,10 @@ if (CUDA_SUPPORT)
     cuda_add_executable(${PROJECT_NAME} ${SRC_HOST} OPTIONS -x cu)
 else()
     add_executable(${PROJECT_NAME} ${SRC_HOST})
+endif()
+
+if (OpenImageDenoise_FOUND)
+   target_link_libraries(${PROJECT_NAME} OpenImageDenoise)
 endif()
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
