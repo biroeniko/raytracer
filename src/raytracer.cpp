@@ -91,7 +91,14 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
             std::cerr << "Couldn't create output folder." << std::endl;
     }
 
-    int numberOfIterations = ns;
+    // If denoising is enabled, use the sample size for the denoising.
+    #ifdef OIDN_ENABLED
+       int numberOfIterations = nsDenoise;
+    #else
+        int numberOfIterations = ns;
+
+    #endif // OIDN_ENABLED
+
     if (showWindow)
     {
         int j = 1;

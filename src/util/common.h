@@ -54,6 +54,7 @@ SOFTWARE.
 const int nx = 1280;
 const int ny = 720;
 const int ns = 16;                     // sample size
+const int nsDenoise = 1;
 static int imageNr = 0;
 const int sampleNrToWrite = 16;
 const std::string folderName = "output";

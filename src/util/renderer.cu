@@ -27,6 +27,8 @@ SOFTWARE.
 #include "util/scene.cuh"
 #include "util/window.h"
 
+#include <OpenImageDenoise/oidn.hpp>
+
 const int numHitables = 102;
 
 #ifdef CUDA_ENABLED
@@ -119,6 +121,11 @@ const int numHitables = 102;
         int ir = int(255.99f*col[0]);
         int ig = int(255.99f*col[1]);
         int ib = int(255.99f*col[2]);
+
+        #ifdef OIDN_ENABLED
+            // TODO
+        #else
+        #endif // OIDN_ENABLED
 
         if (image->writeImage)
         {
