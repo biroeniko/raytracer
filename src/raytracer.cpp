@@ -120,27 +120,27 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
                 break;
         }
         std::cout << "Done." << std::endl;
-
-        // we write the files after the windows is closed
-        if (writeImagePPM)
-        {
-            for (int j = 0; j < ny; j++)
-                for (int i = 0; i < nx; i++)
-                    ppmImageStream << int(image->fileOutputImage[(j*nx+i)*3]) << " " << int(image->fileOutputImage[(j*nx+i)*3+1]) << " " << int(image->fileOutputImage[(j*nx+i)*3+2]) << "\n";
-            ppmImageStream.close();
-        }
-
-        if (writeImagePNG)
-        {
-            // write png
-            stbi_write_png("test.png", nx, ny, 3, image->fileOutputImage, nx * 3);
-        }
     }
     else
     {
         for (int i = 0; i < numberOfIterations; i++)
             render->traceRays(nullptr, cam, world, image, i+1, image->fileOutputImage);
         std::cout << "Done." << std::endl;
+    }
+
+    // we write the files after the windows is closed
+    if (writeImagePPM)
+    {
+        for (int j = 0; j < ny; j++)
+            for (int i = 0; i < nx; i++)
+                ppmImageStream << int(image->fileOutputImage[(j*nx+i)*3]) << " " << int(image->fileOutputImage[(j*nx+i)*3+1]) << " " << int(image->fileOutputImage[(j*nx+i)*3+2]) << "\n";
+        ppmImageStream.close();
+    }
+
+    if (writeImagePNG)
+    {
+        // write png
+        stbi_write_png("test.png", nx, ny, 3, image->fileOutputImage, nx * 3);
     }
 }
 
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 {
     bool writeImagePPM = true;
     bool writeImagePNG = true;
-    bool showWindow = true;
+    bool showWindow = false;
     bool runBenchmark = false;
     bool writeEveryImageToFile = false;
 
