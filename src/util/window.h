@@ -109,7 +109,7 @@ struct Window
                         hitable* world, Image* image,  int sampleCount, uint8_t *fileOutputImage)
     {
             rend->traceRays(image->windowPixels, cam, world, image, sampleCount, fileOutputImage);
-            //std::cout << "Sample nr. " << sampleCount << std::endl;
+            std::cout << "Sample nr. " << sampleCount << std::endl;
             SDL_UpdateTexture(w->SDLTexture, NULL, image->windowPixels, nx * sizeof(Uint32));
             SDL_RenderCopy(w->SDLRenderer, w->SDLTexture, NULL, NULL);
             SDL_RenderPresent(w->SDLRenderer);

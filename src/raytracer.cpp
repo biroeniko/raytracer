@@ -93,9 +93,9 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
 
     // If denoising is enabled, use the sample size for the denoising.
     #ifdef OIDN_ENABLED
-       int numberOfIterations = nsDenoise;
+       int numberOfIterations = (nsDenoise + nsBatch - 1)/nsBatch;
     #else
-        int numberOfIterations = ns;
+        int numberOfIterations = (ns + nsBatch - 1)/nsBatch;
 
     #endif // OIDN_ENABLED
 
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 {
     bool writeImagePPM = true;
     bool writeImagePNG = true;
-    bool showWindow = false;
+    bool showWindow = true;
     bool runBenchmark = false;
     bool writeEveryImageToFile = false;
 

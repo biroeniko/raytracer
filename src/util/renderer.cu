@@ -29,16 +29,48 @@ SOFTWARE.
 
 #include <OpenImageDenoise/oidn.hpp>
 
-const int numHitables = 102;
+CUDA_DEV int numHitables = 0;
 
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
     {
+        int choice = 2;
+
+        switch(choice)
+        {
+            case 0:
+                numHitables = 4;
+                break;
+            case 1:
+                numHitables = 58;
+                break;
+            case 2:
+                numHitables = 901;
+                break;
+            case 3:
+                numHitables = 102;
+                break;
+        }
+
         // World
         checkCudaErrors(cudaMallocManaged(list, numHitables*sizeof(hitable*)));
         hitable** worldPtr;
         checkCudaErrors(cudaMallocManaged(&worldPtr, sizeof(hitable*)));
-        randomScene2<<<1,1>>>(*list, worldPtr);
+        switch(choice)
+        {
+            case 0:
+                simpleScene<<<1,1>>>(*list, worldPtr);
+                break;
+            case 1:
+                simpleScene2<<<1,1>>>(*list, worldPtr);
+                break;
+            case 2:
+                randomScene<<<1,1>>>(*list, worldPtr);
+                break;
+            case 3:
+                randomScene2<<<1,1>>>(*list, worldPtr);
+                break;
+        }
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
         *world = *worldPtr;
