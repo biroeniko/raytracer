@@ -22,6 +22,8 @@ SOFTWARE.
 #include "util/vec3.h"
 #include "util/util.h"
 
+#include <OpenImageDenoise/oidn.hpp>
+
 struct Image
 {
     #ifdef CUDA_ENABLED
@@ -32,6 +34,7 @@ struct Image
 
     uint32_t* windowPixels;
     uint8_t* fileOutputImage;
+    vec3* pixels2;
 
     const int nx;
     const int ny;
@@ -51,12 +54,16 @@ struct Image
 
             // allocate Frame Buffers
             checkCudaErrors(cudaMallocManaged((void **)&pixels, pixelsFrameBufferSize));
+            checkCudaErrors(cudaMallocManaged((void **)&pixels2, pixelsFrameBufferSize));
             checkCudaErrors(cudaMallocManaged((void **)&windowPixels, windowPixelsFrameBufferSize));
             checkCudaErrors(cudaMallocManaged((void **)&fileOutputImage, fileOutputImageFrameBufferSize));
         #else
             pixels = new vec3*[nx];
+            pixels2 = new vec3*[nx];
             for (int i = 0; i < nx; i++)
                 pixels[i] = new vec3[ny];
+            for (int i = 0; i < nx; i++)
+                pixels2[i] = new vec3[ny];
 
             if (showWindow)
                 windowPixels = new uint32_t[nx*ny];
@@ -65,6 +72,24 @@ struct Image
                 fileOutputImage = new uint8_t[nx * ny * 3];
 
         #endif // CUDA_ENABLED
+
+        #ifdef OIDN_ENABLED
+            /*
+            // Create an Open Image Denoise device
+            oidn::DeviceRef device = oidn::newDevice();
+            device.commit();
+
+            // Create a denoising filter
+            oidn::FilterRef filter = device.newFilter("RT"); // generic ray tracing filter
+            filter.setImage("color",  image->pixels,  oidn::Format::Float3, width, height);
+            filter.setImage("output", image->pixels,  oidn::Format::Float3, width, height);
+            filter.set("hdr", true); // image is HDR
+            filter.commit();
+
+            // Filter the image
+            filter.execute();
+*/
+        #endif // OIDN_ENABLED
 
     }
 
@@ -89,12 +114,17 @@ struct Image
     {
         #ifdef CUDA_ENABLED
             checkCudaErrors(cudaFree(pixels));
+            checkCudaErrors(cudaFree(pixels2));
             checkCudaErrors(cudaFree(windowPixels));
             checkCudaErrors(cudaFree(fileOutputImage));
         #else
             for (int i = 0; i < nx; ++i)
                 delete [] pixels[i];
             delete [] pixels;
+
+            for (int i = 0; i < nx; ++i)
+                delete [] pixels2[i];
+            delete [] pixels2;
 
             if (showWindow)
                 delete[] windowPixels;

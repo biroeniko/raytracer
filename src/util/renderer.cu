@@ -27,8 +27,6 @@ SOFTWARE.
 #include "util/scene.cuh"
 #include "util/window.h"
 
-#include <OpenImageDenoise/oidn.hpp>
-
 CUDA_DEV int numHitables = 0;
 
 #ifdef CUDA_ENABLED
@@ -156,14 +154,21 @@ CUDA_DEV int numHitables = 0;
         // we use gamma 2: raising the color to the power 1/gamma (1/2)
         col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
+        image->pixels2[pixelIndex] = col;
+    }
+
+    CUDA_GLOBAL void display(Image* image)
+    {
+        int i = threadIdx.x + blockIdx.x * blockDim.x;
+        int j = threadIdx.y + blockIdx.y * blockDim.y;
+
+        int pixelIndex = j*image->nx + i;
+
+        vec3 col = image->pixels2[pixelIndex];
+
         int ir = int(255.99f*col[0]);
         int ig = int(255.99f*col[1]);
         int ib = int(255.99f*col[2]);
-
-        #ifdef OIDN_ENABLED
-            // TODO
-        #else
-        #endif // OIDN_ENABLED
 
         if (image->writeImage)
         {
@@ -179,6 +184,7 @@ CUDA_DEV int numHitables = 0;
         if (image->showWindow)
             image->windowPixels[(image->ny-j-1)*image->nx + i] = (ir << 16) | (ig << 8) | (ib);
     }
+
 #endif // CUDA_ENABLED
 
 #ifdef CUDA_ENABLED
@@ -187,8 +193,17 @@ CUDA_DEV int numHitables = 0;
         dim3 blocks( (image->nx + image->tx - 1)/image->tx, (image->ny + image->ty - 1)/image->ty);
         dim3 threads(image->tx, image->ty);
 
-        // Kernel call.
+        // Kernel call for the computation of pixel colors.
         render<<<blocks, threads>>>(cam, image, world, this, sampleCount);
+
+        // Denoise here.
+        #ifdef OIDN_ENABLED
+            // TODO
+        #endif // OIDN_ENABLED
+
+
+        // Kernel call to fill the output buffers.
+        display<<<blocks, threads>>>(image);
 
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());

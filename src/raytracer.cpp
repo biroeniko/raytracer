@@ -106,7 +106,13 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
         {
             w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, image->fileOutputImage);
             w->pollEvents(image, image->fileOutputImage);
-            if (writeEveryImageToFile && (j == sampleNrToWrite))
+            if (writeEveryImageToFile &&
+                 #ifdef OIDN_ENABLED
+                    (j == sampleNrToWriteDenoise)
+                 #else
+                    (j == sampleNrToWrite)
+                 #endif // OIDN_ENABLED
+                )
             {
                 w->moveCamera(image, image->fileOutputImage);
                 j = 0;
@@ -185,7 +191,7 @@ int main(int argc, char **argv)
     bool writeImagePNG = true;
     bool showWindow = true;
     bool runBenchmark = false;
-    bool writeEveryImageToFile = false;
+    bool writeEveryImageToFile = true;
 
     // Run benchmark.
     if (runBenchmark)
