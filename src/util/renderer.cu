@@ -34,7 +34,7 @@ CUDA_DEV int numHitables = 0;
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
     {
-        int choice = 2;
+        int choice = 4;
 
         switch(choice)
         {
@@ -49,6 +49,9 @@ CUDA_DEV int numHitables = 0;
                 break;
             case 3:
                 numHitables = 102;
+                break;
+            case 4:
+                numHitables = 68;
                 break;
         }
 
@@ -69,6 +72,9 @@ CUDA_DEV int numHitables = 0;
                 break;
             case 3:
                 randomScene2<<<1,1>>>(*list, worldPtr);
+                break;
+            case 4:
+                randomScene3<<<1,1>>>(*list, worldPtr);
                 break;
         }
         checkCudaErrors(cudaGetLastError());
@@ -181,8 +187,9 @@ CUDA_DEV int numHitables = 0;
         dim3 blocks( (image->nx + image->tx - 1)/image->tx, (image->ny + image->ty - 1)/image->ty);
         dim3 threads(image->tx, image->ty);
 
+        // Kernel call.
         render<<<blocks, threads>>>(cam, image, world, this, sampleCount);
-        //std::cout << (image->nx + image->tx - 1)/image->tx;
+
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
 
