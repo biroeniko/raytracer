@@ -1,4 +1,4 @@
-/* MIT License
+﻿/* MIT License
 Copyright (c) 2018 Biro Eniko
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -136,7 +136,7 @@ CUDA_DEV int numHitables = 0;
         // Render the samples in batches
         for (int s = 0; s < nsBatch; s++)
         {
-            RandomGenerator rng(sampleCount * nsBatch + s, i*image->nx + j);
+            RandomGenerator rng(sampleCount * nsBatch + s, pixelIndex);
             float u = float(i + rng.get1f()) / float(image->nx); // left to right
             float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
             ray r = cam->getRay(rng, u, v);
@@ -145,14 +145,6 @@ CUDA_DEV int numHitables = 0;
         }
 
         vec3 col = image->pixels[pixelIndex] / (sampleCount * nsBatch);
-
-        // Gamma encoding of images is used to optimize the usage of bits
-        // when encoding an image, or bandwidth used to transport an image,
-        // by taking advantage of the non-linear manner in which humans perceive
-        // light and color. (wikipedia)
-
-        // we use gamma 2: raising the color to the power 1/gamma (1/2)
-        col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
         image->pixels2[pixelIndex] = col;
     }
@@ -165,6 +157,14 @@ CUDA_DEV int numHitables = 0;
         int pixelIndex = j*image->nx + i;
 
         vec3 col = image->pixels2[pixelIndex];
+
+        // Gamma encoding of images is used to optimize the usage of bits
+        // when encoding an image, or bandwidth used to transport an image,
+        // by taking advantage of the non-linear manner in which humans perceive
+        // light and color. (wikipedia)
+
+        // we use gamma 2: raising the color to the power 1/gamma (1/2)
+        col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
         int ir = int(255.99f*col[0]);
         int ig = int(255.99f*col[1]);
@@ -198,9 +198,10 @@ CUDA_DEV int numHitables = 0;
 
         // Denoise here.
         #ifdef OIDN_ENABLED
-            // TODO
+            checkCudaErrors(cudaDeviceSynchronize());
+            //image->denoise();
+            checkCudaErrors(cudaDeviceSynchronize());
         #endif // OIDN_ENABLED
-
 
         // Kernel call to fill the output buffers.
         display<<<blocks, threads>>>(image);

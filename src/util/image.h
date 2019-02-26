@@ -44,6 +44,9 @@ struct Image
     bool showWindow;
     bool writeImage;
 
+    oidn::DeviceRef device;
+    oidn::FilterRef filter;
+
     CUDA_HOSTDEV Image(bool showWindow, bool writeImage, int x, int y, int tx, int ty ) : showWindow(showWindow), writeImage(writeImage), nx(x), ny(y), tx(tx), ty(ty)
     {
         #ifdef CUDA_ENABLED
@@ -74,24 +77,33 @@ struct Image
         #endif // CUDA_ENABLED
 
         #ifdef OIDN_ENABLED
-            /*
             // Create an Open Image Denoise device
-            oidn::DeviceRef device = oidn::newDevice();
+            device = oidn::newDevice();
             device.commit();
 
             // Create a denoising filter
-            oidn::FilterRef filter = device.newFilter("RT"); // generic ray tracing filter
-            filter.setImage("color",  image->pixels,  oidn::Format::Float3, width, height);
-            filter.setImage("output", image->pixels,  oidn::Format::Float3, width, height);
+            filter = device.newFilter("RT"); // generic ray tracing filter
+            filter.setImage("color", pixels2, oidn::Format::Float3, nx, ny);
+            filter.setImage("output", pixels2, oidn::Format::Float3, nx, ny);
             filter.set("hdr", true); // image is HDR
             filter.commit();
 
-            // Filter the image
-            filter.execute();
-*/
         #endif // OIDN_ENABLED
 
     }
+
+    #ifdef OIDN_ENABLED
+        void denoise()
+        {
+            // Filter the image
+            filter.execute();
+
+            // Check for errors
+            const char* errorMessage;
+            if (device.getError(errorMessage) != oidn::Error::None)
+                std::cout << "Error: " << errorMessage << std::endl;
+        }
+    #endif // OIDN_ENABLED
 
     #ifdef CUDA_ENABLED
         void cudaResetImage();
