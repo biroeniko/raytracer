@@ -23,17 +23,19 @@ SOFTWARE.
 #ifdef CUDA_ENABLED
 
 #else
-    CUDA_HOSTDEV void Renderer::render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+    CUDA_HOSTDEV void Renderer::render(int i, int j, Camera* cam, Image* image, hitable* world, int sampleCount)
     {
-        RandomGenerator rng(sampleCount, i*image->nx + j);
+        int pixelIndex = j*nx + i;
+
+        RandomGenerator rng(sampleCount, pixelIndex);
         float u = float(i + rng.get1f()) / float(image->nx); // left to right
         float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
 
         ray r = cam->getRay(rng, u,v);
 
-        image->pixels[i][j] += color(rng, r, world, 0);
+        image->pixels[pixelIndex] += color(rng, r, world, 0);
 
-        vec3 col = image->pixels[i][j] / sampleCount;
+        vec3 col = image->pixels[pixelIndex] / sampleCount;
 
         // Gamma encoding of images is used to optimize the usage of bits
         // when encoding an image, or bandwidth used to transport an image,
@@ -53,13 +55,13 @@ SOFTWARE.
             int index = (image->ny - 1 - j) * image->nx + i;
             int index3 = 3 * index;
 
-            fileOutputImage[index3 + 0] = ir;
-            fileOutputImage[index3 + 1] = ig;
-            fileOutputImage[index3 + 2] = ib;
+            image->fileOutputImage[index3 + 0] = ir;
+            image->fileOutputImage[index3 + 1] = ig;
+            image->fileOutputImage[index3 + 2] = ib;
         }
 
         if (showWindow)
-            windowPixels[(image->ny-j-1)*image->nx + i] = (ir << 16) | (ig << 8) | (ib);
+            image->windowPixels[(image->ny-j-1)*image->nx + i] = (ir << 16) | (ig << 8) | (ib);
     }
 #endif // CUDA_ENABLED
 
@@ -76,10 +78,27 @@ CUDA_HOSTDEV bool Renderer::traceRays(uint32_t* windowPixels, Camera* cam, hitab
             // i tracks columns - left to right
             for (int i = 0; i < image->nx; i++)
             {
-
-                render(i, j, windowPixels, cam, world, image, sampleCount, fileOutputImage);
+                render(i, j, cam, image, world, sampleCount);
             }
         }
+/*
+        #pragma omp parallel for collapse(2)
+        // j track rows - from top to bottom
+        for (int j = 0; j < image->ny; j++)
+        {
+            // i tracks columns - left to right
+            for (int i = 0; i < image->nx; i++)
+            {
+                display(i, j, windowPixels, cam, world, image, sampleCount, fileOutputImage);
+            }
+        }
+*/
+/*
+        // Denoise here.
+        #ifdef OIDN_ENABLED
+            image->denoise();
+        #endif // OIDN_ENABLED
+*/
 
     #endif // CUDA_ENABLED
     return true;

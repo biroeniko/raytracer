@@ -26,15 +26,11 @@ SOFTWARE.
 
 struct Image
 {
-    #ifdef CUDA_ENABLED
-        vec3* pixels;
-    #else
-        vec3** pixels;
-    #endif // CUDA_ENABLED
+    vec3* pixels;
+    vec3* pixels2;
 
     uint32_t* windowPixels;
     uint8_t* fileOutputImage;
-    vec3* pixels2;
 
     const int nx;
     const int ny;
@@ -61,12 +57,8 @@ struct Image
             checkCudaErrors(cudaMallocManaged((void **)&windowPixels, windowPixelsFrameBufferSize));
             checkCudaErrors(cudaMallocManaged((void **)&fileOutputImage, fileOutputImageFrameBufferSize));
         #else
-            pixels = new vec3*[nx];
-            pixels2 = new vec3*[nx];
-            for (int i = 0; i < nx; i++)
-                pixels[i] = new vec3[ny];
-            for (int i = 0; i < nx; i++)
-                pixels2[i] = new vec3[ny];
+            pixels = new vec3[nx*ny];
+            pixels2 = new vec3[nx*ny];
 
             if (showWindow)
                 windowPixels = new uint32_t[nx*ny];
@@ -117,7 +109,7 @@ struct Image
             #pragma omp parallel for
             for (int i = 0; i < nx*ny; i++)
             {
-                pixels[i/ny][i%ny] = vec3(0, 0, 0);
+                pixels[i] = vec3(0, 0, 0);
             }
         #endif // CUDA_ENABLED
     }
@@ -130,12 +122,7 @@ struct Image
             checkCudaErrors(cudaFree(windowPixels));
             checkCudaErrors(cudaFree(fileOutputImage));
         #else
-            for (int i = 0; i < nx; ++i)
-                delete [] pixels[i];
             delete [] pixels;
-
-            for (int i = 0; i < nx; ++i)
-                delete [] pixels2[i];
             delete [] pixels2;
 
             if (showWindow)

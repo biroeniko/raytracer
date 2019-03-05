@@ -73,8 +73,8 @@ class Renderer
         CUDA_HOSTDEV bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
 
         #ifdef CUDA_ENABLED
-            void cudaRender(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+            void cudaRender(Camera* cam, hitable* world, Image* image, int sampleCount);
         #else
-            CUDA_HOSTDEV void render(int i, int j, uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+            CUDA_HOSTDEV void render(int i, int j, Camera* cam, Image* image, hitable* world, int sampleCount);
         #endif // CUDA_ENABLED
 };
