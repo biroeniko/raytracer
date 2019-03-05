@@ -17,63 +17,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// ======================================================================== //
+// Copyright 2009-2018 Intel Corporation                                    //
+//                                                                          //
+// Licensed under the Apache License, Version 2.0 (the "License");          //
+// you may not use this file except in compliance with the License.         //
+// You may obtain a copy of the License at                                  //
+//                                                                          //
+//     http://www.apache.org/licenses/LICENSE-2.0                           //
+//                                                                          //
+// Unless required by applicable law or agreed to in writing, software      //
+// distributed under the License is distributed on an "AS IS" BASIS,        //
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. //
+// See the License for the specific language governing permissions and      //
+// limitations under the License.                                           //
+// ======================================================================== //
+
 #pragma once
 
 #include "util/vec3.h"
 
-// PCG32 random number generator
-// This code is based on the O'Neill implementation seen here:
-// (c) 2014 M.E. O'Neill / pcg-random.org
-// Licensed under Apache License 2.0 (NO WARRANTY, etc. see website)
-
 class RandomGenerator
 {
-    uint64_t state;             // RNG state
-    uint64_t inc;               // sequence
-
-    static constexpr uint64_t defaultSeed = 0xcafef00dd1eea5e5ULL;
-    static constexpr uint64_t defaultSeq  = 1442695040888963407ULL >> 1;
+    unsigned int s;
 
 public:
-    CUDA_DEV explicit RandomGenerator(uint64_t seed = defaultSeed, uint64_t seq = defaultSeq)
+
+    CUDA_DEV explicit RandomGenerator(int sampleId = 1, int pixelId = 0)
     {
-        reset(seed, seq);
+        unsigned int hash = 0;
+        hash = MurmurHash3_mix(hash, pixelId);
+        hash = MurmurHash3_mix(hash, sampleId);
+        hash = MurmurHash3_finalize(hash);
+
+        s = hash;
     }
 
-    CUDA_DEV void reset(uint64_t seed = defaultSeed, uint64_t seq = defaultSeq)
+    CUDA_DEV int get1i()
     {
-        inc = (seq << 1) | 1;
-        state = seed + inc;
-        next();
-    }
-
-    CUDA_DEV void next()
-    {
-        state = state * 6364136223846793005ULL + inc;
-    }
-
-    CUDA_DEV uint64_t getSeq() const
-    {
-        return inc >> 1;
-    }
-
-    CUDA_DEV uint32_t get1ui()
-    {
-        const uint64_t oldState = state;
-        next();
-        const uint32_t xorShifted = ((oldState >> 18u) ^ oldState) >> 27u;
-        const uint32_t rot = oldState >> 59u;
-        return (xorShifted >> rot) | (xorShifted << ((-rot) & 31u));
-    }
-
-    CUDA_DEV float toFloatUnorm(int x)
-    {
-        return float(uint32_t(x)) * 0x1.0p-32f;
+        s = LCG_next(s);
+        return s >> 1;
     }
 
     CUDA_DEV float get1f()
     {
-       return toFloatUnorm(get1ui());
+       return (float)get1i() * 4.656612873077392578125e-10f;
     }
 
     CUDA_DEV vec3 randomInUnitSphere()
@@ -84,4 +72,45 @@ public:
         } while (point.squaredLength() >= 1.0f);
         return point;
     }
+
+private:
+
+    CUDA_DEV unsigned int MurmurHash3_mix(unsigned int hash, unsigned int k)
+    {
+        const unsigned int c1 = 0xcc9e2d51;
+        const unsigned int c2 = 0x1b873593;
+        const unsigned int r1 = 15;
+        const unsigned int r2 = 13;
+        const unsigned int m = 5;
+        const unsigned int n = 0xe6546b64;
+
+        k *= c1;
+        k = (k << r1) | (k >> (32 - r1));
+        k *= c2;
+
+        hash ^= k;
+        hash = ((hash << r2) | (hash >> (32 - r2))) * m + n;
+
+        return hash;
+    }
+
+    CUDA_DEV unsigned int MurmurHash3_finalize(unsigned int hash)
+    {
+        hash ^= hash >> 16;
+        hash *= 0x85ebca6b;
+        hash ^= hash >> 13;
+        hash *= 0xc2b2ae35;
+        hash ^= hash >> 16;
+
+        return hash;
+    }
+
+    CUDA_DEV unsigned int LCG_next(unsigned int value)
+    {
+        const unsigned int m = 1664525;
+        const unsigned int n = 1013904223;
+
+        return value * m + n;
+    }
+
 };
