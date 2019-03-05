@@ -70,7 +70,7 @@ class Renderer
             return vec3(0.0f, 0.0f, 0.0f); // exceeded recursion
         }
 
-        CUDA_HOSTDEV bool traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage);
+        CUDA_HOSTDEV bool traceRays(Camera* cam, hitable* world, Image* image, int sampleCount);
 
         #ifdef CUDA_ENABLED
             void cudaRender(Camera* cam, hitable* world, Image* image, int sampleCount);

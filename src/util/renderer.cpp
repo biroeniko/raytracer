@@ -65,10 +65,10 @@ SOFTWARE.
     }
 #endif // CUDA_ENABLED
 
-CUDA_HOSTDEV bool Renderer::traceRays(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+CUDA_HOSTDEV bool Renderer::traceRays(Camera* cam, hitable* world, Image* image, int sampleCount)
 {
     #ifdef CUDA_ENABLED
-        cudaRender(windowPixels, cam, world, image, sampleCount, fileOutputImage);
+        cudaRender(cam, world, image, sampleCount);
     #else
         // collapses the two nested fors into the same parallel for
         #pragma omp parallel for collapse(2)

@@ -137,7 +137,7 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
     else
     {
         for (int i = 0; i < numberOfIterations; i++)
-            render->traceRays(nullptr, cam, world, image, i+1, image->fileOutputImage);
+            render->traceRays(cam, world, image, i+1);
         std::cout << "Done." << std::endl;
     }
 

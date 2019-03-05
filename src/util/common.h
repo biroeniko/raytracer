@@ -54,10 +54,10 @@ SOFTWARE.
 const int nx = 1280;
 const int ny = 720;
 const int ns = 64;                     // sample size
-const int nsDenoise = 1;
+const int nsDenoise = 8;
 static int imageNr = 0;
 const int sampleNrToWrite = 16;
-const int sampleNrToWriteDenoise = 1;
+const int sampleNrToWriteDenoise = 8;
 const std::string folderName = "output";
 const std::string fileName = "raytracer";
 #ifdef CUDA_ENABLED
