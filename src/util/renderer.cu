@@ -188,21 +188,21 @@ CUDA_DEV int numHitables = 0;
 #endif // CUDA_ENABLED
 
 #ifdef CUDA_ENABLED
-    void Renderer::cudaRender(uint32_t* windowPixels, Camera* cam, hitable* world, Image* image, int sampleCount, uint8_t *fileOutputImage)
+    void Renderer::cudaRender(Camera* cam, hitable* world, Image* image, int sampleCount)
     {
         dim3 blocks( (image->nx + image->tx - 1)/image->tx, (image->ny + image->ty - 1)/image->ty);
         dim3 threads(image->tx, image->ty);
 
         // Kernel call for the computation of pixel colors.
         render<<<blocks, threads>>>(cam, image, world, this, sampleCount);
-
+/*
         // Denoise here.
         #ifdef OIDN_ENABLED
             checkCudaErrors(cudaDeviceSynchronize());
             //image->denoise();
             checkCudaErrors(cudaDeviceSynchronize());
         #endif // OIDN_ENABLED
-
+*/
         // Kernel call to fill the output buffers.
         display<<<blocks, threads>>>(image);
 
