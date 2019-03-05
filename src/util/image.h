@@ -114,6 +114,14 @@ struct Image
         #endif // CUDA_ENABLED
     }
 
+    void savePfm()
+    {
+        FILE* f = fopen("wtf.pfm", "wb");
+        fprintf(f, "PF\n%d %d\n-1\n", nx, ny);
+        fwrite(pixels2, sizeof(float), nx*ny*3, f);
+        fclose(f);
+    }
+
     CUDA_HOSTDEV ~Image()
     {
         #ifdef CUDA_ENABLED

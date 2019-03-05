@@ -76,5 +76,6 @@ class Renderer
             void cudaRender(Camera* cam, hitable* world, Image* image, int sampleCount);
         #else
             CUDA_HOSTDEV void render(int i, int j, Camera* cam, Image* image, hitable* world, int sampleCount);
+            CUDA_HOSTDEV void display(int i, int j, Image* image);
         #endif // CUDA_ENABLED
 };

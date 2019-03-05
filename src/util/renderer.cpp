@@ -31,11 +31,20 @@ SOFTWARE.
         float u = float(i + rng.get1f()) / float(image->nx); // left to right
         float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
 
-        ray r = cam->getRay(rng, u,v);
+        ray r = cam->getRay(rng, u, v);
 
         image->pixels[pixelIndex] += color(rng, r, world, 0);
 
         vec3 col = image->pixels[pixelIndex] / sampleCount;
+
+        image->pixels2[pixelIndex] = col;
+    }
+
+    CUDA_HOSTDEV void Renderer::display(int i, int j, Image* image)
+    {
+        int pixelIndex = j*image->nx + i;
+
+        vec3 col = image->pixels2[pixelIndex];
 
         // Gamma encoding of images is used to optimize the usage of bits
         // when encoding an image, or bandwidth used to transport an image,
@@ -45,11 +54,11 @@ SOFTWARE.
         // we use gamma 2: raising the color to the power 1/gamma (1/2)
         col = vec3(sqrtf(col[0]), sqrtf(col[1]), sqrtf(col[2]));
 
-        int ir = int(255.99f*col[0]);
-        int ig = int(255.99f*col[1]);
-        int ib = int(255.99f*col[2]);
+        int ir = clamp(int(255.f*col[0]), 0, 255);
+        int ig = clamp(int(255.f*col[1]), 0, 255);
+        int ib = clamp(int(255.f*col[2]), 0, 255);
 
-        if (writeImagePNG || writeImagePPM)
+        if (image->writeImage)
         {
             // PNG
             int index = (image->ny - 1 - j) * image->nx + i;
@@ -60,9 +69,10 @@ SOFTWARE.
             image->fileOutputImage[index3 + 2] = ib;
         }
 
-        if (showWindow)
+        if (image->showWindow)
             image->windowPixels[(image->ny-j-1)*image->nx + i] = (ir << 16) | (ig << 8) | (ib);
     }
+
 #endif // CUDA_ENABLED
 
 CUDA_HOSTDEV bool Renderer::traceRays(Camera* cam, hitable* world, Image* image, int sampleCount)
@@ -81,7 +91,14 @@ CUDA_HOSTDEV bool Renderer::traceRays(Camera* cam, hitable* world, Image* image,
                 render(i, j, cam, image, world, sampleCount);
             }
         }
-/*
+
+        //image->savePfm();
+
+        // Denoise here.
+        #ifdef OIDN_ENABLED
+            image->denoise();
+        #endif // OIDN_ENABLED
+
         #pragma omp parallel for collapse(2)
         // j track rows - from top to bottom
         for (int j = 0; j < image->ny; j++)
@@ -89,17 +106,9 @@ CUDA_HOSTDEV bool Renderer::traceRays(Camera* cam, hitable* world, Image* image,
             // i tracks columns - left to right
             for (int i = 0; i < image->nx; i++)
             {
-                display(i, j, windowPixels, cam, world, image, sampleCount, fileOutputImage);
+                display(i, j, image);
             }
         }
-*/
-/*
-        // Denoise here.
-        #ifdef OIDN_ENABLED
-            image->denoise();
-        #endif // OIDN_ENABLED
-*/
-
     #endif // CUDA_ENABLED
     return true;
 }
