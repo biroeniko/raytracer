@@ -166,9 +166,9 @@ CUDA_DEV int numHitables = 0;
         // we use gamma 2: raising the color to the power 1/gamma (1/2)
         col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
-        int ir = int(255.99f*col[0]);
-        int ig = int(255.99f*col[1]);
-        int ib = int(255.99f*col[2]);
+        int ir = clamp(int(255.f*col[0]), 0, 255);
+        int ig = clamp(int(255.f*col[1]), 0, 255);
+        int ib = clamp(int(255.f*col[2]), 0, 255);
 
         if (image->writeImage)
         {
@@ -195,14 +195,14 @@ CUDA_DEV int numHitables = 0;
 
         // Kernel call for the computation of pixel colors.
         render<<<blocks, threads>>>(cam, image, world, this, sampleCount);
-/*
+
         // Denoise here.
         #ifdef OIDN_ENABLED
             checkCudaErrors(cudaDeviceSynchronize());
-            //image->denoise();
+            image->denoise();
             checkCudaErrors(cudaDeviceSynchronize());
         #endif // OIDN_ENABLED
-*/
+
         // Kernel call to fill the output buffers.
         display<<<blocks, threads>>>(image);
 
