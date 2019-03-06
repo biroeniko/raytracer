@@ -102,15 +102,15 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
     if (showWindow)
     {
         int j = 1;
-        for (int i = 0; i < numberOfIterations; i++, j++)
+        for (int i = 0; ; i++, j+=nsBatch)
         {
             w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, image->fileOutputImage);
             w->pollEvents(image, image->fileOutputImage);
             if (writeEveryImageToFile &&
                  #ifdef OIDN_ENABLED
-                    (j == sampleNrToWriteDenoise)
+                    (j >= sampleNrToWriteDenoise)
                  #else
-                    (j == sampleNrToWrite)
+                    (j >= sampleNrToWrite)
                  #endif // OIDN_ENABLED
                 )
             {

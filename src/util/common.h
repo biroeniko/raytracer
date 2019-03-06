@@ -57,7 +57,7 @@ const int ns = 64;                     // sample size
 const int nsDenoise = 64;
 static int imageNr = 0;
 const int sampleNrToWrite = 16;
-const int sampleNrToWriteDenoise = 8;
+const int sampleNrToWriteDenoise = sampleNrToWrite;
 const std::string folderName = "output";
 const std::string fileName = "raytracer";
 #ifdef CUDA_ENABLED

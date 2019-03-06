@@ -27,13 +27,16 @@ SOFTWARE.
     {
         int pixelIndex = j*nx + i;
 
-        RandomGenerator rng(sampleCount, pixelIndex);
-        float u = float(i + rng.get1f()) / float(image->nx); // left to right
-        float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
+        // Render the samples in batches
+        for (int s = 0; s < nsBatch; s++)
+        {
+            RandomGenerator rng(sampleCount * nsBatch + s, pixelIndex);
+            float u = float(i + rng.get1f()) / float(image->nx); // left to right
+            float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
+            ray r = cam->getRay(rng, u, v);
 
-        ray r = cam->getRay(rng, u, v);
-
-        image->pixels[pixelIndex] += color(rng, r, world, 0);
+            image->pixels[pixelIndex] += color(rng, r, world, 0);
+        }
 
         vec3 col = image->pixels[pixelIndex] / sampleCount;
 
