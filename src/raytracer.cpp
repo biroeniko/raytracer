@@ -95,7 +95,7 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
     #ifdef OIDN_ENABLED
        int numberOfIterations = (nsDenoise + nsBatch - 1)/nsBatch;
     #else
-        int numberOfIterations = (ns + nsBatch - 1)/nsBatch;
+       int numberOfIterations = (ns + nsBatch - 1)/nsBatch;
 
     #endif // OIDN_ENABLED
 

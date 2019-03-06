@@ -94,10 +94,12 @@ CUDA_HOSTDEV bool Renderer::traceRays(Camera* cam, hitable* world, Image* image,
 
         //image->savePfm();
 
+        /*
         // Denoise here.
         #ifdef OIDN_ENABLED
             image->denoise();
         #endif // OIDN_ENABLED
+        */
 
         #pragma omp parallel for collapse(2)
         // j track rows - from top to bottom

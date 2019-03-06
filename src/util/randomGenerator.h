@@ -43,7 +43,7 @@ class RandomGenerator
 
 public:
 
-    CUDA_DEV explicit RandomGenerator(int sampleId = 1, int pixelId = 0)
+    CUDA_DEV explicit RandomGenerator(int sampleId = 1, int pixelId = 1)
     {
         unsigned int hash = 0;
         hash = MurmurHash3_mix(hash, pixelId);
@@ -53,15 +53,20 @@ public:
         s = hash;
     }
 
-    CUDA_DEV int get1i()
+    CUDA_DEV uint32_t get1ui()
     {
         s = LCG_next(s);
-        return s >> 1;
+        return s;
+    }
+
+    CUDA_DEV float toFloatUnorm(uint32_t x)
+    {
+        return float(uint32_t(x)) * 0x1.0p-32f;
     }
 
     CUDA_DEV float get1f()
     {
-       return (float)get1i() * 4.656612873077392578125e-10f;
+       return toFloatUnorm(get1ui());
     }
 
     CUDA_DEV vec3 randomInUnitSphere()
