@@ -5,6 +5,7 @@ My implementation of [Peter Shirley's Ray Tracing in one weekend](https://github
 ## Some versions are available through different branches:
 * [CPU version, accelerated with OpenMP](https://github.com/biroeniko/raytracer/tree/cpu-only)
 * [GPU+CPU version, accelerated with CUDA](https://github.com/biroeniko/raytracer/tree/gpu-cpu-first-book)
+* [GPU+CPU version, accelerated with CUDA, with Open Image Denoise support](https://github.com/biroeniko/raytracer/tree/gpu-cpu-oidn-first-book)
 
 ## Details:
 This code follows the steps of Peter Shirley's mini book series.
