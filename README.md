@@ -67,6 +67,8 @@ make
 ```
 Now, you should see the executable in the build folder. Examples for the final images are:
 ![](https://github.com/biroeniko/raytracer/blob/master/images/cuda_640_360.gif)
+![](https://github.com/biroeniko/raytracer/blob/master/images/noisy.png)
+![](https://github.com/biroeniko/raytracer/blob/master/images/denoised.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/final.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/final2.png)
 ![](https://github.com/biroeniko/raytracer/blob/master/images/final3.png)
