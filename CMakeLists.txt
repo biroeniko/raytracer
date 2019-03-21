@@ -39,12 +39,15 @@ if(CUDA_SUPPORT)
 endif()
 
 # OpenImageDenoise
-find_package(OpenImageDenoise)
-if (OpenImageDenoise_FOUND)
-   add_definitions(-DOIDN_ENABLED)
-   include_directories(
-       ${OpenImageDenoise_DIR}/../../../include
-   )
+option(OIDN_SUPPORT "OpenImageDenoiser support" ON)
+if (OIDN_SUPPORT)
+    find_package(OpenImageDenoise)
+    if (OpenImageDenoise_FOUND)
+       add_definitions(-DOIDN_ENABLED)
+       include_directories(
+           ${OpenImageDenoise_DIR}/../../../include
+       )
+    endif()
 endif()
 
 # Header files
@@ -102,7 +105,7 @@ else()
 endif()
 
 if (OpenImageDenoise_FOUND)
-   target_link_libraries(${PROJECT_NAME} OpenImageDenoise)
+    target_link_libraries(${PROJECT_NAME} OpenImageDenoise)
 endif()
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})

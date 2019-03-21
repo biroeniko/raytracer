@@ -22,7 +22,9 @@ SOFTWARE.
 #include "util/vec3.h"
 #include "util/util.h"
 
-#include <OpenImageDenoise/oidn.hpp>
+#ifdef OIDN_ENABLED
+    #include <OpenImageDenoise/oidn.hpp>
+#endif // OIDN_ENABLED
 
 struct Image
 {
@@ -40,8 +42,10 @@ struct Image
     bool showWindow;
     bool writeImage;
 
-    oidn::DeviceRef device;
-    oidn::FilterRef filter;
+    #ifdef OIDN_ENABLED
+        oidn::DeviceRef device;
+        oidn::FilterRef filter;
+    #endif // OIDN_ENABLED
 
     CUDA_HOSTDEV Image(bool showWindow, bool writeImage, int x, int y, int tx, int ty ) : showWindow(showWindow), writeImage(writeImage), nx(x), ny(y), tx(tx), ty(ty)
     {
