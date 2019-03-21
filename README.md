@@ -16,12 +16,12 @@ This code follows the steps of Peter Shirley's mini book series.
 * [SDL2](https://www.libsdl.org/) for real-time display support + keyboard movement support
 * [PCG](http://www.pcg-random.org/) random number generator (the minimal C implementation)
 * [CUDA](https://developer.nvidia.com/cuda-zone) support
+* [Open Image Denoise](https://openimagedenoise.github.io/) support
 
 ### Features to be implemented:
 * Other two books
 * Accelerated versions
   * ispc
-  * use denoising
 
 ## Getting Started
 
@@ -90,6 +90,7 @@ Some screenshots along the way of developing:
 * [SDL2](https://www.libsdl.org/) - used for display
 * [OpenMP](https://www.openmp.org/) - used for creating multiple threads for the tasks (pixel color calculation)
 * [CUDA](https://developer.nvidia.com/cuda-zone) - used for acceleration
+* [Open Image Denoise](https://openimagedenoise.github.io/) - used for acceleration
 
 ## Authors
 
