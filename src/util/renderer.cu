@@ -18,6 +18,7 @@ SOFTWARE.
 */
 
 #include "util/common.h"
+#include "util/globals.h"
 #include "util/renderer.h"
 
 #include "hitables/sphere.h"
@@ -81,8 +82,6 @@ CUDA_DEV int numHitables = 0;
         checkCudaErrors(cudaFree(worldPtr));
 
         // Camera
-        vec3 lookFrom(13.0f, 2.0f, 3.0f);
-        vec3 lookAt(0.0f, 0.0f, 0.0f);
         checkCudaErrors(cudaMallocManaged(cam, sizeof(Camera)));
         new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
 

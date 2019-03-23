@@ -17,36 +17,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "vec3.h"
 
-#ifdef CUDA_ENABLED
-    #include <cuda_runtime_api.h>
-    #include <cuda.h>
-#endif
-
-#include <string>
-#include <limits.h>
-
-#ifdef CUDA_ENABLED
-    #define CUDA_HOST __host__
-#else
-    #define CUDA_HOST
-#endif
-
-#ifdef CUDA_ENABLED
-    #define CUDA_GLOBAL __global__
-#else
-    #define CUDA_GLOBAL
-#endif
-
-#ifdef CUDA_ENABLED
-    #define CUDA_DEV __device__
-#else
-    #define CUDA_DEV
-#endif
-
-#ifdef CUDA_ENABLED
-    #define CUDA_HOSTDEV __host__ __device__
-#else
-    #define CUDA_HOSTDEV
-#endif
+vec3 lookFrom(12.0f, 2.0f, 3.0f);
+vec3 lookAt(0.0f, 0.0f, 0.0f);

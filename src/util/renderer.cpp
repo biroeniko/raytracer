@@ -18,6 +18,7 @@ SOFTWARE.
 */
 
 #include "util/renderer.h"
+#include "util/globals.h"
 #include "util/scene.h"
 
 #ifdef CUDA_ENABLED

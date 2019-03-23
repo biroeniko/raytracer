@@ -81,6 +81,8 @@ set(SRC_HOST
     src/util/util.h
     src/util/util.cpp
     src/util/common.h
+    src/util/globals.h
+    src/util/globals.cpp
     src/raytracer.cpp
 )
 

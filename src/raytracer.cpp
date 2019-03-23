@@ -41,6 +41,7 @@ SOFTWARE.
 #include "util/renderer.h"
 #include "util/window.h"
 #include "util/common.h"
+#include "util/globals.h"
 #include "util/scene.h"
 
 #include <sys/types.h>
@@ -53,8 +54,6 @@ SOFTWARE.
     void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
     {
         *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
-        vec3 lookFrom(13.0f, 2.0f, 3.0f);
-        vec3 lookAt(0.0f, 0.0f, 0.0f);
         *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
         *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
         *world = simpleScene();
