@@ -63,7 +63,8 @@ SOFTWARE.
     }
 #endif // CUDA_ENABLED
 
-void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Renderer* render, bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile)
+void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Renderer* render, bool showWindow,
+                    bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile, bool moveCamera)
 {
     std::ofstream ppmImageStream;
 
@@ -113,7 +114,8 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
                  #endif // OIDN_ENABLED
                 )
             {
-                w->moveCamera(image, image->fileOutputImage);
+                if (moveCamera)
+                    w->moveCamera(image, image->fileOutputImage);
                 j = 0;
             }
             if (w->refresh)
@@ -156,7 +158,7 @@ void invokeRenderer(hitable* world, Window* w, Image* image, Camera* cam, Render
     }
 }
 
-void raytrace(bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile)
+void raytrace(bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile, bool moveCamera)
 {
     Window* w;
     Image* image;
@@ -168,12 +170,12 @@ void raytrace(bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writ
 
     #ifdef CUDA_ENABLED
         initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &list, &world, &w, &image, &cam, &render);
-        invokeRenderer(world, w, image, cam, render, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile);
+        invokeRenderer(world, w, image, cam, render, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
         destroyWorldCuda(showWindow, list, world, w, image, cam, render);
 
     #else
         initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, &w, &image, &cam, &render);
-        invokeRenderer(world, w, image, cam, render, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile);
+        invokeRenderer(world, w, image, cam, render, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
 
         delete image;
         delete cam;
@@ -191,6 +193,7 @@ int main(int argc, char **argv)
     bool showWindow = true;
     bool runBenchmark = false;
     bool writeEveryImageToFile = true;
+    bool moveCamera = false;
 
     // Run benchmark.
     if (runBenchmark)
@@ -204,7 +207,7 @@ int main(int argc, char **argv)
             auto start = std::chrono::high_resolution_clock::now();
 
             // Invoke renderer
-            raytrace(false, false, false, false);
+            raytrace(false, false, false, false, false);
 
             // Record end time
             auto finish = std::chrono::high_resolution_clock::now();
@@ -223,7 +226,7 @@ int main(int argc, char **argv)
     else
     {
         // Invoke renderer
-        raytrace(showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile);
+        raytrace(showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
     }
 
     return 0;
