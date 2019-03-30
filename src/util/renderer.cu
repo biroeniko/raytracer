@@ -33,7 +33,7 @@ CUDA_DEV int numHitables = 0;
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
     {
-        int choice = 4;
+        int choice = 5;
 
         switch(choice)
         {
@@ -51,6 +51,9 @@ CUDA_DEV int numHitables = 0;
                 break;
             case 4:
                 numHitables = 68;
+                break;
+            case 5:
+                numHitables = 197;
                 break;
         }
 
@@ -75,6 +78,9 @@ CUDA_DEV int numHitables = 0;
             case 4:
                 randomScene3<<<1,1>>>(*list, worldPtr);
                 break;
+            case 5:
+                randomScene4<<<1,1>>>(*list, worldPtr);
+                break;
         }
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
@@ -83,7 +89,7 @@ CUDA_DEV int numHitables = 0;
 
         // Camera
         checkCudaErrors(cudaMallocManaged(cam, sizeof(Camera)));
-        new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f,
+        new (*cam) Camera(lookFrom, lookAt, vup, 20.0f,
                           float(nx)/float(ny), distToFocus, aperture);
 
         // Renderer

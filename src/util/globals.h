@@ -45,6 +45,7 @@ const float stepScale = 0.5f;
 
 extern vec3 lookFrom;
 extern vec3 lookAt;
+extern vec3 vup;
 
 extern float distToFocus;
 

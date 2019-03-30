@@ -54,9 +54,9 @@ SOFTWARE.
     void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, Window** w, Image** image, Camera** cam, Renderer** render)
     {
         *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
-        *cam = new Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
+        *cam = new Camera(lookFrom, lookAt, vup, 20.0f, float(nx)/float(ny), distToFocus, aperture);
         *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
-        *world = simpleScene();
+        *world = randomScene();
 
         if (showWindow)
             *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
