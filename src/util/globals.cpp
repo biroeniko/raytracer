@@ -21,3 +21,5 @@ SOFTWARE.
 
 vec3 lookFrom(12.0f, 2.0f, 3.0f);
 vec3 lookAt(0.0f, 0.0f, 0.0f);
+
+float distToFocus((lookAt-lookFrom).length());

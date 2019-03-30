@@ -61,7 +61,8 @@ class Camera
                                  origin(vec3(0.0f, 0.0f, 0.0f)) {};
         
         // vfov is top to bottom in degrees
-        CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect)
+        CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup,
+                float vfov, float aspect)
         {
             float theta = vfov*M_PI/180.0f;
             this->halfHeight = tan(theta/2.0f);
@@ -85,12 +86,18 @@ class Camera
         }
 
         // another constructor
-        CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float focusDist, float aperture = 0.0f) :
+        CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup,
+                float vfov, float aspect, float focusDist,
+                float aperture = 0.0f) :
         Camera(lookFrom, lookAt, vup, vfov, aspect)
         {
             this->lensRadius = aperture/2.0f;
             this->aperture = aperture;
             this->focusDist = focusDist;
+
+            this->lowerLeftCorner = origin - halfWidth*focusDist*u - halfHeight*focusDist*v - focusDist*w;
+            this->horizontal = 2.0f*halfWidth*focusDist*u;
+            this->vertical = 2.0f*halfHeight*focusDist*v;
         }
 
         CUDA_HOSTDEV void update()

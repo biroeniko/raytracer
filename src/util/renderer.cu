@@ -83,7 +83,8 @@ CUDA_DEV int numHitables = 0;
 
         // Camera
         checkCudaErrors(cudaMallocManaged(cam, sizeof(Camera)));
-        new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx)/float(ny), distToFocus);
+        new (*cam) Camera(lookFrom, lookAt, vec3(0.0f, 1.0f, 0.0f), 20.0f,
+                          float(nx)/float(ny), distToFocus, aperture);
 
         // Renderer
         checkCudaErrors(cudaMallocManaged(renderer, sizeof(Renderer)));
