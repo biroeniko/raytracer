@@ -42,6 +42,7 @@ class Camera
         vec3 vertical;
         vec3 u, v, w;
         float lensRadius;
+        float time0, time1; // shutter open/close times
 
         vec3 lookFrom;
         vec3 lookAt;
@@ -88,9 +89,12 @@ class Camera
         // another constructor
         CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup,
                 float vfov, float aspect, float focusDist,
-                float aperture = 0.0f) :
+                float aperture = 0.0f, float t0 = 0.0, float t1 = 0.0) :
         Camera(lookFrom, lookAt, vup, vfov, aspect)
         {
+            this->time0 = t0;
+            this->time1 = t1;
+
             this->lensRadius = aperture/2.0f;
             this->aperture = aperture;
             this->focusDist = focusDist;
@@ -164,6 +168,7 @@ class Camera
         {
             vec3 rd = lensRadius*rng.randomInUnitSphere();
             vec3 offset = u * rd.x() + v * rd.y();
-            return ray(origin + offset, lowerLeftCorner + s*horizontal + t*vertical - origin - offset);
+            float time = time0 + rng.get1f()*(time1-time0);
+            return ray(origin + offset, lowerLeftCorner + s*horizontal + t*vertical - origin - offset, time);
         }
 };
