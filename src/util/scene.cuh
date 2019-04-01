@@ -22,6 +22,7 @@ SOFTWARE.
 #include <float.h>
 
 #include "hitables/sphere.h"
+#include "hitables/movingsphere.h"
 #include "hitables/hitablelist.h"
 #include "materials/material.h"
 #include "util/randomgenerator.h"
@@ -237,6 +238,48 @@ SOFTWARE.
                         else                            // glass
                         {
                             list[i++] = new sphere(center, 0.2f, new dielectric(1.5));
+                        }
+                    }
+                }
+            }
+
+            *world = new hitableList(list, n);
+        }
+    }
+
+    CUDA_GLOBAL void randomSceneWithMovingSpheres(hitable** list, hitable** world)
+    {
+        if (threadIdx.x == 0 && blockIdx.x == 0)
+        {
+            RandomGenerator rng;
+
+            int n = 197;
+            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+            list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
+            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.3f, 0.0f, 0.0f)));
+            list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.4f, 0.5f, 0.6f), 0.0f));
+
+            int i = 4;
+            for (int a = -7; a < 7; a++)
+            {
+                for (int b = -7; b < 7; b++)
+                {
+                    float chooseMat = rng.get1f();
+                    vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
+                    if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+                    {
+                        if (chooseMat < 0.33)            // diffuse
+                        {
+                            list[i++] = new movingSphere(center, center+vec3(0.0f, 0.5f*rng.get1f(), 0.0f), 0.0f, 1.0f,
+                                            0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
+                        }
+                        else if (chooseMat < 0.88)      // metal
+                        {
+                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.f+rng.get1f()), 0.5f*(1.f+rng.get1f()), 0.5f*(1.f+rng.get1f()))));
+                        }
+                        else                            // glass
+                        {
+                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
                         }
                     }
                 }

@@ -56,7 +56,7 @@ class lambertian : public material
         CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
         {
             vec3 target = rec.point + rec.normal + rng.randomInUnitSphere();
-            scattered = ray(rec.point, target-rec.point);
+            scattered = ray(rec.point, target - rec.point, rIn.time());
             attenuation = albedo;
             return true;
         }
@@ -82,7 +82,7 @@ class metal: public material
 CUDA_DEV inline bool metal::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
     vec3 reflected = reflect(unitVector(rIn.direction()), rec.normal);
-    scattered = ray(rec.point, reflected + fuzz*rng.randomInUnitSphere());
+    scattered = ray(rec.point, reflected + fuzz*rng.randomInUnitSphere(), rIn.time());
     attenuation = albedo;
     return (dot(scattered.direction(), rec.normal) > 0);
 }
@@ -157,13 +157,13 @@ CUDA_DEV inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, c
         reflectProbability = schlick(cosine, refIndex);
     else
     {
-        scattered = ray(rec.point, reflected);
+        scattered = ray(rec.point, reflected, rIn.time());
         reflectProbability = 1.0f;
     }
 
     if (rng.get1f() < reflectProbability)
-        scattered = ray(rec.point, reflected);
+        scattered = ray(rec.point, reflected, rIn.time());
     else
-        scattered = ray(rec.point, refracted);
+        scattered = ray(rec.point, refracted, rIn.time());
     return true;
 }
