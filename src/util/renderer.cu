@@ -22,7 +22,7 @@ SOFTWARE.
 #include "util/renderer.h"
 
 #include "hitables/sphere.h"
-#include "hitables/hitableList.h"
+#include "hitables/hitablelist.h"
 #include "util/camera.h"
 #include "materials/material.h"
 #include "util/scene.cuh"

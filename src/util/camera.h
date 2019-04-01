@@ -21,7 +21,7 @@ SOFTWARE.
 
 #include "util/ray.h"
 #include "util/util.h"
-#include "util/randomGenerator.h"
+#include "util/randomgenerator.h"
 
 enum CameraMovement {
     FORWARD,

@@ -34,7 +34,7 @@ struct hitRecord;
 
 #include "util/ray.h"
 #include "hitables/hitable.h"
-#include "util/randomGenerator.h"
+#include "util/randomgenerator.h"
 
 class material
 {

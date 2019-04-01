@@ -24,10 +24,10 @@ SOFTWARE.
 #include <float.h>
 #include <omp.h>
 
-#include "hitables/hitableList.h"
+#include "hitables/hitablelist.h"
 #include "util/camera.h"
 #include "util/image.h"
-#include "util/randomGenerator.h"
+#include "util/randomgenerator.h"
 #include "materials/material.h"
 #include "hitables/sphere.h"
 

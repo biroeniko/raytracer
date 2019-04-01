@@ -35,7 +35,7 @@ SOFTWARE.
 #endif /* STB_IMAGE_WRITE_IMPLEMENTATION */
 
 #include "hitables/sphere.h"
-#include "hitables/hitableList.h"
+#include "hitables/hitablelist.h"
 #include "util/camera.h"
 #include "materials/material.h"
 #include "util/renderer.h"
@@ -56,7 +56,7 @@ SOFTWARE.
         *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
         *cam = new Camera(lookFrom, lookAt, vup, 20.0f, float(nx)/float(ny), distToFocus, aperture);
         *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
-        *world = randomScene();
+        *world = simpleScene2();
 
         if (showWindow)
             *w = new Window(*cam, *render, nx, ny, thetaInit, phiInit, zoomScale, stepScale);

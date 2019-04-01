@@ -22,9 +22,9 @@ SOFTWARE.
 #include <float.h>
 
 #include "hitables/sphere.h"
-#include "hitables/hitableList.h"
+#include "hitables/hitablelist.h"
 #include "materials/material.h"
-#include "util/randomGenerator.h"
+#include "util/randomgenerator.h"
 #include "util/common.h"
 
 #ifdef CUDA_ENABLED
