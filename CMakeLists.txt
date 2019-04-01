@@ -52,8 +52,8 @@ endif()
 
 # Header files
 include_directories(
-    ${PROJECT_SOURCE_DIR}/src 
     ${SDL2_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/src/stb_image
 )
 
@@ -67,22 +67,23 @@ set(SRC_HOST
     ${SRC_COMMON}
     src/hitables/hitable.h
     src/hitables/hitablelist.h
+    src/hitables/movingsphere.h
     src/hitables/sphere.h
     src/materials/material.h
-    src/util/vec3.h
-    src/util/ray.h
-    src/util/image.h
-    src/util/scene.h
-    src/util/window.h
-    src/util/renderer.h
-    src/util/renderer.cpp
     src/util/camera.h
-    src/util/randomgenerator.h
-    src/util/util.h
-    src/util/util.cpp
     src/util/common.h
-    src/util/globals.h
     src/util/globals.cpp
+    src/util/globals.h
+    src/util/image.h
+    src/util/randomgenerator.h
+    src/util/ray.h
+    src/util/renderer.cpp
+    src/util/renderer.h
+    src/util/scene.h
+    src/util/util.cpp
+    src/util/util.h
+    src/util/vec3.h
+    src/util/window.h
     src/raytracer.cpp
 )
 
