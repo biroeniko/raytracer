@@ -63,17 +63,17 @@ SOFTWARE.
                     vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
                     if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
-                        if (chooseMat < 0.5)            // diffuse
+                        if (chooseMat < 0.5f)            // diffuse
                         {
                             list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
                         }
-                        else if (chooseMat < 0.75)      // metal
+                        else if (chooseMat < 0.75f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()))));
+                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5));
+                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
                         }
                     }
                 }
@@ -104,17 +104,17 @@ SOFTWARE.
                     vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
                     if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
-                        if (chooseMat < 0.5)            // diffuse
+                        if (chooseMat < 0.5f)            // diffuse
                         {
                             list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
                         }
-                        else if (chooseMat < 0.75)      // metal
+                        else if (chooseMat < 0.75f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()))));
+                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5));
+                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
                         }
                     }
                 }
@@ -145,17 +145,17 @@ SOFTWARE.
                     vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
                     if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
-                        if (chooseMat < 0.5)            // diffuse
+                        if (chooseMat < 0.5f)            // diffuse
                         {
                             list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
                         }
-                        else if (chooseMat < 0.75)      // metal
+                        else if (chooseMat < 0.75f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()))));
+                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5));
+                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
                         }
                     }
                 }
@@ -186,17 +186,17 @@ SOFTWARE.
                     vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
                     if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
-                        if (chooseMat < 0.3)            // diffuse
+                        if (chooseMat < 0.3f)            // diffuse
                         {
                             list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
                         }
-                        else if (chooseMat < 0.65)      // metal
+                        else if (chooseMat < 0.65f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()))));
+                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5));
+                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
                         }
                     }
                 }
@@ -227,17 +227,17 @@ SOFTWARE.
                     vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
                     if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
-                        if (chooseMat < 0.33)            // diffuse
+                        if (chooseMat < 0.33f)            // diffuse
                         {
                             list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
                         }
-                        else if (chooseMat < 0.88)      // metal
+                        else if (chooseMat < 0.88f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()), 0.5*(1+rng.get1f()))));
+                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5));
+                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
                         }
                     }
                 }
@@ -268,14 +268,14 @@ SOFTWARE.
                     vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
                     if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
-                        if (chooseMat < 0.33)            // diffuse
+                        if (chooseMat < 0.33f)            // diffuse
                         {
                             list[i++] = new movingSphere(center, center+vec3(0.0f, 0.5f*rng.get1f(), 0.0f), 0.0f, 1.0f,
                                             0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
                         }
-                        else if (chooseMat < 0.88)      // metal
+                        else if (chooseMat < 0.88f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.f+rng.get1f()), 0.5f*(1.f+rng.get1f()), 0.5f*(1.f+rng.get1f()))));
+                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {

@@ -27,7 +27,7 @@ SOFTWARE.
         if ((i >= nx) || (j >= ny))
             return;
         int pixelIndex = j*nx + i;
-        pixels[pixelIndex] = vec3(0,0,0);
+        pixels[pixelIndex] = vec3(0.0f, 0.0f, 0.0f);
     }
 #endif // CUDA_ENABLED
 

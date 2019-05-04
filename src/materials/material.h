@@ -84,7 +84,7 @@ CUDA_DEV inline bool metal::scatter(RandomGenerator& rng, const ray& rIn, const 
     vec3 reflected = reflect(unitVector(rIn.direction()), rec.normal);
     scattered = ray(rec.point, reflected + fuzz*rng.randomInUnitSphere(), rIn.time());
     attenuation = albedo;
-    return (dot(scattered.direction(), rec.normal) > 0);
+    return (dot(scattered.direction(), rec.normal) > 0.0f);
 }
 
 
@@ -101,7 +101,7 @@ CUDA_DEV inline bool refract(const vec3& v, const vec3& n, float niOverNt, vec3&
 {
     vec3 uv = unitVector(v);
     float dt = dot(uv, n);
-    float discriminant = 1.0f - niOverNt*niOverNt*(1-dt*dt);
+    float discriminant = 1.0f - niOverNt*niOverNt*(1.0f - dt*dt);
     if (discriminant > 0.0f)
     {
         refracted = niOverNt*(uv - n*dt) - n*sqrt(discriminant);
@@ -123,9 +123,9 @@ CUDA_DEV class dielectric: public material
 // Christophe Schlick's simple qeuation:
 CUDA_DEV inline float schlick(float cosine, float refIndex)
 {
-    float r0 = (1-refIndex) / (1+refIndex);
+    float r0 = (1.0f - refIndex) / (1.0f + refIndex);
     r0 = r0*r0;
-    return r0 + (1-r0)*pow((1-cosine),5);
+    return r0 + (1.0f - r0)*pow((1.0f - cosine), 5.0f);
 }
 
 CUDA_DEV inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const

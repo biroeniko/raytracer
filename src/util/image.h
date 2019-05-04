@@ -113,7 +113,7 @@ struct Image
             #pragma omp parallel for
             for (int i = 0; i < nx*ny; i++)
             {
-                pixels[i] = vec3(0, 0, 0);
+                pixels[i] = vec3(0.0f, 0.0f, 0.0f);
             }
         #endif // CUDA_ENABLED
     }

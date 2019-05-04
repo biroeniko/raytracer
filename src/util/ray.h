@@ -29,7 +29,7 @@ class ray
 
     public:
         CUDA_HOSTDEV ray() {}
-        CUDA_HOSTDEV ray(const vec3& a, const vec3& b, float ti = 0.0)
+        CUDA_HOSTDEV ray(const vec3& a, const vec3& b, float ti = 0.0f)
         {
             A = a;
             B = b;

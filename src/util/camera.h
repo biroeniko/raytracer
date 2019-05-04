@@ -89,7 +89,7 @@ class Camera
         // another constructor
         CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup,
                 float vfov, float aspect, float focusDist,
-                float aperture = 0.0f, float t0 = 0.0, float t1 = 1.0) :
+                float aperture = 0.0f, float t0 = 0.0f, float t1 = 1.0f) :
         Camera(lookFrom, lookAt, vup, vfov, aspect)
         {
             this->time0 = t0;

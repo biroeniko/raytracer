@@ -73,7 +73,7 @@ public:
     {
         vec3 point;
         do {
-            point = 2.0f * vec3(get1f(), get1f(), get1f()) - vec3(1.0f,1.0f,1.0f);
+            point = 2.0f * vec3(get1f(), get1f(), get1f()) - vec3(1.0f, 1.0f, 1.0f);
         } while (point.squaredLength() >= 1.0f);
         return point;
     }

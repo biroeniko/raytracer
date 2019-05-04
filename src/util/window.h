@@ -204,12 +204,12 @@ struct Window
 
     CUDA_HOSTDEV void moveCamera(Image* image, uint8_t *fileOutputImage)
     {
-        theta += -1.0 * delta;
+        theta += -1.0f * delta;
         if (theta < delta)
             theta = delta;
         if (theta > (M_PI_2 - delta))
             theta = M_PI_2 - delta;
-        phi += -10. * delta;
+        phi += -10.0f * delta;
         windowCamera->rotate(theta, phi);
 
         image->resetImage();

@@ -149,7 +149,7 @@ inline CUDA_HOSTDEV vec3& vec3::operator*=(const float x)
 
 inline CUDA_HOSTDEV vec3& vec3::operator/=(const float x)
 {
-    float k = 1.0 / x;
+    float k = 1.0f / x;
     e[0] *= k;
     e[1] *= k;
     e[2] *= k;
@@ -168,7 +168,7 @@ inline CUDA_HOSTDEV float vec3::squaredLength() const
 
 inline CUDA_HOSTDEV void vec3::makeUnitVector()
 {
-    float k = 1.0 / (sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]));
+    float k = 1.0f / (sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]));
     e[0] *= k;
     e[1] *= k;
     e[2] *= k;
