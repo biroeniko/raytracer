@@ -85,7 +85,8 @@ set(SRC_HOST
     src/util/util.h
     src/util/vec3.h
     src/util/window.h
-    src/raytracer.cpp
+    src/util/window.cpp
+    src/main.cpp
 )
 
 if (CUDA_SUPPORT)

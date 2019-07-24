@@ -18,6 +18,7 @@ SOFTWARE.
 */
 
 #include "util/renderer.h"
+#include "util/params.h"
 #include "util/globals.h"
 #include "util/scene.h"
 
@@ -25,9 +26,7 @@ SOFTWARE.
 
 #else
     CUDA_HOSTDEV void Renderer::render(int i, int j,
-                                       std::unique_ptr<Camera>& cam,
-                                       std::unique_ptr<Image>& image,
-                                       std::unique_ptr<hitable>& world,
+                                       rParams& rParams,
                                        int sampleCount)
     {
         int pixelIndex = j*nx + i;
@@ -36,16 +35,16 @@ SOFTWARE.
         for (int s = 0; s < nsBatch; s++)
         {
             RandomGenerator rng(sampleCount * nsBatch + s, pixelIndex);
-            float u = float(i + rng.get1f()) / float(image->nx); // left to right
-            float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
-            ray r = cam->getRay(rng, u, v);
+            float u = float(i + rng.get1f()) / float(rParams.image->nx); // left to right
+            float v = float(j + rng.get1f()) / float(rParams.image->ny); // bottom to top
+            ray r = rParams.cam->getRay(rng, u, v);
 
-            image->pixels[pixelIndex] += color(rng, r, world.get(), 0);
+            rParams.image->pixels[pixelIndex] += color(rng, r, rParams.world.get(), 0);
         }
 
-        vec3 col = image->pixels[pixelIndex] / sampleCount;
+        vec3 col = rParams.image->pixels[pixelIndex] / sampleCount;
 
-        image->pixels2[pixelIndex] = col;
+        rParams.image->pixels2[pixelIndex] = col;
     }
 
     CUDA_HOSTDEV void Renderer::display(int i, int j, std::unique_ptr<Image>& image)
@@ -83,39 +82,37 @@ SOFTWARE.
 
 #endif // CUDA_ENABLED
 
-CUDA_HOSTDEV bool Renderer::traceRays(std::unique_ptr<Camera>& cam,
-                                      std::unique_ptr<hitable>& world,
-                                      std::unique_ptr<Image>& image,
+CUDA_HOSTDEV bool Renderer::traceRays(rParams& rParams,
                                       int sampleCount)
 {
     #ifdef CUDA_ENABLED
-        cudaRender(cam, world, image, sampleCount);
+        cudaRender(rParams, sampleCount);
     #else
         // collapses the two nested fors into the same parallel for
         #pragma omp parallel for collapse(2)
         // j track rows - from top to bottom
-        for (int j = 0; j < image->ny; j++)
+        for (int j = 0; j < rParams.image->ny; j++)
         {
             // i tracks columns - left to right
-            for (int i = 0; i < image->nx; i++)
+            for (int i = 0; i < rParams.image->nx; i++)
             {
-                render(i, j, cam, image, world, sampleCount);
+                render(i, j, rParams, sampleCount);
             }
         }
 
         // Denoise here.
         #ifdef OIDN_ENABLED
-            image->denoise();
+            rParams.image->denoise();
         #endif // OIDN_ENABLED
 
         #pragma omp parallel for collapse(2)
         // j track rows - from top to bottom
-        for (int j = 0; j < image->ny; j++)
+        for (int j = 0; j < rParams.image->ny; j++)
         {
             // i tracks columns - left to right
-            for (int i = 0; i < image->nx; i++)
+            for (int i = 0; i < rParams.image->nx; i++)
             {
-                display(i, j, image);
+                display(i, j, rParams.image);
             }
         }
     #endif // CUDA_ENABLED

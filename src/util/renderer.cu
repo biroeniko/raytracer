@@ -227,16 +227,17 @@ CUDA_DEV int numHitables = 0;
 #endif // CUDA_ENABLED
 
 #ifdef CUDA_ENABLED
-    void Renderer::cudaRender(std::unique_ptr<Camera>& cam,
-                              std::unique_ptr<hitable>& world,
-                              std::unique_ptr<Image>& image,
+    void Renderer::cudaRender(rParams& rParams,
                               int sampleCount)
     {
+
+        auto image = rParams.image.get();
+
         dim3 blocks( (image->nx + image->tx - 1)/image->tx, (image->ny + image->ty - 1)/image->ty);
         dim3 threads(image->tx, image->ty);
 
         // Kernel call for the computation of pixel colors.
-        render<<<blocks, threads>>>(cam.get(), image.get(), world.get(), this, sampleCount);
+        render<<<blocks, threads>>>(rParams.cam.get(), image, rParams.world.get(), this, sampleCount);
 
         // Denoise here.
         #ifdef OIDN_ENABLED
@@ -246,7 +247,7 @@ CUDA_DEV int numHitables = 0;
         #endif // OIDN_ENABLED
 
         // Kernel call to fill the output buffers.
-        display<<<blocks, threads>>>(image.get());
+        display<<<blocks, threads>>>(image);
 
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());

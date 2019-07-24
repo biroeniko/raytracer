@@ -109,22 +109,10 @@ struct Window
     }
 
     CUDA_HOSTDEV void updateImage(lParams& lParams,
-                                  std::ofstream& myfile,
-                                  std::unique_ptr<Window>& w,
-                                  std::unique_ptr<Camera>& cam,
-                                  std::unique_ptr<hitable>& world,
-                                  std::unique_ptr<Image>& image,
-                                  int sampleCount,
-                                  uint8_t *fileOutputImage)
-    {
-            windowRenderer->traceRays(cam, world, image, sampleCount);
-            //std::cout << "Sample nr. " << sampleCount << std::endl;
-            SDL_UpdateTexture(w->SDLTexture, NULL, image->windowPixels, nx * sizeof(Uint32));
-            SDL_RenderCopy(w->SDLRenderer, w->SDLTexture, NULL, NULL);
-            SDL_RenderPresent(w->SDLRenderer);
-	}
+                                  rParams& rParams,
+                                  int sampleCount);
 
-    CUDA_HOSTDEV void pollEvents(std::unique_ptr<Image>& image, uint8_t *fileOutputImage)
+    CUDA_HOSTDEV void pollEvents(std::unique_ptr<Image>& image)
     {
         SDL_Event event;
         while (SDL_PollEvent(&event))
