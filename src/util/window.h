@@ -46,14 +46,14 @@ struct Window
 	const float delta = 0.1 * M_PI / 180.0f;
 
     Camera* windowCamera;
-    Renderer* rend;
+    Renderer* windowRenderer;
 
     CUDA_HOSTDEV Window(const std::unique_ptr<Camera>& cam,
-                        Renderer* rend,
+                        const std::unique_ptr<Renderer>& renderer,
                         const int nx, const int ny,
                         const float thetaInit, const float phiInit,
                         const float zoomScale, const float stepScale) :
-                        windowCamera(cam.get()), rend(rend),
+                        windowCamera(cam.get()), windowRenderer(renderer.get()),
                         nx(nx), ny(ny),
                         thetaInit(thetaInit), phiInit(phiInit),
                         zoomScale(zoomScale), stepScale(stepScale)
@@ -111,7 +111,7 @@ struct Window
                                   hitable* world, std::unique_ptr<Image>& image,  int sampleCount,
                                   uint8_t *fileOutputImage)
     {
-            rend->traceRays(cam, world, image, sampleCount);
+            windowRenderer->traceRays(cam, world, image, sampleCount);
             //std::cout << "Sample nr. " << sampleCount << std::endl;
             SDL_UpdateTexture(w->SDLTexture, NULL, image->windowPixels, nx * sizeof(Uint32));
             SDL_RenderCopy(w->SDLRenderer, w->SDLTexture, NULL, NULL);
