@@ -50,12 +50,16 @@ SOFTWARE.
 #include "util/scene.h"
 
 #ifdef CUDA_ENABLED
-    void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, std::unique_ptr<Window>& w, Image** image, Camera** cam, Renderer** render);
-    void destroyWorldCuda(bool showWindow, hitable** list, hitable* world, std::unique_ptr<Window>& w, Image* image, Camera* cam, Renderer* render);
+    void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG,
+                             hitable*** list, hitable** world, std::unique_ptr<Window>& w,
+                             std::unique_ptr<Image>& image, Camera** cam, Renderer** render);
+    void destroyWorldCuda(bool showWindow, hitable** list, hitable* world, std::unique_ptr<Window>& w,
+                          std::unique_ptr<Image>& image, Camera* cam, Renderer* render);
 #else
-    void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world, std::unique_ptr<Window>& w, Image** image, Camera** cam, Renderer** render)
+    void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world,
+                         std::unique_ptr<Window>& w, std::unique_ptr<Image>& image, Camera** cam, Renderer** render)
     {
-        *image = new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
+        image.reset(new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty));
         *cam = new Camera(lookFrom, lookAt, vup, 20.0f, float(nx)/float(ny), distToFocus, aperture);
         *render = new Renderer(showWindow, writeImagePPM, writeImagePNG);
         *world = simpleScene2();
@@ -65,7 +69,8 @@ SOFTWARE.
     }
 #endif // CUDA_ENABLED
 
-void invokeRenderer(hitable* world, std::unique_ptr<Window>& w, Image* image, Camera* cam, Renderer* render, bool showWindow,
+void invokeRenderer(hitable* world, std::unique_ptr<Window>& w, std::unique_ptr<Image>& image,
+                    Camera* cam, Renderer* render, bool showWindow,
                     bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile, bool moveCamera)
 {
     std::ofstream ppmImageStream;
@@ -168,7 +173,7 @@ struct renderingParams
 void raytrace(bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile, bool moveCamera)
 {
     std::unique_ptr<Window> w;
-    Image* image;
+    std::unique_ptr<Image> image;
     Camera* cam;
     Renderer* render;
     hitable* world;
@@ -176,15 +181,16 @@ void raytrace(bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writ
     hitable** list;
 
     #ifdef CUDA_ENABLED
-        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &list, &world, w, &image, &cam, &render);
+        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &list, &world, w, image, &cam, &render);
         invokeRenderer(world, w, image, cam, render, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
         destroyWorldCuda(showWindow, list, world, w, image, cam, render);
 
+        image.release();
+
     #else
-        initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, w, &image, &cam, &render);
+        initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, w, image, &cam, &render);
         invokeRenderer(world, w, image, cam, render, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
 
-        delete image;
         delete cam;
         delete render;
         delete world;

@@ -70,12 +70,12 @@ class Renderer
             return vec3(0.0f, 0.0f, 0.0f); // exceeded recursion
         }
 
-        CUDA_HOSTDEV bool traceRays(Camera* cam, hitable* world, Image* image, int sampleCount);
+        CUDA_HOSTDEV bool traceRays(Camera* cam, hitable* world, std::unique_ptr<Image>& image, int sampleCount);
 
         #ifdef CUDA_ENABLED
-            void cudaRender(Camera* cam, hitable* world, Image* image, int sampleCount);
+            void cudaRender(Camera* cam, hitable* world, std::unique_ptr<Image>& image, int sampleCount);
         #else
-            CUDA_HOSTDEV void render(int i, int j, Camera* cam, Image* image, hitable* world, int sampleCount);
-            CUDA_HOSTDEV void display(int i, int j, Image* image);
+            CUDA_HOSTDEV void render(int i, int j, Camera* cam, std::unique_ptr<Image>& image, hitable* world, int sampleCount);
+            CUDA_HOSTDEV void display(int i, int j, std::unique_ptr<Image>& image);
         #endif // CUDA_ENABLED
 };

@@ -106,7 +106,7 @@ struct Window
     }
 
     CUDA_HOSTDEV void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, std::unique_ptr<Window>& w, Camera* cam,
-                        hitable* world, Image* image,  int sampleCount, uint8_t *fileOutputImage)
+                        hitable* world, std::unique_ptr<Image>& image,  int sampleCount, uint8_t *fileOutputImage)
     {
             rend->traceRays(cam, world, image, sampleCount);
             //std::cout << "Sample nr. " << sampleCount << std::endl;
@@ -115,7 +115,7 @@ struct Window
             SDL_RenderPresent(w->SDLRenderer);
 	}
 
-    CUDA_HOSTDEV void pollEvents(Image* image, uint8_t *fileOutputImage)
+    CUDA_HOSTDEV void pollEvents(std::unique_ptr<Image>& image, uint8_t *fileOutputImage)
     {
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -202,7 +202,7 @@ struct Window
         }
     }
 
-    CUDA_HOSTDEV void moveCamera(Image* image, uint8_t *fileOutputImage)
+    CUDA_HOSTDEV void moveCamera(std::unique_ptr<Image>& image, uint8_t *fileOutputImage)
     {
         theta += -1.0f * delta;
         if (theta < delta)
