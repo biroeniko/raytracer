@@ -51,32 +51,44 @@ SOFTWARE.
 
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG,
-                             hitable*** list, hitable** world, std::unique_ptr<Window>& w,
-                             std::unique_ptr<Image>& image, std::unique_ptr<Camera>& cam,
+                             hitable*** list,
+                             std::unique_ptr<hitable>& world,
+                             std::unique_ptr<Window>& w,
+                             std::unique_ptr<Image>& image,
+                             std::unique_ptr<Camera>& cam,
                              std::unique_ptr<Renderer>& renderer);
-    void destroyWorldCuda(bool showWindow, hitable** list, hitable* world, std::unique_ptr<Window>& w,
+    void destroyWorldCuda(bool showWindow, hitable** list,
+                          std::unique_ptr<hitable>& world,
+                          std::unique_ptr<Window>& w,
                           std::unique_ptr<Image>& image,
                           std::unique_ptr<Camera>& cam,
                           std::unique_ptr<Renderer>& renderer);
 #else
-    void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable** world,
-                         std::unique_ptr<Window>& w, std::unique_ptr<Image>& image,
+    void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG,
+                         std::unique_ptr<hitable>& world,
+                         std::unique_ptr<Window>& w,
+                         std::unique_ptr<Image>& image,
                          std::unique_ptr<Camera>& cam,
                          std::unique_ptr<Renderer>& renderer)
     {
         image.reset(new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty));
         cam.reset(new Camera(lookFrom, lookAt, vup, 20.0f, float(nx)/float(ny), distToFocus, aperture));
         renderer.reset(new Renderer(showWindow, writeImagePPM, writeImagePNG));
-        *world = simpleScene2();
+        world.reset(simpleScene2());
 
         if (showWindow)
             w.reset(new Window(cam, renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale));
     }
 #endif // CUDA_ENABLED
 
-void invokeRenderer(hitable* world, std::unique_ptr<Window>& w, std::unique_ptr<Image>& image,
-                    std::unique_ptr<Camera>& cam, std::unique_ptr<Renderer>& renderer, bool showWindow,
-                    bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile, bool moveCamera)
+void invokeRenderer(std::unique_ptr<hitable>& world,
+                    std::unique_ptr<Window>& w,
+                    std::unique_ptr<Image>& image,
+                    std::unique_ptr<Camera>& cam,
+                    std::unique_ptr<Renderer>& renderer,
+                    bool showWindow,
+                    bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile,
+                    bool moveCamera)
 {
     std::ofstream ppmImageStream;
 
@@ -181,25 +193,23 @@ void raytrace(bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writ
     std::unique_ptr<Image> image;
     std::unique_ptr<Camera> cam;
     std::unique_ptr<Renderer> renderer;
-    hitable* world;
+    std::unique_ptr<hitable> world;
 
     hitable** list;
 
     #ifdef CUDA_ENABLED
-        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &list, &world, w, image, cam, renderer);
+        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &list, world, w, image, cam, renderer);
         invokeRenderer(world, w, image, cam, renderer, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
         destroyWorldCuda(showWindow, list, world, w, image, cam, renderer);
 
         image.release();
         cam.release();
         renderer.release();
+        world.release();
 
     #else
-        initializeWorld(showWindow, writeImagePPM, writeImagePNG, &world, w, image, cam, renderer);
+        initializeWorld(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, renderer);
         invokeRenderer(world, w, image, cam, renderer, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
-
-        delete world;
-
     #endif // CUDA_ENABLED
 }
 

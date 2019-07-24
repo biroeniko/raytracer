@@ -24,8 +24,11 @@ SOFTWARE.
 #ifdef CUDA_ENABLED
 
 #else
-    CUDA_HOSTDEV void Renderer::render(int i, int j, std::unique_ptr<Camera>& cam,
-                                       std::unique_ptr<Image>& image, hitable* world, int sampleCount)
+    CUDA_HOSTDEV void Renderer::render(int i, int j,
+                                       std::unique_ptr<Camera>& cam,
+                                       std::unique_ptr<Image>& image,
+                                       std::unique_ptr<hitable>& world,
+                                       int sampleCount)
     {
         int pixelIndex = j*nx + i;
 
@@ -37,7 +40,7 @@ SOFTWARE.
             float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
             ray r = cam->getRay(rng, u, v);
 
-            image->pixels[pixelIndex] += color(rng, r, world, 0);
+            image->pixels[pixelIndex] += color(rng, r, world.get(), 0);
         }
 
         vec3 col = image->pixels[pixelIndex] / sampleCount;
@@ -80,8 +83,10 @@ SOFTWARE.
 
 #endif // CUDA_ENABLED
 
-CUDA_HOSTDEV bool Renderer::traceRays(std::unique_ptr<Camera>& cam, hitable* world,
-                                      std::unique_ptr<Image>& image, int sampleCount)
+CUDA_HOSTDEV bool Renderer::traceRays(std::unique_ptr<Camera>& cam,
+                                      std::unique_ptr<hitable>& world,
+                                      std::unique_ptr<Image>& image,
+                                      int sampleCount)
 {
     #ifdef CUDA_ENABLED
         cudaRender(cam, world, image, sampleCount);

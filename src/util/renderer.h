@@ -39,9 +39,16 @@ class Renderer
     bool writeImagePNG;
 
     public:
-        CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) : showWindow(showWindow), writeImagePPM(writeImagePPM), writeImagePNG(writeImagePNG) {}
+        CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) :
+                              showWindow(showWindow),
+                              writeImagePPM(writeImagePPM),
+                              writeImagePNG(writeImagePNG)
+        {}
 
-        CUDA_DEV vec3 color(RandomGenerator& rng, const ray& r, hitable* world, int depth)
+        CUDA_DEV vec3 color(RandomGenerator& rng,
+                            const ray& r,
+                            hitable* world,
+                            int depth)
         {
             ray curRay = r;
             vec3 curAttenuation = vec3(1.0f, 1.0f, 1.0f);
@@ -71,16 +78,23 @@ class Renderer
             return vec3(0.0f, 0.0f, 0.0f); // exceeded recursion
         }
 
-        CUDA_HOSTDEV bool traceRays(std::unique_ptr<Camera>& cam, hitable* world,
-                                    std::unique_ptr<Image>& image, int sampleCount);
+        CUDA_HOSTDEV bool traceRays(std::unique_ptr<Camera>& cam,
+                                    std::unique_ptr<hitable>& world,
+                                    std::unique_ptr<Image>& image,
+                                    int sampleCount);
 
         #ifdef CUDA_ENABLED
-            void cudaRender(std::unique_ptr<Camera>& cam, hitable* world,
-                            std::unique_ptr<Image>& image, int sampleCount);
+            void cudaRender(std::unique_ptr<Camera>& cam,
+                            std::unique_ptr<hitable>& world,
+                            std::unique_ptr<Image>& image,
+                            int sampleCount);
         #else
-            CUDA_HOSTDEV void render(int i, int j, std::unique_ptr<Camera>& cam,
+            CUDA_HOSTDEV void render(int i, int j,
+                                     std::unique_ptr<Camera>& cam,
                                      std::unique_ptr<Image>& image,
-                                     hitable* world, int sampleCount);
-            CUDA_HOSTDEV void display(int i, int j, std::unique_ptr<Image>& image);
+                                     std::unique_ptr<hitable>& world,
+                                     int sampleCount);
+            CUDA_HOSTDEV void display(int i, int j,
+                                      std::unique_ptr<Image>& image);
         #endif // CUDA_ENABLED
 };
