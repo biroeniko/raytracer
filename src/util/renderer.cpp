@@ -24,7 +24,7 @@ SOFTWARE.
 #ifdef CUDA_ENABLED
 
 #else
-    CUDA_HOSTDEV void Renderer::render(int i, int j, Camera* cam,
+    CUDA_HOSTDEV void Renderer::render(int i, int j, std::unique_ptr<Camera>& cam,
                                        std::unique_ptr<Image>& image, hitable* world, int sampleCount)
     {
         int pixelIndex = j*nx + i;
@@ -80,7 +80,8 @@ SOFTWARE.
 
 #endif // CUDA_ENABLED
 
-CUDA_HOSTDEV bool Renderer::traceRays(Camera* cam, hitable* world, std::unique_ptr<Image>& image, int sampleCount)
+CUDA_HOSTDEV bool Renderer::traceRays(std::unique_ptr<Camera>& cam, hitable* world,
+                                      std::unique_ptr<Image>& image, int sampleCount)
 {
     #ifdef CUDA_ENABLED
         cudaRender(cam, world, image, sampleCount);

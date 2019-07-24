@@ -33,7 +33,7 @@ CUDA_DEV int numHitables = 0;
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG,
                              hitable*** list, hitable** world, std::unique_ptr<Window>& w,
-                             std::unique_ptr<Image>& image, Camera** cam, Renderer** renderer)
+                             std::unique_ptr<Image>& image, std::unique_ptr<Camera>& cam, Renderer** renderer)
     {
         int choice = 6;
 
@@ -96,9 +96,11 @@ CUDA_DEV int numHitables = 0;
         checkCudaErrors(cudaFree(worldPtr));
 
         // Camera
-        checkCudaErrors(cudaMallocManaged(cam, sizeof(Camera)));
-        new (*cam) Camera(lookFrom, lookAt, vup, 20.0f,
+        Camera* cameraPointer;
+        checkCudaErrors(cudaMallocManaged(&cameraPointer, sizeof(Camera)));
+        new (cameraPointer) Camera(lookFrom, lookAt, vup, 20.0f,
                           float(nx)/float(ny), distToFocus, aperture);
+        cam.reset(cameraPointer);
 
         // Renderer
         checkCudaErrors(cudaMallocManaged(renderer, sizeof(Renderer)));
@@ -112,7 +114,7 @@ CUDA_DEV int numHitables = 0;
 
         // Window
         if (showWindow)
-            w.reset(new Window(*cam, *renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale));
+            w.reset(new Window(cam, *renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale));
     }
 
     CUDA_GLOBAL void freeWorldCuda(hitable** list, hitable** world)
@@ -128,14 +130,16 @@ CUDA_DEV int numHitables = 0;
         }
     }
 
-    void destroyWorldCuda(bool showWindow, hitable** list, hitable* world, std::unique_ptr<Window>& w,
-                          std::unique_ptr<Image>& image, Camera* cam, Renderer* render)
+    void destroyWorldCuda(bool showWindow, hitable** list, hitable* world,
+                          std::unique_ptr<Window>& w,
+                          std::unique_ptr<Image>& image,
+                          std::unique_ptr<Camera>& cam, Renderer* render)
     {
         freeWorldCuda<<<1,1>>>(list, &world);
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
 
-        checkCudaErrors(cudaFree(cam));
+        checkCudaErrors(cudaFree(cam.get()));
         checkCudaErrors(cudaFree(render));
         checkCudaErrors(cudaFree(image.get()));
     }
@@ -205,13 +209,14 @@ CUDA_DEV int numHitables = 0;
 #endif // CUDA_ENABLED
 
 #ifdef CUDA_ENABLED
-    void Renderer::cudaRender(Camera* cam, hitable* world, std::unique_ptr<Image>& image, int sampleCount)
+    void Renderer::cudaRender(std::unique_ptr<Camera>& cam, hitable* world,
+                              std::unique_ptr<Image>& image, int sampleCount)
     {
         dim3 blocks( (image->nx + image->tx - 1)/image->tx, (image->ny + image->ty - 1)/image->ty);
         dim3 threads(image->tx, image->ty);
 
         // Kernel call for the computation of pixel colors.
-        render<<<blocks, threads>>>(cam, image.get(), world, this, sampleCount);
+        render<<<blocks, threads>>>(cam.get(), image.get(), world, this, sampleCount);
 
         // Denoise here.
         #ifdef OIDN_ENABLED

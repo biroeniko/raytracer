@@ -48,14 +48,15 @@ struct Window
     Camera* windowCamera;
     Renderer* rend;
 
-    CUDA_HOSTDEV Window(Camera* cam, Renderer* rend,
-            const int nx, const int ny,
-            const float thetaInit, const float phiInit,
-            const float zoomScale, const float stepScale) :
-            windowCamera(cam), rend(rend),
-            nx(nx), ny(ny),
-            thetaInit(thetaInit), phiInit(phiInit),
-            zoomScale(zoomScale), stepScale(stepScale)
+    CUDA_HOSTDEV Window(const std::unique_ptr<Camera>& cam,
+                        Renderer* rend,
+                        const int nx, const int ny,
+                        const float thetaInit, const float phiInit,
+                        const float zoomScale, const float stepScale) :
+                        windowCamera(cam.get()), rend(rend),
+                        nx(nx), ny(ny),
+                        thetaInit(thetaInit), phiInit(phiInit),
+                        zoomScale(zoomScale), stepScale(stepScale)
     {
         SDLWindowRect = { 0, 0, nx, ny };
 	    theta = thetaInit;
@@ -105,8 +106,10 @@ struct Window
         SDL_Quit();
     }
 
-    CUDA_HOSTDEV void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, std::unique_ptr<Window>& w, Camera* cam,
-                        hitable* world, std::unique_ptr<Image>& image,  int sampleCount, uint8_t *fileOutputImage)
+    CUDA_HOSTDEV void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile,
+                                  std::unique_ptr<Window>& w, std::unique_ptr<Camera>& cam,
+                                  hitable* world, std::unique_ptr<Image>& image,  int sampleCount,
+                                  uint8_t *fileOutputImage)
     {
             rend->traceRays(cam, world, image, sampleCount);
             //std::cout << "Sample nr. " << sampleCount << std::endl;
