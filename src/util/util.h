@@ -58,3 +58,4 @@ inline std::string formatNumber(int n) {
     out << std::internal << std::setfill('0') << std::setw(4) << n;
     return out.str();
 }
+

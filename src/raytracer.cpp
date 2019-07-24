@@ -48,44 +48,31 @@ SOFTWARE.
 #include "util/common.h"
 #include "util/globals.h"
 #include "util/scene.h"
+#include "util/params.h"
 
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG,
-                             hitable*** list,
-                             std::unique_ptr<hitable>& world,
-                             std::unique_ptr<Window>& w,
-                             std::unique_ptr<Image>& image,
-                             std::unique_ptr<Camera>& cam,
-                             std::unique_ptr<Renderer>& renderer);
-    void destroyWorldCuda(bool showWindow, hitable** list,
-                          std::unique_ptr<hitable>& world,
-                          std::unique_ptr<Window>& w,
-                          std::unique_ptr<Image>& image,
-                          std::unique_ptr<Camera>& cam,
-                          std::unique_ptr<Renderer>& renderer);
+                             rParams& rParams);
+    void destroyWorldCuda(bool showWindow,
+                          rParams& rParams);
 #else
     void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG,
-                         std::unique_ptr<hitable>& world,
-                         std::unique_ptr<Window>& w,
-                         std::unique_ptr<Image>& image,
-                         std::unique_ptr<Camera>& cam,
-                         std::unique_ptr<Renderer>& renderer)
+                         rParams& rParams)
     {
-        image.reset(new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty));
-        cam.reset(new Camera(lookFrom, lookAt, vup, 20.0f, float(nx)/float(ny), distToFocus, aperture));
-        renderer.reset(new Renderer(showWindow, writeImagePPM, writeImagePNG));
-        world.reset(simpleScene2());
+        rParams.image.reset(new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty));
+        rParams.cam.reset(new Camera(lookFrom, lookAt, vup, 20.0f, float(nx)/float(ny), distToFocus, aperture));
+        rParams.renderer.reset(new Renderer(showWindow, writeImagePPM, writeImagePNG));
+        rParams.world.reset(simpleScene2());
 
         if (showWindow)
-            w.reset(new Window(cam, renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale));
+            rParams.w.reset(new Window(rParams.cam, rParams.renderer,
+                                       nx, ny, thetaInit, phiInit,
+                                       zoomScale,
+                                       stepScale));
     }
 #endif // CUDA_ENABLED
 
-void invokeRenderer(std::unique_ptr<hitable>& world,
-                    std::unique_ptr<Window>& w,
-                    std::unique_ptr<Image>& image,
-                    std::unique_ptr<Camera>& cam,
-                    std::unique_ptr<Renderer>& renderer,
+void invokeRenderer(rParams& rParams,
                     bool showWindow,
                     bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile,
                     bool moveCamera)
@@ -126,8 +113,11 @@ void invokeRenderer(std::unique_ptr<hitable>& world,
         int j = 1;
         for (int i = 0; ; i++, j+=nsBatch)
         {
-            w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream, w, cam, world, image, i+1, image->fileOutputImage);
-            w->pollEvents(image, image->fileOutputImage);
+            rParams.w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream,
+                                           rParams.w, rParams.cam,
+                                           rParams.world, rParams.image, i+1,
+                                           rParams.image->fileOutputImage);
+            rParams.w->pollEvents(rParams.image, rParams.image->fileOutputImage);
             if (writeEveryImageToFile &&
                  #ifdef OIDN_ENABLED
                     (j >= sampleNrToWriteDenoise)
@@ -137,22 +127,22 @@ void invokeRenderer(std::unique_ptr<hitable>& world,
                 )
             {
                 if (moveCamera)
-                    w->moveCamera(image, image->fileOutputImage);
+                    rParams.w->moveCamera(rParams.image, rParams.image->fileOutputImage);
                 j = 0;
             }
-            if (w->refresh)
+            if (rParams.w->refresh)
             {
                 std::string currentFileName(folderName + "/" + fileName);
                 currentFileName += formatNumber(imageNr);
                 imageNr++;
                 currentFileName += ".png";
                 // write png
-                stbi_write_png(currentFileName.c_str(), nx, ny, 3, image->fileOutputImage, nx * 3);
+                stbi_write_png(currentFileName.c_str(), nx, ny, 3, rParams.image->fileOutputImage, nx * 3);
 
                 i = -1;
-                w->refresh = false;
+                rParams.w->refresh = false;
             }
-            if (w->quit)
+            if (rParams.w->quit)
                 break;
         }
         std::cout << "Done." << std::endl;
@@ -160,7 +150,7 @@ void invokeRenderer(std::unique_ptr<hitable>& world,
     else
     {
         for (int i = 0; i < numberOfIterations; i++)
-            renderer->traceRays(cam, world, image, i+1);
+            rParams.renderer->traceRays(rParams.cam, rParams.world, rParams.image, i+1);
         std::cout << "Done." << std::endl;
     }
 
@@ -169,45 +159,30 @@ void invokeRenderer(std::unique_ptr<hitable>& world,
     {
         for (int j = 0; j < ny; j++)
             for (int i = 0; i < nx; i++)
-                ppmImageStream << int(image->fileOutputImage[(j*nx+i)*3]) << " " << int(image->fileOutputImage[(j*nx+i)*3+1]) << " " << int(image->fileOutputImage[(j*nx+i)*3+2]) << "\n";
+                ppmImageStream << int(rParams.image->fileOutputImage[(j*nx+i)*3]) << " "
+                               << int(rParams.image->fileOutputImage[(j*nx+i)*3+1]) << " "
+                               << int(rParams.image->fileOutputImage[(j*nx+i)*3+2]) << "\n";
         ppmImageStream.close();
     }
 
     if (writeImagePNG)
     {
         // Write png
-        stbi_write_png("test.png", nx, ny, 3, image->fileOutputImage, nx * 3);
+        stbi_write_png("test.png", nx, ny, 3, rParams.image->fileOutputImage, nx * 3);
     }
 }
 
-struct renderingParams
-{
-
-};
-
 void raytrace(bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile, bool moveCamera)
 {
-    std::unique_ptr<Window> w;
-    std::unique_ptr<Image> image;
-    std::unique_ptr<Camera> cam;
-    std::unique_ptr<Renderer> renderer;
-    std::unique_ptr<hitable> world;
-
-    hitable** list;
+    rParams rParams;
 
     #ifdef CUDA_ENABLED
-        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, &list, world, w, image, cam, renderer);
-        invokeRenderer(world, w, image, cam, renderer, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
-        destroyWorldCuda(showWindow, list, world, w, image, cam, renderer);
-
-        image.release();
-        cam.release();
-        renderer.release();
-        world.release();
-
+        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, rParams);
+        invokeRenderer(rParams, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
+        destroyWorldCuda(showWindow, rParams);
     #else
-        initializeWorld(showWindow, writeImagePPM, writeImagePNG, world, w, image, cam, renderer);
-        invokeRenderer(world, w, image, cam, renderer, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
+        initializeWorld(showWindow, writeImagePPM, writeImagePNG, rParams);
+        invokeRenderer(rParams, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
     #endif // CUDA_ENABLED
 }
 

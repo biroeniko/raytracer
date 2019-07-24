@@ -27,17 +27,13 @@ SOFTWARE.
 #include "materials/material.h"
 #include "util/scene.cuh"
 #include "util/window.h"
+#include "util/params.h"
 
 CUDA_DEV int numHitables = 0;
 
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG,
-                             hitable*** list,
-                             std::unique_ptr<hitable>& world,
-                             std::unique_ptr<Window>& w,
-                             std::unique_ptr<Image>& image,
-                             std::unique_ptr<Camera>& cam,
-                             std::unique_ptr<Renderer>& renderer)
+                             rParams& rParams)
     {
         int choice = 6;
 
@@ -67,6 +63,7 @@ CUDA_DEV int numHitables = 0;
         }
 
         // World
+        auto list = &rParams.list;
         checkCudaErrors(cudaMallocManaged(list, numHitables*sizeof(hitable*)));
         hitable** worldPtr;
         checkCudaErrors(cudaMallocManaged(&worldPtr, sizeof(hitable*)));
@@ -96,7 +93,7 @@ CUDA_DEV int numHitables = 0;
         }
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
-        world.reset(*worldPtr);
+        rParams.world.reset(*worldPtr);
         checkCudaErrors(cudaFree(worldPtr));
 
         // Camera
@@ -104,23 +101,29 @@ CUDA_DEV int numHitables = 0;
         checkCudaErrors(cudaMallocManaged(&cameraPointer, sizeof(Camera)));
         new (cameraPointer) Camera(lookFrom, lookAt, vup, 20.0f,
                           float(nx)/float(ny), distToFocus, aperture);
-        cam.reset(cameraPointer);
+        rParams.cam.reset(cameraPointer);
 
         // Renderer
         Renderer* rendererPointer;
         checkCudaErrors(cudaMallocManaged(&rendererPointer, sizeof(Renderer)));
         new (rendererPointer) Renderer(showWindow, writeImagePPM, writeImagePNG);
-        renderer.reset(rendererPointer);
+        rParams.renderer.reset(rendererPointer);
 
         // Image
         Image* imagePointer;
         checkCudaErrors(cudaMallocManaged(&imagePointer, sizeof(Image)));
-        new (imagePointer) Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty);
-        image.reset(imagePointer);
+        new (imagePointer) Image(showWindow, writeImagePPM || writeImagePNG,
+                                 nx, ny, tx, ty);
+        rParams.image.reset(imagePointer);
 
         // Window
         if (showWindow)
-            w.reset(new Window(cam, renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale));
+            rParams.w.reset(new Window(rParams.cam,
+                                               rParams.renderer,
+                                               nx, ny,
+                                               thetaInit, phiInit,
+                                               zoomScale,
+                                               stepScale));
     }
 
     CUDA_GLOBAL void freeWorldCuda(hitable** list, hitable* world)
@@ -136,20 +139,16 @@ CUDA_DEV int numHitables = 0;
         }
     }
 
-    void destroyWorldCuda(bool showWindow, hitable** list,
-                          std::unique_ptr<hitable>& world,
-                          std::unique_ptr<Window>& w,
-                          std::unique_ptr<Image>& image,
-                          std::unique_ptr<Camera>& cam,
-                          std::unique_ptr<Renderer>& renderer)
+    void destroyWorldCuda(bool showWindow,
+                          rParams& rParams)
     {
-        freeWorldCuda<<<1,1>>>(list, world.get());
+        freeWorldCuda<<<1,1>>>(rParams.list, rParams.world.get());
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
 
-        checkCudaErrors(cudaFree(cam.get()));
-        checkCudaErrors(cudaFree(renderer.get()));
-        checkCudaErrors(cudaFree(image.get()));
+        checkCudaErrors(cudaFree(rParams.cam.get()));
+        checkCudaErrors(cudaFree(rParams.renderer.get()));
+        checkCudaErrors(cudaFree(rParams.image.get()));
     }
 
     CUDA_GLOBAL void render(Camera* cam,
