@@ -32,7 +32,7 @@ SOFTWARE.
 CUDA_DEV int numHitables = 0;
 
 #ifdef CUDA_ENABLED
-    void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG,
+    void initializeWorldCuda(lParams& lParams,
                              rParams& rParams)
     {
         int choice = 6;
@@ -106,27 +106,34 @@ CUDA_DEV int numHitables = 0;
         // Renderer
         Renderer* rendererPointer;
         checkCudaErrors(cudaMallocManaged(&rendererPointer, sizeof(Renderer)));
-        new (rendererPointer) Renderer(showWindow, writeImagePPM, writeImagePNG);
+        new (rendererPointer) Renderer(lParams.showWindow,
+                                       lParams.writeImagePPM,
+                                       lParams.writeImagePNG);
         rParams.renderer.reset(rendererPointer);
 
         // Image
         Image* imagePointer;
         checkCudaErrors(cudaMallocManaged(&imagePointer, sizeof(Image)));
-        new (imagePointer) Image(showWindow, writeImagePPM || writeImagePNG,
+        new (imagePointer) Image(lParams.showWindow,
+                                 lParams.writeImagePPM || lParams.writeImagePNG,
                                  nx, ny, tx, ty);
         rParams.image.reset(imagePointer);
 
         // Window
-        if (showWindow)
+        if (lParams.showWindow)
+        {
             rParams.w.reset(new Window(rParams.cam,
-                                               rParams.renderer,
-                                               nx, ny,
-                                               thetaInit, phiInit,
-                                               zoomScale,
-                                               stepScale));
+                                       rParams.renderer,
+                                       nx, ny,
+                                       thetaInit, phiInit,
+                                       zoomScale,
+                                       stepScale));
+        }
+
     }
 
-    CUDA_GLOBAL void freeWorldCuda(hitable** list, hitable* world)
+    CUDA_GLOBAL void freeWorldCuda(hitable** list,
+                                   hitable* world)
     {
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
@@ -139,7 +146,7 @@ CUDA_DEV int numHitables = 0;
         }
     }
 
-    void destroyWorldCuda(bool showWindow,
+    void destroyWorldCuda(lParams& lParams,
                           rParams& rParams)
     {
         freeWorldCuda<<<1,1>>>(rParams.list, rParams.world.get());

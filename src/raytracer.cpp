@@ -51,20 +51,24 @@ SOFTWARE.
 #include "util/params.h"
 
 #ifdef CUDA_ENABLED
-    void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG,
+    void initializeWorldCuda(lParams& lParams,
                              rParams& rParams);
-    void destroyWorldCuda(bool showWindow,
+    void destroyWorldCuda(lParams& lParams,
                           rParams& rParams);
 #else
-    void initializeWorld(bool showWindow, bool writeImagePPM, bool writeImagePNG,
+    void initializeWorld(lParams& lParams,
                          rParams& rParams)
     {
-        rParams.image.reset(new Image(showWindow, writeImagePPM || writeImagePNG, nx, ny, tx, ty));
+        rParams.image.reset(new Image(lParams.showWindow,
+                                      lParams.writeImagePPM || lParams.writeImagePNG,
+                                      nx, ny, tx, ty));
         rParams.cam.reset(new Camera(lookFrom, lookAt, vup, 20.0f, float(nx)/float(ny), distToFocus, aperture));
-        rParams.renderer.reset(new Renderer(showWindow, writeImagePPM, writeImagePNG));
+        rParams.renderer.reset(new Renderer(lParams.showWindow,
+                                            lParams.writeImagePPM,
+                                            lParams.writeImagePNG));
         rParams.world.reset(simpleScene2());
 
-        if (showWindow)
+        if (lParams.showWindow)
             rParams.w.reset(new Window(rParams.cam, rParams.renderer,
                                        nx, ny, thetaInit, phiInit,
                                        zoomScale,
@@ -72,14 +76,12 @@ SOFTWARE.
     }
 #endif // CUDA_ENABLED
 
-void invokeRenderer(rParams& rParams,
-                    bool showWindow,
-                    bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile,
-                    bool moveCamera)
+void invokeRenderer(lParams& lParams,
+                    rParams& rParams)
 {
     std::ofstream ppmImageStream;
 
-    if (writeImagePPM)
+    if (lParams.writeImagePPM)
     {
         ppmImageStream.open("test.ppm");
         if (ppmImageStream.is_open())
@@ -87,7 +89,7 @@ void invokeRenderer(rParams& rParams,
         else std::cout << "Unable to open file" << std::endl;
     }
 
-    if (writeEveryImageToFile)
+    if (lParams.writeEveryImageToFile)
     {
         // Make the folder
         std::string path = "./" + folderName;
@@ -108,17 +110,17 @@ void invokeRenderer(rParams& rParams,
 
     #endif // OIDN_ENABLED
 
-    if (showWindow)
+    if (lParams.showWindow)
     {
         int j = 1;
         for (int i = 0; ; i++, j+=nsBatch)
         {
-            rParams.w->updateImage(showWindow, writeImagePPM, writeImagePNG, ppmImageStream,
-                                           rParams.w, rParams.cam,
-                                           rParams.world, rParams.image, i+1,
-                                           rParams.image->fileOutputImage);
+            rParams.w->updateImage(lParams, ppmImageStream,
+                                   rParams.w, rParams.cam,
+                                   rParams.world, rParams.image, i+1,
+                                   rParams.image->fileOutputImage);
             rParams.w->pollEvents(rParams.image, rParams.image->fileOutputImage);
-            if (writeEveryImageToFile &&
+            if (lParams.writeEveryImageToFile &&
                  #ifdef OIDN_ENABLED
                     (j >= sampleNrToWriteDenoise)
                  #else
@@ -126,7 +128,7 @@ void invokeRenderer(rParams& rParams,
                  #endif // OIDN_ENABLED
                 )
             {
-                if (moveCamera)
+                if (lParams.moveCamera)
                     rParams.w->moveCamera(rParams.image, rParams.image->fileOutputImage);
                 j = 0;
             }
@@ -155,7 +157,7 @@ void invokeRenderer(rParams& rParams,
     }
 
     // Write the files after the windows is closed
-    if (writeImagePPM)
+    if (lParams.writeImagePPM)
     {
         for (int j = 0; j < ny; j++)
             for (int i = 0; i < nx; i++)
@@ -165,33 +167,35 @@ void invokeRenderer(rParams& rParams,
         ppmImageStream.close();
     }
 
-    if (writeImagePNG)
+    if (lParams.writeImagePNG)
     {
         // Write png
         stbi_write_png("test.png", nx, ny, 3, rParams.image->fileOutputImage, nx * 3);
     }
 }
 
-void raytrace(bool showWindow, bool writeImagePPM, bool writeImagePNG, bool writeEveryImageToFile, bool moveCamera)
+void raytrace(lParams lParams)
 {
     rParams rParams;
 
     #ifdef CUDA_ENABLED
-        initializeWorldCuda(showWindow, writeImagePPM, writeImagePNG, rParams);
-        invokeRenderer(rParams, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
-        destroyWorldCuda(showWindow, rParams);
+        initializeWorldCuda(lParams, rParams);
+        invokeRenderer(lParams, rParams);
+        destroyWorldCuda(lParams, rParams);
     #else
-        initializeWorld(showWindow, writeImagePPM, writeImagePNG, rParams);
-        invokeRenderer(rParams, showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
+        initializeWorld(lParams, rParams);
+        invokeRenderer(lParams, rParams);
     #endif // CUDA_ENABLED
 }
 
 int main(int argc, char **argv)
 {
+
+    bool runBenchmark = false;
+
+    bool showWindow = true;
     bool writeImagePPM = true;
     bool writeImagePNG = true;
-    bool showWindow = true;
-    bool runBenchmark = false;
     bool writeEveryImageToFile = true;
     bool moveCamera = false;
 
@@ -207,7 +211,9 @@ int main(int argc, char **argv)
             auto start = std::chrono::high_resolution_clock::now();
 
             // Invoke renderer
-            raytrace(false, false, false, false, false);
+
+            lParams lParams(false, false, false, false, false);
+            raytrace(lParams);
 
             // Record end time
             auto finish = std::chrono::high_resolution_clock::now();
@@ -226,11 +232,9 @@ int main(int argc, char **argv)
     else
     {
         // Invoke renderer.
-        raytrace(showWindow,
-                 writeImagePPM,
-                 writeImagePNG,
-                 writeEveryImageToFile,
-                 moveCamera);
+
+        lParams lParams(showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
+        raytrace(lParams);
     }
 
     return 0;

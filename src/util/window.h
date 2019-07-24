@@ -25,6 +25,8 @@ SOFTWARE.
 #include "util/renderer.h"
 #include "util/image.h"
 
+class lParams;
+
 struct Window
 {
     int nx, ny;
@@ -106,7 +108,7 @@ struct Window
         SDL_Quit();
     }
 
-    CUDA_HOSTDEV void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG,
+    CUDA_HOSTDEV void updateImage(lParams& lParams,
                                   std::ofstream& myfile,
                                   std::unique_ptr<Window>& w,
                                   std::unique_ptr<Camera>& cam,
