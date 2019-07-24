@@ -111,8 +111,6 @@ void invokeRenderer(std::unique_ptr<hitable>& world,
         #else
             error = mkdir(path.c_str(), mode);
         #endif
-        //if (error != 0)
-        //    std::cerr << "Couldn't create output folder." << std::endl;
     }
 
     // If denoising is enabled, use the sample size for the denoising.
@@ -166,7 +164,7 @@ void invokeRenderer(std::unique_ptr<hitable>& world,
         std::cout << "Done." << std::endl;
     }
 
-    // we write the files after the windows is closed
+    // Write the files after the windows is closed
     if (writeImagePPM)
     {
         for (int j = 0; j < ny; j++)
@@ -177,7 +175,7 @@ void invokeRenderer(std::unique_ptr<hitable>& world,
 
     if (writeImagePNG)
     {
-        // write png
+        // Write png
         stbi_write_png("test.png", nx, ny, 3, image->fileOutputImage, nx * 3);
     }
 }
@@ -252,8 +250,12 @@ int main(int argc, char **argv)
     // Run code without benchmarking.
     else
     {
-        // Invoke renderer
-        raytrace(showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
+        // Invoke renderer.
+        raytrace(showWindow,
+                 writeImagePPM,
+                 writeImagePNG,
+                 writeEveryImageToFile,
+                 moveCamera);
     }
 
     return 0;

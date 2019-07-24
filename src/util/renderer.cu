@@ -152,7 +152,11 @@ CUDA_DEV int numHitables = 0;
         checkCudaErrors(cudaFree(image.get()));
     }
 
-    CUDA_GLOBAL void render(Camera* cam, Image* image, hitable* world, Renderer* renderer, int sampleCount)
+    CUDA_GLOBAL void render(Camera* cam,
+                            Image* image,
+                            hitable* world,
+                            Renderer* renderer,
+                            int sampleCount)
     {
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
