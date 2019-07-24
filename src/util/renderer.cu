@@ -31,7 +31,7 @@ SOFTWARE.
 CUDA_DEV int numHitables = 0;
 
 #ifdef CUDA_ENABLED
-    void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, Window** w, Image** image, Camera** cam, Renderer** renderer)
+    void initializeWorldCuda(bool showWindow, bool writeImagePPM, bool writeImagePNG, hitable*** list, hitable** world, std::unique_ptr<Window>& w, Image** image, Camera** cam, Renderer** renderer)
     {
         int choice = 6;
 
@@ -108,7 +108,7 @@ CUDA_DEV int numHitables = 0;
 
         // Window
         if (showWindow)
-            *w = new Window(*cam, *renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale);
+            w.reset(new Window(*cam, *renderer, nx, ny, thetaInit, phiInit, zoomScale, stepScale));
     }
 
     CUDA_GLOBAL void freeWorldCuda(hitable** list, hitable** world)
@@ -124,7 +124,7 @@ CUDA_DEV int numHitables = 0;
         }
     }
 
-    void destroyWorldCuda(bool showWindow, hitable** list, hitable* world, Window* w, Image* image, Camera* cam, Renderer* render)
+    void destroyWorldCuda(bool showWindow, hitable** list, hitable* world, std::unique_ptr<Window>& w, Image* image, Camera* cam, Renderer* render)
     {
         freeWorldCuda<<<1,1>>>(list, &world);
         checkCudaErrors(cudaGetLastError());

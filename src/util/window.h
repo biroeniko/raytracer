@@ -105,7 +105,7 @@ struct Window
         SDL_Quit();
     }
 
-    CUDA_HOSTDEV void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, Window* w, Camera* cam,
+    CUDA_HOSTDEV void updateImage(bool showWindow, bool writeImagePPM, bool writeImagePNG, std::ofstream& myfile, std::unique_ptr<Window>& w, Camera* cam,
                         hitable* world, Image* image,  int sampleCount, uint8_t *fileOutputImage)
     {
             rend->traceRays(cam, world, image, sampleCount);
