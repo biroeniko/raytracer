@@ -40,6 +40,7 @@ class material
 {
     public:
         CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const = 0;
+        CUDA_DEV virtual ~material() {}
 };
 
 // lambertian (diffuse)
@@ -104,14 +105,14 @@ CUDA_DEV inline bool refract(const vec3& v, const vec3& n, float niOverNt, vec3&
     float discriminant = 1.0f - niOverNt*niOverNt*(1.0f - dt*dt);
     if (discriminant > 0.0f)
     {
-        refracted = niOverNt*(uv - n*dt) - n*sqrt(discriminant);
+        refracted = niOverNt*(uv - n*dt) - n*static_cast<float>(sqrt(static_cast<double>(discriminant)));
         return true;
     }
     else
         return false;
 }
 
-CUDA_DEV class dielectric: public material
+class dielectric: public material
 {
     float refIndex;
     public:
@@ -125,7 +126,7 @@ CUDA_DEV inline float schlick(float cosine, float refIndex)
 {
     float r0 = (1.0f - refIndex) / (1.0f + refIndex);
     r0 = r0*r0;
-    return r0 + (1.0f - r0)*pow((1.0f - cosine), 5.0f);
+    return r0 + (1.0f - r0)*static_cast<float>(pow(static_cast<double>((1.0f - cosine)), 5.0));
 }
 
 CUDA_DEV inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const

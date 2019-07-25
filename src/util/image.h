@@ -47,23 +47,23 @@ struct Image
         oidn::FilterRef filter;
     #endif // OIDN_ENABLED
 
-    CUDA_HOSTDEV Image(bool showWindow, bool writeImage,
+    CUDA_HOST Image(bool showWindow, bool writeImage,
                        int x, int y, int tx, int ty ) :
+                       nx(x), ny(y), tx(tx), ty(ty),
                        showWindow(showWindow),
-                       writeImage(writeImage),
-                       nx(x), ny(y), tx(tx), ty(ty)
+                       writeImage(writeImage)
     {
         #ifdef CUDA_ENABLED
             int pixelCount = nx*ny;
-            size_t pixelsFrameBufferSize = pixelCount*sizeof(vec3);
-            size_t windowPixelsFrameBufferSize = pixelCount*sizeof(uint32_t);
-            size_t fileOutputImageFrameBufferSize = 3*pixelCount*sizeof(uint8_t);
+            size_t pixelsFrameBufferSize = static_cast<size_t>(pixelCount)*sizeof(vec3);
+            size_t windowPixelsFrameBufferSize = static_cast<size_t>(pixelCount)*sizeof(uint32_t);
+            size_t fileOutputImageFrameBufferSize = static_cast<size_t>(3*pixelCount)*sizeof(uint8_t);
 
             // allocate Frame Buffers
-            checkCudaErrors(cudaMallocManaged((void **)&pixels, pixelsFrameBufferSize));
-            checkCudaErrors(cudaMallocManaged((void **)&pixels2, pixelsFrameBufferSize));
-            checkCudaErrors(cudaMallocManaged((void **)&windowPixels, windowPixelsFrameBufferSize));
-            checkCudaErrors(cudaMallocManaged((void **)&fileOutputImage, fileOutputImageFrameBufferSize));
+            checkCudaErrors(cudaMallocManaged(reinterpret_cast<void**>(&pixels), pixelsFrameBufferSize));
+            checkCudaErrors(cudaMallocManaged(reinterpret_cast<void**>(&pixels2), pixelsFrameBufferSize));
+            checkCudaErrors(cudaMallocManaged(reinterpret_cast<void**>(&windowPixels), windowPixelsFrameBufferSize));
+            checkCudaErrors(cudaMallocManaged(reinterpret_cast<void**>(&fileOutputImage), fileOutputImageFrameBufferSize));
         #else
             pixels = new vec3[nx*ny];
             pixels2 = new vec3[nx*ny];
@@ -130,7 +130,7 @@ struct Image
         fclose(f);
     }
 
-    CUDA_HOSTDEV ~Image()
+    CUDA_HOST ~Image()
     {
         #ifdef CUDA_ENABLED
             checkCudaErrors(cudaFree(pixels));

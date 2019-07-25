@@ -45,20 +45,20 @@ struct Window
 
 	float theta;
 	float phi;
-	const float delta = 0.1 * M_PI / 180.0f;
+    const float delta = 0.1f * static_cast<float>(M_PI) / 180.0f;
 
     Camera* windowCamera;
     Renderer* windowRenderer;
 
-    CUDA_HOSTDEV Window(const std::unique_ptr<Camera>& cam,
-                        const std::unique_ptr<Renderer>& renderer,
-                        const int nx, const int ny,
-                        const float thetaInit, const float phiInit,
-                        const float zoomScale, const float stepScale) :
-                        windowCamera(cam.get()), windowRenderer(renderer.get()),
-                        nx(nx), ny(ny),
-                        thetaInit(thetaInit), phiInit(phiInit),
-                        zoomScale(zoomScale), stepScale(stepScale)
+    CUDA_HOST Window(const std::unique_ptr<Camera>& cam,
+                     const std::unique_ptr<Renderer>& renderer,
+                     const int nx, const int ny,
+                     const float thetaInit, const float phiInit,
+                     const float zoomScale, const float stepScale) :
+                     nx(nx), ny(ny),
+                     thetaInit(thetaInit), phiInit(phiInit),
+                     windowCamera(cam.get()), windowRenderer(renderer.get()),
+                     zoomScale(zoomScale), stepScale(stepScale)
     {
         SDLWindowRect = { 0, 0, nx, ny };
 	    theta = thetaInit;
