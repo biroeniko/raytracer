@@ -83,8 +83,8 @@ struct Image
 
             // Create a denoising filter
             filter = device.newFilter("RT"); // generic ray tracing filter
-            filter.setImage("color", pixels2, oidn::Format::Float3, nx, ny);
-            filter.setImage("output", pixels2, oidn::Format::Float3, nx, ny);
+            filter.setImage("color", pixels2, oidn::Format::Float3, static_cast<size_t>(nx), static_cast<size_t>(ny));
+            filter.setImage("output", pixels2, oidn::Format::Float3, static_cast<size_t>(nx), static_cast<size_t>(ny));
             filter.set("hdr", true); // image is HDR
             filter.commit();
 
@@ -126,7 +126,7 @@ struct Image
     {
         FILE* f = fopen("wtf.pfm", "wb");
         fprintf(f, "PF\n%d %d\n-1\n", nx, ny);
-        fwrite(pixels2, sizeof(float), nx*ny*3, f);
+        fwrite(pixels2, sizeof(float), static_cast<size_t>(nx*ny*3), f);
         fclose(f);
     }
 

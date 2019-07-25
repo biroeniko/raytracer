@@ -56,17 +56,20 @@ class Camera
         float halfWidth;
 	    float halfHeight;
 
-        CUDA_HOSTDEV Camera():   lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)),
+        CUDA_HOSTDEV Camera():   origin(vec3(0.0f, 0.0f, 0.0f)),
+                                 lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)),
                                  horizontal(vec3(4.0f, 0.0f, 0.0f)),
-                                 vertical(vec3(0.0f, 2.0f, 0.0f)),
-                                 origin(vec3(0.0f, 0.0f, 0.0f)) {};
+                                 vertical(vec3(0.0f, 2.0f, 0.0f))
+        {
+
+        }
         
         // vfov is top to bottom in degrees
         CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup,
                 float vfov, float aspect)
         {
-            float theta = vfov*M_PI/180.0f;
-            this->halfHeight = tan(theta/2.0f);
+            float theta = vfov * static_cast<float>(M_PI)/180.0f;
+            this->halfHeight = static_cast<float>(tan(static_cast<double>(theta/2.0f)));
             this->halfWidth = aspect * halfHeight;
 
             this->origin = lookFrom;
@@ -106,8 +109,8 @@ class Camera
 
         CUDA_HOSTDEV void update()
         {
-            float theta = vfov*M_PI/180.0f;
-            this->halfHeight = tan(theta/2.0f);
+            float theta = vfov * static_cast<float>(M_PI) / 180.0f;
+            this->halfHeight = static_cast<float>(tan(static_cast<double>(theta / 2.0f)));
             this->halfWidth = aspect * halfHeight;
 
             this->origin = lookFrom;

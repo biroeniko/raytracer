@@ -50,3 +50,4 @@ extern vec3 vup;
 extern float distToFocus;
 
 const float aperture = 0.0f;
+

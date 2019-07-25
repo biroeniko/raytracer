@@ -46,8 +46,8 @@ public:
     CUDA_DEV explicit RandomGenerator(int sampleId = 1, int pixelId = 1)
     {
         unsigned int hash = 0;
-        hash = MurmurHash3_mix(hash, pixelId);
-        hash = MurmurHash3_mix(hash, sampleId);
+        hash = MurmurHash3_mix(hash, static_cast<unsigned int>(pixelId));
+        hash = MurmurHash3_mix(hash, static_cast<unsigned int>(sampleId));
         hash = MurmurHash3_finalize(hash);
 
         s = hash;

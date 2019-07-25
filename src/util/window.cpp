@@ -27,7 +27,8 @@ CUDA_HOSTDEV void Window::updateImage(lParams& lParams,
 
         windowRenderer->traceRays(rParams, sampleCount);
         //std::cout << "Sample nr. " << sampleCount << std::endl;
-        SDL_UpdateTexture(rParams.w->SDLTexture, NULL, rParams.image->windowPixels, nx * sizeof(Uint32));
-        SDL_RenderCopy(rParams.w->SDLRenderer, rParams.w->SDLTexture, NULL, NULL);
+        SDL_UpdateTexture(rParams.w->SDLTexture, nullptr, rParams.image->windowPixels,
+                          static_cast<int>(static_cast<unsigned int>(nx) * sizeof(Uint32)));
+        SDL_RenderCopy(rParams.w->SDLRenderer, rParams.w->SDLTexture, nullptr, nullptr);
         SDL_RenderPresent(rParams.w->SDLRenderer);
 }

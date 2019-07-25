@@ -42,7 +42,7 @@ class sphere: public hitable
 
             if (discriminant > 0)
             {
-                float temp = (-b - sqrt(discriminant))/a;
+                float temp = (-b - static_cast<float>(sqrt(static_cast<double>(discriminant))))/a;
                 if (temp < tMax && temp > tMin)
                 {
                     rec.time = temp;
@@ -51,7 +51,7 @@ class sphere: public hitable
                     rec.matPtr = matPtr;
                     return true;
                 }
-                temp = (-b + sqrt(discriminant))/a;
+                temp = (-b + static_cast<float>(sqrt(static_cast<double>(discriminant))))/a;
                 if (temp < tMax && temp > tMin)
                 {
                     rec.time = temp;

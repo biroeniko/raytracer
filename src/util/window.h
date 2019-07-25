@@ -57,8 +57,10 @@ struct Window
                      const float zoomScale, const float stepScale) :
                      nx(nx), ny(ny),
                      thetaInit(thetaInit), phiInit(phiInit),
-                     windowCamera(cam.get()), windowRenderer(renderer.get()),
-                     zoomScale(zoomScale), stepScale(stepScale)
+                     zoomScale(zoomScale),
+                     stepScale(stepScale),
+                     windowCamera(cam.get()),
+                     windowRenderer(renderer.get())
     {
         SDLWindowRect = { 0, 0, nx, ny };
 	    theta = thetaInit;
@@ -68,7 +70,7 @@ struct Window
         mouseDragIsInProgress = false;
         refresh = false;
 
-        SDLWindow = NULL; 
+        SDLWindow = nullptr;
         if (SDL_Init(SDL_INIT_VIDEO) < 0)
         {
             #ifndef CUDA_ENABLED
@@ -78,14 +80,14 @@ struct Window
         else
         { 
             SDLWindow = SDL_CreateWindow("Ray tracer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, nx, ny, SDL_WINDOW_SHOWN); 
-            if (SDLWindow == NULL) 
+            if (SDLWindow == nullptr)
             { 
                 #ifndef CUDA_ENABLED
                     std::cout << "Window could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
                 #endif
             }
             SDLRenderer = SDL_CreateRenderer(SDLWindow, -1, SDL_RENDERER_SOFTWARE);
-            if (SDLRenderer == NULL) 
+            if (SDLRenderer == nullptr)
             {
                 #ifndef CUDA_ENABLED
                     std::cout << "Renderer could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
@@ -133,8 +135,8 @@ struct Window
 					    theta += -my * delta;
 					    if (theta < delta) 
                             theta = delta;
-					    if (theta > (M_PI_2 - delta)) 
-                            theta = M_PI_2 - delta;
+                        if (theta > (static_cast<float>(M_PI_2) - delta))
+                            theta = static_cast<float>(M_PI_2) - delta;
 					    phi += -mx * delta;
 					    windowCamera->rotate(theta, phi);
 
@@ -210,8 +212,8 @@ struct Window
         theta += -1.0f * delta;
         if (theta < delta)
             theta = delta;
-        if (theta > (M_PI_2 - delta))
-            theta = M_PI_2 - delta;
+        if (theta > (static_cast<float>(M_PI_2) - delta))
+            theta = static_cast<float>(M_PI_2) - delta;
         phi += -10.0f * delta;
         windowCamera->rotate(theta, phi);
 
