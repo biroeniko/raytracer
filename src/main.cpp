@@ -55,27 +55,40 @@ SOFTWARE.
                              rParams& rParams);
     void destroyWorldCuda(lParams& lParams,
                           rParams& rParams);
-#else
-    void initializeWorld(lParams& lParams,
-                         rParams& rParams)
-    {
-        rParams.image.reset(new Image(lParams.showWindow,
-                                      lParams.writeImagePPM || lParams.writeImagePNG,
-                                      nx, ny, tx, ty));
-        rParams.cam.reset(new Camera(lookFrom, lookAt, vup, 20.0f, float(nx)/float(ny), distToFocus, aperture));
-        rParams.renderer.reset(new Renderer(lParams.showWindow,
-                                            lParams.writeImagePPM,
-                                            lParams.writeImagePNG));
-        rParams.world.reset(simpleScene2());
-
-        if (lParams.showWindow)
-            rParams.w.reset(new Window(rParams.cam, rParams.renderer,
-                                       nx, ny, thetaInit, phiInit,
-                                       zoomScale,
-                                       stepScale));
-    }
 #endif // CUDA_ENABLED
 
+
+// Initialise the world.
+void initializeWorld(lParams& lParams,
+                     rParams& rParams)
+{
+
+#ifdef CUDA_ENABLED
+    initializeWorldCuda(lParams, rParams);
+#else
+    rParams.image.reset(new Image(lParams.showWindow,
+                                  lParams.writeImagePPM || lParams.writeImagePNG,
+                                  nx, ny, tx, ty));
+    rParams.cam.reset(new Camera(lookFrom, lookAt,
+                                 vup, 20.0f, float(nx)/float(ny),
+                                 distToFocus, aperture));
+    rParams.renderer.reset(new Renderer(lParams.showWindow,
+                                        lParams.writeImagePPM,
+                                        lParams.writeImagePNG));
+    rParams.world.reset(simpleScene2());
+
+    if (lParams.showWindow)
+    {
+        rParams.w.reset(new Window(rParams.cam, rParams.renderer,
+                                   nx, ny,
+                                   thetaInit, phiInit,
+                                   zoomScale,
+                                   stepScale));
+    }
+#endif // CUDA_ENABLED
+}
+
+// Invoke the main renderer function.
 void invokeRenderer(lParams& lParams,
                     rParams& rParams)
 {
@@ -115,11 +128,8 @@ void invokeRenderer(lParams& lParams,
         int j = 1;
         for (int i = 0; ; i++, j+=nsBatch)
         {
-            rParams.w->updateImage(lParams, ppmImageStream,
-                                   rParams.w, rParams.cam,
-                                   rParams.world, rParams.image, i+1,
-                                   rParams.image->fileOutputImage);
-            rParams.w->pollEvents(rParams.image, rParams.image->fileOutputImage);
+            rParams.w->updateImage(lParams, rParams, i+1);
+            rParams.w->pollEvents(rParams.image);
             if (lParams.writeEveryImageToFile &&
                  #ifdef OIDN_ENABLED
                     (j >= sampleNrToWriteDenoise)
@@ -138,7 +148,7 @@ void invokeRenderer(lParams& lParams,
                 currentFileName += formatNumber(imageNr);
                 imageNr++;
                 currentFileName += ".png";
-                // write png
+                // Write png.
                 stbi_write_png(currentFileName.c_str(), nx, ny, 3, rParams.image->fileOutputImage, nx * 3);
 
                 i = -1;
@@ -152,11 +162,11 @@ void invokeRenderer(lParams& lParams,
     else
     {
         for (int i = 0; i < numberOfIterations; i++)
-            rParams.renderer->traceRays(rParams.cam, rParams.world, rParams.image, i+1);
+            rParams.renderer->traceRays(rParams, i+1);
         std::cout << "Done." << std::endl;
     }
 
-    // Write the files after the windows is closed
+    // Write the files after the windows is closed.
     if (lParams.writeImagePPM)
     {
         for (int j = 0; j < ny; j++)
@@ -169,7 +179,7 @@ void invokeRenderer(lParams& lParams,
 
     if (lParams.writeImagePNG)
     {
-        // Write png
+        // Write png.
         stbi_write_png("test.png", nx, ny, 3, rParams.image->fileOutputImage, nx * 3);
     }
 }
@@ -178,13 +188,10 @@ void raytrace(lParams lParams)
 {
     rParams rParams;
 
+    initializeWorld(lParams, rParams);
+    invokeRenderer(lParams, rParams);
     #ifdef CUDA_ENABLED
-        initializeWorldCuda(lParams, rParams);
-        invokeRenderer(lParams, rParams);
         destroyWorldCuda(lParams, rParams);
-    #else
-        initializeWorld(lParams, rParams);
-        invokeRenderer(lParams, rParams);
     #endif // CUDA_ENABLED
 }
 
@@ -232,7 +239,6 @@ int main(int argc, char **argv)
     else
     {
         // Invoke renderer.
-
         lParams lParams(showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
         raytrace(lParams);
     }
