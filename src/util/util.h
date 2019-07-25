@@ -37,12 +37,13 @@ As in Peter Shirley's book:
 #include <sstream>
 
 template <typename T>
-CUDA_HOSTDEV T clamp(const T& n, const T& lower, const T& upper) {
+CUDA_HOSTDEV T clamp(const T& n, const T& lower, const T& upper)
+{
     T min = n < upper ? n : upper;
     return lower > min ? lower : min;
 }
 
-// limited version of checkCudaErrors from helper_cuda.h in CUDA examples
+// Limited version of checkCudaErrors from helper_cuda.h in CUDA examples.
 #ifdef CUDA_ENABLED
     #ifndef checkCudaErrors
         #define checkCudaErrors(val) check_cuda( (val), #val, __FILE__, __LINE__ )
@@ -53,7 +54,8 @@ CUDA_HOSTDEV T clamp(const T& n, const T& lower, const T& upper) {
     CUDA_HOST void check_cuda(cudaError_t result, char const *const func, const char *const file, int const line);
 #endif
 
-inline std::string formatNumber(int n) {
+inline std::string formatNumber(int n)
+{
     std::ostringstream out;
     out << std::internal << std::setfill('0') << std::setw(4) << n;
     return out.str();

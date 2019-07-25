@@ -31,7 +31,12 @@ class vec3
     
     public:
         CUDA_HOSTDEV vec3() {}
-        CUDA_HOSTDEV vec3(float x, float y, float z) {e[0] = x; e[1] = y; e[2] = z;}
+        CUDA_HOSTDEV vec3(float x, float y, float z)
+        {
+            e[0] = x;
+            e[1] = y;
+            e[2] = z;
+        }
         CUDA_HOSTDEV float x() const {return e[0];}
         CUDA_HOSTDEV float y() const {return e[1];}
         CUDA_HOSTDEV float z() const {return e[2];}

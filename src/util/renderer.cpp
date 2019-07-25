@@ -31,7 +31,7 @@ SOFTWARE.
     {
         int pixelIndex = j*nx + i;
 
-        // Render the samples in batches
+        // Render the samples in batches.
         for (int s = 0; s < nsBatch; s++)
         {
             RandomGenerator rng(sampleCount * nsBatch + s, pixelIndex);
@@ -58,7 +58,7 @@ SOFTWARE.
         // by taking advantage of the non-linear manner in which humans perceive
         // light and color. (wikipedia)
 
-        // we use gamma 2: raising the color to the power 1/gamma (1/2)
+        // We use gamma 2: raising the color to the power 1/gamma (1/2).
         col = vec3(sqrtf(col[0]), sqrtf(col[1]), sqrtf(col[2]));
 
         int ir = clamp(int(255.f*col[0]), 0, 255);
@@ -86,7 +86,7 @@ CUDA_HOSTDEV bool Renderer::traceRays(rParams& rParams,
                                       int sampleCount)
 {
     #ifdef CUDA_ENABLED
-        cudaRender(rParams, sampleCount);
+        traceRaysCuda(rParams, sampleCount);
     #else
         // collapses the two nested fors into the same parallel for
         #pragma omp parallel for collapse(2)

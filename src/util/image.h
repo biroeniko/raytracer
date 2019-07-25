@@ -47,7 +47,8 @@ struct Image
         oidn::FilterRef filter;
     #endif // OIDN_ENABLED
 
-    CUDA_HOSTDEV Image(bool showWindow, bool writeImage, int x, int y, int tx, int ty ) :
+    CUDA_HOSTDEV Image(bool showWindow, bool writeImage,
+                       int x, int y, int tx, int ty ) :
                        showWindow(showWindow),
                        writeImage(writeImage),
                        nx(x), ny(y), tx(tx), ty(ty)

@@ -33,7 +33,7 @@ struct Window
     float thetaInit, phiInit;
     float zoomScale, stepScale;
 
-    // x,y,w,h
+    // x, y, w, h
     SDL_Rect SDLWindowRect;
     SDL_Window* SDLWindow;
     SDL_Renderer* SDLRenderer;
@@ -71,19 +71,25 @@ struct Window
         SDLWindow = NULL; 
         if (SDL_Init(SDL_INIT_VIDEO) < 0)
         {
-            //std::cout << "SDL could not initialize! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;
+            #ifndef CUDA_ENABLED
+                std::cout << "SDL could not initialize! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;
+            #endif
         }
         else
         { 
             SDLWindow = SDL_CreateWindow("Ray tracer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, nx, ny, SDL_WINDOW_SHOWN); 
             if (SDLWindow == NULL) 
             { 
-                //std::cout << "Window could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
+                #ifndef CUDA_ENABLED
+                    std::cout << "Window could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
+                #endif
             }
             SDLRenderer = SDL_CreateRenderer(SDLWindow, -1, SDL_RENDERER_SOFTWARE);
             if (SDLRenderer == NULL) 
-            { 
-                //std::cout << "Renderer could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
+            {
+                #ifndef CUDA_ENABLED
+                    std::cout << "Renderer could not be created! SDL_Error: %s\n" <<  SDL_GetError() << std::endl;;
+                #endif
             }
         }
 

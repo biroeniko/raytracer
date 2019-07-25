@@ -132,8 +132,8 @@ CUDA_DEV int numHitables = 0;
 
     }
 
-    CUDA_GLOBAL void freeWorldCuda(hitable** list,
-                                   hitable* world)
+    CUDA_GLOBAL void freeList(hitable** list,
+                              hitable* world)
     {
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
@@ -149,7 +149,7 @@ CUDA_DEV int numHitables = 0;
     void destroyWorldCuda(lParams& lParams,
                           rParams& rParams)
     {
-        freeWorldCuda<<<1,1>>>(rParams.list, rParams.world.get());
+        freeList<<<1,1>>>(rParams.list, rParams.world.get());
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
 
@@ -227,7 +227,7 @@ CUDA_DEV int numHitables = 0;
 #endif // CUDA_ENABLED
 
 #ifdef CUDA_ENABLED
-    void Renderer::cudaRender(rParams& rParams,
+    void Renderer::traceRaysCuda(rParams& rParams,
                               int sampleCount)
     {
 

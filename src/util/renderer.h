@@ -41,11 +41,15 @@ class Renderer
     bool writeImagePNG;
 
     public:
-        CUDA_HOSTDEV Renderer(bool showWindow, bool writeImagePPM, bool writeImagePNG) :
+        CUDA_HOSTDEV Renderer(bool showWindow,
+                              bool writeImagePPM,
+                              bool writeImagePNG) :
                               showWindow(showWindow),
                               writeImagePPM(writeImagePPM),
                               writeImagePNG(writeImagePNG)
-        {}
+        {
+
+        }
 
         CUDA_DEV vec3 color(RandomGenerator& rng,
                             const ray& r,
@@ -77,15 +81,15 @@ class Renderer
                     return curAttenuation * c;
                 }
             }
-            return vec3(0.0f, 0.0f, 0.0f); // exceeded recursion
+            return vec3(0.0f, 0.0f, 0.0f); // Exceeded recursion
         }
 
         CUDA_HOSTDEV bool traceRays(rParams& rParams,
                                     int sampleCount);
 
         #ifdef CUDA_ENABLED
-            void cudaRender(rParams& rParams,
-                            int sampleCount);
+            void traceRaysCuda(rParams& rParams,
+                               int sampleCount);
         #else
             CUDA_HOSTDEV void render(int i, int j,
                                      rParams& rParams,
