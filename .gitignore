@@ -33,4 +33,5 @@
 
 /build*
 /.vscode
+/.cproject
 CMakeLists.txt.user
