@@ -44,9 +44,6 @@ if (OIDN_SUPPORT)
     find_package(OpenImageDenoise)
     if (OpenImageDenoise_FOUND)
        add_definitions(-DOIDN_ENABLED)
-       include_directories(
-           ${OpenImageDenoise_DIR}/../../../include
-       )
     endif()
 endif()
 
