@@ -22,16 +22,6 @@ SOFTWARE.
 #include "util/vec3.h"
 #include "util/ray.h"
 
-inline float ffmin(float a, float b)
-{
-    return a < b ? a : b;
-}
-
-inline float ffmax(float a, float b)
-{
-    return a > b ? a : b;
-}
-
 class aabb
 {
     vec3 aabbMin;
@@ -63,17 +53,15 @@ inline bool aabb::hit(const ray& r, float tMin, float tMax) const
 {
     for (int a = 0; a < 3; a++)
     {
-        float t0 = ffmin(
-                    (aabbMin[a] - r.origin()[a]) / r.direction()[a],
-                    (aabbMax[a] - r.origin()[a]) / r.direction()[a]
-                    );
-        float t1 = ffmax(
-                    (aabbMin[a] - r.origin()[a]) / r.direction()[a],
-                    (aabbMax[a] - r.origin()[a]) / r.direction()[a]
-                    );
+        float invD = 1.0f / r.direction()[a];
+        float t0 = (min()[a] - r.origin()[a]) * invD;
+        float t1 = (max()[a] - r.origin()[a]) * invD;
 
-        tMin = ffmax(t0, tMin);
-        tMax = ffmin(t1, tMax);
+        if (invD < 0.0f)
+            std::swap(t0, t1);
+
+        tMin = t0 > tMin ? t0 : tMin;
+        tMax = t1 < tMax ? t1 : tMax;
 
         if (tMax <= tMin)
             return false;
