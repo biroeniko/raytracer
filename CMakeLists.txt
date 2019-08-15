@@ -62,6 +62,7 @@ set(SRC_COMMON
 
 set(SRC_HOST
     ${SRC_COMMON}
+    src/hitables/aabb.h
     src/hitables/hitable.h
     src/hitables/hitablelist.h
     src/hitables/movingsphere.h
