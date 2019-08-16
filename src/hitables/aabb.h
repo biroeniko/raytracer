@@ -28,28 +28,28 @@ class aabb
     vec3 aabbMax;
 
     public:
-        aabb() {}
-        aabb(const vec3& a, const vec3& b)
+        CUDA_DEV aabb() {}
+        CUDA_DEV aabb(const vec3& a, const vec3& b)
         {
             aabbMin = a;
             aabbMax = b;
         }
 
-        vec3 min() const
+        CUDA_DEV vec3 min() const
         {
             return aabbMin;
         }
 
-        vec3 max() const
+        CUDA_DEV vec3 max() const
         {
             return aabbMax;
         }
 
-        bool hit(const ray& r, float tMin, float tMax) const;
+        CUDA_DEV bool hit(const ray& r, float tMin, float tMax) const;
 
 };
 
-inline bool aabb::hit(const ray& r, float tMin, float tMax) const
+inline CUDA_DEV bool aabb::hit(const ray& r, float tMin, float tMax) const
 {
     for (int a = 0; a < 3; a++)
     {
@@ -67,4 +67,17 @@ inline bool aabb::hit(const ray& r, float tMin, float tMax) const
             return false;
     }
     return true;
+}
+
+inline CUDA_DEV aabb surroundingBox(aabb box0, aabb box1)
+{
+    vec3 small(fmin(box0.min().x(), box1.min().x()),
+               fmin(box0.min().y(), box1.min().y()),
+               fmin(box0.min().z(), box1.min().z())
+              );
+    vec3 big(fmax(box0.max().x(), box1.max().x()),
+             fmax(box0.max().y(), box1.max().y()),
+             fmax(box0.max().z(), box1.max().z())
+            );
+    return aabb(small,big);
 }

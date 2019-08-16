@@ -36,44 +36,59 @@ class movingSphere: public hitable
             time0(t0), time1(t1),
             radius(r), matPtr(m) {}
 
-        CUDA_DEV virtual bool hit(const ray& r, float tMin, float tMax,
-            hitRecord& rec) const
-        {
-
-            vec3 oc = r.origin() - center(r.time());
-            float a = dot(r.direction(), r.direction());
-            float b = dot(oc, r.direction());
-            float c = dot(oc, oc) - radius*radius;
-            float discriminant = b*b - a*c;
-
-            if (discriminant > 0)
-            {
-                float temp = (-b - static_cast<float>(sqrt(static_cast<double>(discriminant))))/a;
-                if (temp < tMax && temp > tMin)
-                {
-                    rec.time = temp;
-                    rec.point = r.pointAtParameter(rec.time);
-                    rec.normal = (rec.point - center(r.time())) / radius;
-                    rec.matPtr = matPtr;
-                    return true;
-                }
-                temp = (-b + static_cast<float>(sqrt(static_cast<double>(discriminant))))/a;
-                if (temp < tMax && temp > tMin)
-                {
-                    rec.time = temp;
-                    rec.point = r.pointAtParameter(rec.time);
-                    rec.normal = (rec.point - center(r.time())) / radius;
-                    rec.matPtr = matPtr;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        CUDA_DEV vec3 center(float time) const
-        {
-            return center0 + ((time - time0) / (time1 - time0))*
-                (center1 - center0);
-        }
+        CUDA_DEV bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
+        CUDA_DEV vec3 center(float time) const;
+        CUDA_DEV bool boundingBox(float t0, float t1, aabb& box) const override;
 
 };
+
+inline CUDA_DEV bool movingSphere::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+{
+
+    vec3 oc = r.origin() - center(r.time());
+    float a = dot(r.direction(), r.direction());
+    float b = dot(oc, r.direction());
+    float c = dot(oc, oc) - radius*radius;
+    float discriminant = b*b - a*c;
+
+    if (discriminant > 0)
+    {
+        float temp = (-b - static_cast<float>(sqrt(static_cast<double>(discriminant))))/a;
+        if (temp < tMax && temp > tMin)
+        {
+            rec.time = temp;
+            rec.point = r.pointAtParameter(rec.time);
+            rec.normal = (rec.point - center(r.time())) / radius;
+            rec.matPtr = matPtr;
+            return true;
+        }
+        temp = (-b + static_cast<float>(sqrt(static_cast<double>(discriminant))))/a;
+        if (temp < tMax && temp > tMin)
+        {
+            rec.time = temp;
+            rec.point = r.pointAtParameter(rec.time);
+            rec.normal = (rec.point - center(r.time())) / radius;
+            rec.matPtr = matPtr;
+            return true;
+        }
+    }
+    return false;
+}
+
+
+inline CUDA_DEV vec3 movingSphere::center(float time) const
+{
+    return center0 + ((time - time0) / (time1 - time0))*(center1 - center0);
+}
+
+inline CUDA_DEV bool movingSphere::boundingBox(float t0, float t1, aabb& box) const
+{
+        aabb box0(center(t0) - vec3(radius, radius, radius),
+                  center(t0) + vec3(radius, radius, radius)
+                 );
+        aabb box1(center(t1) - vec3(radius, radius, radius),
+                  center(t1) + vec3(radius, radius, radius)
+                 );
+        box = surroundingBox(box0, box1);
+        return true;
+}

@@ -27,25 +27,55 @@ class hitableList: public hitable
         hitable **list;
         int listSize;
         CUDA_DEV hitableList() {}
-        CUDA_DEV hitableList(hitable **l, int n) {list = l; listSize = n;}
-
-        CUDA_DEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+        CUDA_DEV hitableList(hitable **l, int n)
         {
-            hitRecord tempRec;
-            bool hitAnything = false;
-            float closestSoFar = tMax;
-
-            for (int i = 0; i < listSize; i++)
-            {
-                // if the list item was hit
-                if (list[i]->hit(r, tMin, closestSoFar, tempRec))
-                {
-                    hitAnything = true;
-                    closestSoFar = tempRec.time;
-                    rec = tempRec;
-                }
-            }
-            return hitAnything;
+            list = l;
+            listSize = n;
         }
 
+        CUDA_DEV bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
+        CUDA_DEV bool boundingBox(float t0, float t1, aabb& box) const override;
+
 };
+
+inline CUDA_DEV bool hitableList::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+{
+    hitRecord tempRec;
+    bool hitAnything = false;
+    float closestSoFar = tMax;
+
+    for (int i = 0; i < listSize; i++)
+    {
+        // if the list item was hit
+        if (list[i]->hit(r, tMin, closestSoFar, tempRec))
+        {
+            hitAnything = true;
+            closestSoFar = tempRec.time;
+            rec = tempRec;
+        }
+    }
+    return hitAnything;
+}
+
+inline CUDA_DEV bool hitableList::boundingBox(float t0, float t1, aabb& box) const
+{
+    if (listSize < 1)
+        return false;
+    aabb tempBox;
+    bool firstTrue = list[0]->boundingBox(t0, t1, tempBox);
+
+    if (!firstTrue)
+        return false;
+    else
+        box = tempBox;
+    for (int i = 1; i < listSize; i++)
+    {
+        if(list[0]->boundingBox(t0, t1, tempBox))
+        {
+            box = surroundingBox(box, tempBox);
+        }
+        else
+            return false;
+    }
+    return true;
+}

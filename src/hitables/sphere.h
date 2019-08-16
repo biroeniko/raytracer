@@ -31,36 +31,48 @@ class sphere: public hitable
         CUDA_DEV sphere() {}
         CUDA_DEV sphere(vec3 cen, float r, material *m) : center(cen), radius(r), matPtr(m) {}
 
-        CUDA_DEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
-        {
+        CUDA_DEV bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
+        CUDA_DEV bool boundingBox(float t0, float t1, aabb& box) const override;
 
-            vec3 oc = r.origin() - center;
-            float a = dot(r.direction(), r.direction());
-            float b = dot(oc, r.direction());
-            float c = dot(oc, oc) - radius*radius;
-            float discriminant = b*b - a*c;
-
-            if (discriminant > 0)
-            {
-                float temp = (-b - static_cast<float>(sqrt(static_cast<double>(discriminant))))/a;
-                if (temp < tMax && temp > tMin)
-                {
-                    rec.time = temp;
-                    rec.point = r.pointAtParameter(rec.time);
-                    rec.normal = (rec.point - center) / radius;
-                    rec.matPtr = matPtr;
-                    return true;
-                }
-                temp = (-b + static_cast<float>(sqrt(static_cast<double>(discriminant))))/a;
-                if (temp < tMax && temp > tMin)
-                {
-                    rec.time = temp;
-                    rec.point = r.pointAtParameter(rec.time);
-                    rec.normal = (rec.point - center) / radius;
-                    rec.matPtr = matPtr;
-                    return true;
-                }
-            }
-            return false;
-        }
 };
+
+inline CUDA_DEV bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+{
+
+    vec3 oc = r.origin() - center;
+    float a = dot(r.direction(), r.direction());
+    float b = dot(oc, r.direction());
+    float c = dot(oc, oc) - radius*radius;
+    float discriminant = b*b - a*c;
+
+    if (discriminant > 0)
+    {
+        float temp = (-b - static_cast<float>(sqrt(static_cast<double>(discriminant))))/a;
+        if (temp < tMax && temp > tMin)
+        {
+            rec.time = temp;
+            rec.point = r.pointAtParameter(rec.time);
+            rec.normal = (rec.point - center) / radius;
+            rec.matPtr = matPtr;
+            return true;
+        }
+        temp = (-b + static_cast<float>(sqrt(static_cast<double>(discriminant))))/a;
+        if (temp < tMax && temp > tMin)
+        {
+            rec.time = temp;
+            rec.point = r.pointAtParameter(rec.time);
+            rec.normal = (rec.point - center) / radius;
+            rec.matPtr = matPtr;
+            return true;
+        }
+    }
+    return false;
+}
+
+inline CUDA_DEV bool sphere::boundingBox(float t0, float t1, aabb& box) const
+{
+    box = aabb(center - vec3(radius, radius, radius),
+               center + vec3(radius, radius, radius)
+              );
+    return true;
+}
