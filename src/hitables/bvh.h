@@ -26,24 +26,24 @@ class bvhNode : public hitable
 
     public:
 
-        bvhNode() {}
-        bvhNode(hitable **l, int n, float t0, float t1);
-        virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
-        virtual bool boundingBox(float t0, float t1, aabb& box) const override;
+        CUDA_DEV bvhNode() {}
+        CUDA_DEV bvhNode(hitable **l, int n, float t0, float t1);
+        CUDA_DEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
+        CUDA_DEV virtual bool boundingBox(float t0, float t1, aabb& box) const override;
+
         hitable *left;
         hitable *right;
         aabb box;
 
 };
 
-bool bvhNode::boundingBox(float t0, float t1, aabb& b) const
+CUDA_DEV bool bvhNode::boundingBox(float t0, float t1, aabb& b) const
 {
     b = box;
     return true;
 }
 
-
-bool bvhNode::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+CUDA_DEV bool bvhNode::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
 {
 
     if (box.hit(r, tMin, tMax))
@@ -77,4 +77,89 @@ bool bvhNode::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
 
 }
 
+CUDA_DEV int boxCompareX(const void* a, const void* b)
+{
 
+    aabb boxLeft, boxRight;
+    hitable* ah = *(hitable**)a;
+    hitable* bh = *(hitable**)b;
+    if (!ah->boundingBox(0,0, boxLeft) ||
+        !bh->boundingBox(0,0, boxRight))
+    {
+        std::cerr << "No bounding box in bvhNode constructor" << std::endl;
+    }
+
+    if (boxLeft.min().x() - boxRight.min().x() < 0.0)
+        return -1;
+    else
+        return 1;
+
+}
+
+CUDA_DEV int boxCompareY(const void* a, const void* b)
+{
+
+    aabb boxLeft, boxRight;
+    hitable* ah = *(hitable**)a;
+    hitable* bh = *(hitable**)b;
+    if (!ah->boundingBox(0,0, boxLeft) ||
+        !bh->boundingBox(0,0, boxRight))
+    {
+        std::cerr << "No bounding box in bvhNode constructor" << std::endl;
+    }
+
+    if (boxLeft.min().y() - boxRight.min().y() < 0.0)
+        return -1;
+    else
+        return 1;
+
+}
+
+CUDA_DEV int boxCompareZ(const void* a, const void* b)
+{
+
+    aabb boxLeft, boxRight;
+    hitable* ah = *(hitable**)a;
+    hitable* bh = *(hitable**)b;
+    if (!ah->boundingBox(0,0, boxLeft) ||
+        !bh->boundingBox(0,0, boxRight))
+    {
+        std::cerr << "No bounding box in bvhNode constructor" << std::endl;
+    }
+    if (boxLeft.min().z() - boxRight.min().z() < 0.0)
+        return -1;
+    else
+        return 1;
+
+}
+
+CUDA_DEV bvhNode::bvhNode(hitable **l, int n, float t0, float t1)
+{
+
+    int axis = int(3*drand48());
+
+    if (axis == 0)
+       qsort(l, n, sizeof(hitable *), boxCompareX);
+    else if (axis == 1)
+       qsort(l, n, sizeof(hitable *), boxCompareY);
+    else
+       qsort(l, n, sizeof(hitable *), boxCompareZ);
+    if (n == 1)
+        left = right = l[0];
+    else if (n == 2)
+    {
+        left = l[0];
+        right = l[1];
+    }
+    else
+    {
+        left = new bvhNode(l, n/2, t0, t1);
+        right = new bvhNode(l + n/2, n - n/2, t0, t1);
+    }
+
+    aabb boxLeft, boxRight;
+    if (!left->boundingBox(t0,t1, boxLeft) || !right->boundingBox(t0, t1, boxRight))
+        std::cerr << "No bounding box in bvhNode constructor" << std::endl;
+    box = surroundingBox(boxLeft, boxRight);
+
+}
