@@ -29,8 +29,10 @@ SOFTWARE.
 struct ImageDenoiser
 {
 
-    oidn::DeviceRef device;
-    oidn::FilterRef filter;
+    #ifdef OIDN_ENABLED
+        oidn::DeviceRef device;
+        oidn::FilterRef filter;
+    #endif // OIDN_ENABLED
 
     CUDA_HOST ImageDenoiser()
     {
@@ -39,21 +41,23 @@ struct ImageDenoiser
 
     CUDA_HOST ImageDenoiser(vec3* pixels, int nx, int ny)
     {
-        // Create an Open Image Denoise device
-        device = oidn::newDevice();
-        device.commit();
+        #ifdef OIDN_ENABLED
+            // Create an Open Image Denoise device
+            device = oidn::newDevice();
+            device.commit();
 
-        // Create a denoising filter
-        filter = device.newFilter("RT"); // generic ray tracing filter
-        filter.setImage("color", pixels, oidn::Format::Float3, static_cast<size_t>(nx), static_cast<size_t>(ny));
-        filter.setImage("output", pixels, oidn::Format::Float3, static_cast<size_t>(nx), static_cast<size_t>(ny));
-        filter.set("hdr", true); // image is HDR
-        filter.commit();
+            // Create a denoising filter
+            filter = device.newFilter("RT"); // generic ray tracing filter
+            filter.setImage("color", pixels, oidn::Format::Float3, static_cast<size_t>(nx), static_cast<size_t>(ny));
+            filter.setImage("output", pixels, oidn::Format::Float3, static_cast<size_t>(nx), static_cast<size_t>(ny));
+            filter.set("hdr", true); // image is HDR
+            filter.commit();
+        #endif // OIDN_ENABLED
     }
 
-    #ifdef OIDN_ENABLED
-        void denoise()
-        {
+    void denoise()
+    {
+        #ifdef OIDN_ENABLED
             // Filter the image
             filter.execute();
 
@@ -61,7 +65,7 @@ struct ImageDenoiser
             const char* errorMessage;
             if (device.getError(errorMessage) != oidn::Error::None)
                 std::cout << "Error: " << errorMessage << std::endl;
-        }
-    #endif // OIDN_ENABLED
+        #endif // OIDN_ENABLED
+    }
 
 };

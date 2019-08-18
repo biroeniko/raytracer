@@ -39,19 +39,17 @@ struct Image
     bool showWindow;
     bool writeImage;
 
-    #ifdef OIDN_ENABLED
-        ImageDenoiser denoiser;
-    #endif // OIDN_ENABLED
+    ImageDenoiser denoiser;
 
     CUDA_HOST Image(bool showWindow, bool writeImage,
                     int x, int y, int tx, int ty );
 
-    #ifdef OIDN_ENABLED
-        void denoise()
-        {
+    void denoise()
+    {
+        #ifdef OIDN_ENABLED
             denoiser.denoise();
-        }
-    #endif // OIDN_ENABLED
+        #endif // OIDN_ENABLED
+    }
 
     #ifdef CUDA_ENABLED
         void cudaResetImage();
