@@ -41,8 +41,7 @@ struct Image
 
     ImageDenoiser denoiser;
 
-    CUDA_HOST Image(bool showWindow, bool writeImage,
-                    int x, int y, int tx, int ty );
+    CUDA_HOST Image(bool showWindow, bool writeImage, int x, int y, int tx, int ty);
 
     void denoise()
     {

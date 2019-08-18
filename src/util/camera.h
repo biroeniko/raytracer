@@ -23,7 +23,8 @@ SOFTWARE.
 #include "util/util.h"
 #include "util/randomgenerator.h"
 
-enum CameraMovement {
+enum CameraMovement
+{
     FORWARD,
     BACKWARD,
     LEFT,
@@ -35,6 +36,7 @@ enum CameraMovement {
 
 class Camera
 {
+
     public:
         vec3 origin;
         vec3 lowerLeftCorner;
@@ -174,4 +176,5 @@ class Camera
             float time = time0 + rng.get1f()*(time1-time0);
             return ray(origin + offset, lowerLeftCorner + s*horizontal + t*vertical - origin - offset, time);
         }
+
 };

@@ -23,6 +23,7 @@ SOFTWARE.
 
 class movingSphere: public hitable
 {
+
     public:
         vec3 center0, center1;
         float time0, time1;
@@ -72,7 +73,9 @@ inline CUDA_DEV bool movingSphere::hit(const ray& r, float tMin, float tMax, hit
             return true;
         }
     }
+
     return false;
+
 }
 
 
@@ -83,6 +86,7 @@ inline CUDA_DEV vec3 movingSphere::center(float time) const
 
 inline CUDA_DEV bool movingSphere::boundingBox(float t0, float t1, aabb& box) const
 {
+
         aabb box0(center(t0) - vec3(radius, radius, radius),
                   center(t0) + vec3(radius, radius, radius)
                  );
@@ -90,5 +94,7 @@ inline CUDA_DEV bool movingSphere::boundingBox(float t0, float t1, aabb& box) co
                   center(t1) + vec3(radius, radius, radius)
                  );
         box = surroundingBox(box0, box1);
+
         return true;
+
 }

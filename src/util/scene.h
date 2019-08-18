@@ -29,6 +29,7 @@ SOFTWARE.
 
 CUDA_HOSTDEV inline hitable* simpleScene()
 {
+
     hitable** list = new hitable*[4];
     list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
     list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
@@ -36,10 +37,12 @@ CUDA_HOSTDEV inline hitable* simpleScene()
     list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
     return new hitableList(list, 4);
+
 }
 
 CUDA_HOSTDEV inline hitable* simpleScene2()
 {
+
     RandomGenerator rng;
 
     int count = 20;
@@ -75,10 +78,12 @@ CUDA_HOSTDEV inline hitable* simpleScene2()
     }
 
     return new hitableList(list, count);
+
 }
 
 inline hitable* randomScene()
 {
+
     RandomGenerator rng;
 
     int n = 1000;
@@ -114,4 +119,5 @@ inline hitable* randomScene()
     list[i++] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
     return new hitableList(list, i);
+
 }

@@ -23,7 +23,9 @@ SOFTWARE.
 
 class sphere: public hitable
 {
+
     public:
+
         vec3 center;
         float radius;
         material *matPtr;
@@ -66,13 +68,18 @@ inline CUDA_DEV bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord
             return true;
         }
     }
+
     return false;
+
 }
 
 inline CUDA_DEV bool sphere::boundingBox(float t0, float t1, aabb& box) const
 {
+
     box = aabb(center - vec3(radius, radius, radius),
                center + vec3(radius, radius, radius)
               );
+
     return true;
+
 }

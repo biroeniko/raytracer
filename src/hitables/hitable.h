@@ -26,14 +26,17 @@ class material;
 
 struct hitRecord
 {
+
     float time;
     vec3 point;
     vec3 normal;
     material* matPtr;
+
 };
 
 class hitable
 {
+
     public:
         // the hit counts if tMin < t < tMax
         // for the initial rays this is positive t
@@ -45,4 +48,5 @@ class hitable
         CUDA_DEV virtual bool boundingBox(float t0, float t1, aabb& box) const = 0;
 
         CUDA_DEV virtual ~hitable() {}
+
 };

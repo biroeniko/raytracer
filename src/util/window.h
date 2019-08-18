@@ -29,6 +29,7 @@ class lParams;
 
 struct Window
 {
+
     int nx, ny;
     float thetaInit, phiInit;
     float zoomScale, stepScale;
@@ -205,10 +206,12 @@ struct Window
 				    break;
             }
         }
+
     }
 
     CUDA_HOSTDEV void moveCamera(std::unique_ptr<Image>& image, uint8_t *fileOutputImage)
     {
+
         theta += -1.0f * delta;
         if (theta < delta)
             theta = delta;
@@ -220,15 +223,18 @@ struct Window
         image->resetImage();
 
         refresh = true;
+
     }
 
     CUDA_HOSTDEV void waitQuit()
     {
+
         SDL_Event event;
         while (!quit)
         {
             SDL_WaitEvent(&event);
             quit = (event.type == SDL_QUIT);
         }
+
     }
 };

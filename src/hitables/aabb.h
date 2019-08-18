@@ -24,10 +24,12 @@ SOFTWARE.
 
 class aabb
 {
+
     vec3 aabbMin;
     vec3 aabbMax;
 
     public:
+
         CUDA_DEV aabb() {}
         CUDA_DEV aabb(const vec3& a, const vec3& b)
         {
@@ -51,6 +53,7 @@ class aabb
 
 inline CUDA_DEV bool aabb::hit(const ray& r, float tMin, float tMax) const
 {
+
     for (int a = 0; a < 3; a++)
     {
         float invD = 1.0f / r.direction()[a];
@@ -66,11 +69,14 @@ inline CUDA_DEV bool aabb::hit(const ray& r, float tMin, float tMax) const
         if (tMax <= tMin)
             return false;
     }
+
     return true;
+
 }
 
 inline CUDA_DEV aabb surroundingBox(aabb box0, aabb box1)
 {
+
     vec3 small(fmin(box0.min().x(), box1.min().x()),
                fmin(box0.min().y(), box1.min().y()),
                fmin(box0.min().z(), box1.min().z())
@@ -80,4 +86,5 @@ inline CUDA_DEV aabb surroundingBox(aabb box0, aabb box1)
              fmax(box0.max().z(), box1.max().z())
             );
     return aabb(small,big);
+
 }

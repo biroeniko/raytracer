@@ -27,6 +27,7 @@ SOFTWARE.
 
 class vec3 
 {
+
     float e[3];
     
     public:
@@ -80,6 +81,7 @@ class vec3
         CUDA_HOSTDEV friend vec3 operator/(const vec3 &v, float t);
         CUDA_HOSTDEV friend float dot(const vec3 &v1, const vec3 &v2);
         CUDA_HOSTDEV friend vec3 cross(const vec3 &v1, const vec3 &v2);
+
 };
 
 // unary operators

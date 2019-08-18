@@ -31,4 +31,5 @@ CUDA_HOSTDEV void Window::updateImage(lParams& lParams,
                           static_cast<int>(static_cast<unsigned int>(nx) * sizeof(Uint32)));
         SDL_RenderCopy(rParams.w->SDLRenderer, rParams.w->SDLTexture, nullptr, nullptr);
         SDL_RenderPresent(rParams.w->SDLRenderer);
+
 }

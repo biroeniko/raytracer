@@ -38,9 +38,11 @@ struct hitRecord;
 
 class material
 {
+
     public:
         CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const = 0;
         CUDA_DEV virtual ~material() {}
+
 };
 
 // lambertian (diffuse)
@@ -49,8 +51,11 @@ class material
 // or MIXED of these two strategies
 class lambertian : public material 
 {
+
     vec3 albedo; // the proportion of the incident light or radiation that is reflected by a surface
+
     public:
+
         CUDA_DEV lambertian(const vec3& a) : albedo(a) {}
 
         // diffuse matrials randomly scatter the rays
@@ -61,6 +66,7 @@ class lambertian : public material
             attenuation = albedo;
             return true;
         }
+
 };
 
 // for smooth metals the ray won't be randomly scattered
@@ -72,20 +78,27 @@ CUDA_DEV inline vec3 reflect(const vec3& v, const vec3& n)
 
 class metal: public material
 {
+
     vec3 albedo;
     float fuzz;
+
     public:
+
         CUDA_DEV metal(const vec3& a, float f = 0.0f) : albedo(a) {if (f < 1.0f) fuzz = f; else fuzz = 1.0f;}
         CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+
 };
 
 // metals don't randomly scatter -> they reflect
 CUDA_DEV inline bool metal::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
+
     vec3 reflected = reflect(unitVector(rIn.direction()), rec.normal);
     scattered = ray(rec.point, reflected + fuzz*rng.randomInUnitSphere(), rIn.time());
     attenuation = albedo;
+
     return (dot(scattered.direction(), rec.normal) > 0.0f);
+
 }
 
 
@@ -100,6 +113,7 @@ CUDA_DEV inline bool metal::scatter(RandomGenerator& rng, const ray& rIn, const 
 // total internal reflection
 CUDA_DEV inline bool refract(const vec3& v, const vec3& n, float niOverNt, vec3& refracted)
 {
+
     vec3 uv = unitVector(v);
     float dt = dot(uv, n);
     float discriminant = 1.0f - niOverNt*niOverNt*(1.0f - dt*dt);
@@ -110,27 +124,36 @@ CUDA_DEV inline bool refract(const vec3& v, const vec3& n, float niOverNt, vec3&
     }
     else
         return false;
+
 }
 
 class dielectric: public material
 {
+
     float refIndex;
+
     public:
+
         CUDA_DEV dielectric(float ri) : refIndex(ri) {}
         CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+
 };
 
 // real glass has reflectivity that varies with angle
 // Christophe Schlick's simple qeuation:
 CUDA_DEV inline float schlick(float cosine, float refIndex)
 {
+
     float r0 = (1.0f - refIndex) / (1.0f + refIndex);
     r0 = r0*r0;
+
     return r0 + (1.0f - r0)*static_cast<float>(pow(static_cast<double>((1.0f - cosine)), 5.0));
+
 }
 
 CUDA_DEV inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
 {
+
     vec3 outWardNormal;
     vec3 reflected = reflect(rIn.direction(), rec.normal);
     float niOverNt;
@@ -166,5 +189,7 @@ CUDA_DEV inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, c
         scattered = ray(rec.point, reflected, rIn.time());
     else
         scattered = ray(rec.point, refracted, rIn.time());
+
     return true;
+
 }

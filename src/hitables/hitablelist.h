@@ -23,7 +23,9 @@ SOFTWARE.
 
 class hitableList: public hitable
 {
+
     public: 
+
         hitable **list;
         int listSize;
         CUDA_DEV hitableList() {}
@@ -40,6 +42,7 @@ class hitableList: public hitable
 
 inline CUDA_DEV bool hitableList::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
 {
+
     hitRecord tempRec;
     bool hitAnything = false;
     float closestSoFar = tMax;
@@ -54,11 +57,14 @@ inline CUDA_DEV bool hitableList::hit(const ray& r, float tMin, float tMax, hitR
             rec = tempRec;
         }
     }
+
     return hitAnything;
+
 }
 
 inline CUDA_DEV bool hitableList::boundingBox(float t0, float t1, aabb& box) const
 {
+
     if (listSize < 1)
         return false;
     aabb tempBox;
@@ -77,5 +83,7 @@ inline CUDA_DEV bool hitableList::boundingBox(float t0, float t1, aabb& box) con
         else
             return false;
     }
+
     return true;
+
 }

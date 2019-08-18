@@ -31,6 +31,7 @@ SOFTWARE.
 #ifdef CUDA_ENABLED
     CUDA_GLOBAL void simpleScene(hitable** list, hitable** world)
     {
+
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
             list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
@@ -40,10 +41,12 @@ SOFTWARE.
 
             *world  = new hitableList(list, 4);
         }
+
     }
 
     CUDA_GLOBAL void simpleScene2(hitable** list, hitable** world)
     {
+
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
             RandomGenerator rng;
@@ -81,10 +84,12 @@ SOFTWARE.
 
             *world = new hitableList(list, count);
         }
+
     }
 
     CUDA_GLOBAL void randomScene(hitable** list, hitable** world)
     {
+
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
             RandomGenerator rng;
@@ -122,10 +127,12 @@ SOFTWARE.
 
             *world = new hitableList(list, n);
         }
+
     }
 
     CUDA_GLOBAL void randomScene2(hitable** list, hitable** world)
     {
+
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
             RandomGenerator rng;
@@ -163,10 +170,12 @@ SOFTWARE.
 
             *world = new hitableList(list, n);
         }
+
     }
 
     CUDA_GLOBAL void randomScene3(hitable** list, hitable** world)
     {
+
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
             RandomGenerator rng;
@@ -204,10 +213,12 @@ SOFTWARE.
 
             *world = new hitableList(list, n);
         }
+
     }
 
     CUDA_GLOBAL void randomScene4(hitable** list, hitable** world)
     {
+
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
             RandomGenerator rng;
@@ -245,10 +256,12 @@ SOFTWARE.
 
             *world = new hitableList(list, n);
         }
+
     }
 
     CUDA_GLOBAL void randomSceneWithMovingSpheres(hitable** list, hitable** world)
     {
+
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
             RandomGenerator rng;
@@ -287,7 +300,7 @@ SOFTWARE.
 
             *world = new hitableList(list, n);
         }
-    }
 
+    }
 
 #endif // CUDA_ENABLED

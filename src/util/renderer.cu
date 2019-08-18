@@ -35,6 +35,7 @@ CUDA_DEV int numHitables = 0;
     void initializeWorldCuda(lParams& lParams,
                              rParams& rParams)
     {
+
         int choice = 6;
 
         switch(choice)
@@ -135,6 +136,7 @@ CUDA_DEV int numHitables = 0;
     CUDA_GLOBAL void freeList(hitable** list,
                               hitable* world)
     {
+
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
             for (int i = 0; i < numHitables; i++)
@@ -144,11 +146,13 @@ CUDA_DEV int numHitables = 0;
             }
             //delete *world;
         }
+
     }
 
     void destroyWorldCuda(lParams& lParams,
                           rParams& rParams)
     {
+
         freeList<<<1,1>>>(rParams.list, rParams.world.get());
         checkCudaErrors(cudaGetLastError());
         checkCudaErrors(cudaDeviceSynchronize());
@@ -156,6 +160,7 @@ CUDA_DEV int numHitables = 0;
         checkCudaErrors(cudaFree(rParams.cam.get()));
         checkCudaErrors(cudaFree(rParams.renderer.get()));
         checkCudaErrors(cudaFree(rParams.image.get()));
+
     }
 
     CUDA_GLOBAL void render(Camera* cam,
@@ -164,6 +169,7 @@ CUDA_DEV int numHitables = 0;
                             Renderer* renderer,
                             int sampleCount)
     {
+
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
 
@@ -186,10 +192,12 @@ CUDA_DEV int numHitables = 0;
         vec3 col = image->pixels[pixelIndex] / (sampleCount * nsBatch);
 
         image->pixels2[pixelIndex] = col;
+
     }
 
     CUDA_GLOBAL void display(Image* image)
     {
+
         int i = threadIdx.x + blockIdx.x * blockDim.x;
         int j = threadIdx.y + blockIdx.y * blockDim.y;
 
@@ -222,6 +230,7 @@ CUDA_DEV int numHitables = 0;
 
         if (image->showWindow)
             image->windowPixels[(image->ny-j-1)*image->nx + i] = (ir << 16) | (ig << 8) | (ib);
+
     }
 
 #endif // CUDA_ENABLED

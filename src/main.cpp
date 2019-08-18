@@ -92,6 +92,7 @@ void initializeWorld(lParams& lParams,
 void invokeRenderer(lParams& lParams,
                     rParams& rParams)
 {
+
     std::ofstream ppmImageStream;
 
     if (lParams.writeImagePPM)
@@ -182,10 +183,12 @@ void invokeRenderer(lParams& lParams,
         // Write png.
         stbi_write_png("test.png", nx, ny, 3, rParams.image->fileOutputImage, nx * 3);
     }
+
 }
 
 void raytrace(lParams lParams)
 {
+
     rParams rParams;
 
     initializeWorld(lParams, rParams);
@@ -193,6 +196,7 @@ void raytrace(lParams lParams)
     #ifdef CUDA_ENABLED
         destroyWorldCuda(lParams, rParams);
     #endif // CUDA_ENABLED
+
 }
 
 int main(int argc, char **argv)
@@ -244,4 +248,5 @@ int main(int argc, char **argv)
     }
 
     return 0;
+
 }

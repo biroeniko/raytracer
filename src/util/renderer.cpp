@@ -29,6 +29,7 @@ SOFTWARE.
                                        rParams& rParams,
                                        int sampleCount)
     {
+
         int pixelIndex = j*nx + i;
 
         // Render the samples in batches.
@@ -45,10 +46,12 @@ SOFTWARE.
         vec3 col = rParams.image->pixels[pixelIndex] / sampleCount;
 
         rParams.image->pixels2[pixelIndex] = col;
+
     }
 
     CUDA_HOSTDEV void Renderer::display(int i, int j, std::unique_ptr<Image>& image)
     {
+
         int pixelIndex = j*image->nx + i;
 
         vec3 col = image->pixels2[pixelIndex];
@@ -78,6 +81,7 @@ SOFTWARE.
 
         if (image->showWindow)
             image->windowPixels[(image->ny-j-1)*image->nx + i] = (ir << 16) | (ig << 8) | (ib);
+
     }
 
 #endif // CUDA_ENABLED
@@ -85,6 +89,7 @@ SOFTWARE.
 CUDA_HOSTDEV bool Renderer::traceRays(rParams& rParams,
                                       int sampleCount)
 {
+
     #ifdef CUDA_ENABLED
         traceRaysCuda(rParams, sampleCount);
     #else
@@ -116,5 +121,7 @@ CUDA_HOSTDEV bool Renderer::traceRays(rParams& rParams,
             }
         }
     #endif // CUDA_ENABLED
+
     return true;
+
 }

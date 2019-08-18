@@ -20,11 +20,12 @@ SOFTWARE.
 #include "util/image.h"
 
 CUDA_HOST Image::Image(bool showWindow, bool writeImage,
-                       int x, int y, int tx, int ty ) :
+                       int x, int y, int tx, int ty) :
                        nx(x), ny(y), tx(tx), ty(ty),
                        showWindow(showWindow),
                        writeImage(writeImage)
 {
+
     #ifdef CUDA_ENABLED
         int pixelCount = nx*ny;
         size_t pixelsFrameBufferSize = static_cast<size_t>(pixelCount)*sizeof(vec3);
@@ -55,6 +56,7 @@ CUDA_HOST Image::Image(bool showWindow, bool writeImage,
 
 CUDA_HOSTDEV void Image::resetImage()
 {
+
     #ifdef CUDA_ENABLED
         cudaResetImage();
     #else
@@ -64,18 +66,22 @@ CUDA_HOSTDEV void Image::resetImage()
             pixels[i] = vec3(0.0f, 0.0f, 0.0f);
         }
     #endif // CUDA_ENABLED
+
 }
 
 void Image::savePfm()
 {
+
     FILE* f = fopen("wtf.pfm", "wb");
     fprintf(f, "PF\n%d %d\n-1\n", nx, ny);
     fwrite(pixels2, sizeof(float), static_cast<size_t>(nx*ny*3), f);
     fclose(f);
+
 }
 
 CUDA_HOST Image::~Image()
 {
+
     #ifdef CUDA_ENABLED
         checkCudaErrors(cudaFree(pixels));
         checkCudaErrors(cudaFree(pixels2));
@@ -91,5 +97,5 @@ CUDA_HOST Image::~Image()
         if (writeImage)
             delete[] fileOutputImage;
     #endif // CUDA_ENABLED
-}
 
+}
