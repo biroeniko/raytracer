@@ -21,44 +21,47 @@ SOFTWARE.
 
 #include "util/vec3.h"
 #include "util/util.h"
-#include "util/imagedenoiser.h"
 
-struct Image
+#ifdef OIDN_ENABLED
+    #include <OpenImageDenoise/oidn.hpp>
+#endif // OIDN_ENABLED
+
+struct ImageDenoiser
 {
-    vec3* pixels;
-    vec3* pixels2;
 
-    uint32_t* windowPixels;
-    uint8_t* fileOutputImage;
+    oidn::DeviceRef device;
+    oidn::FilterRef filter;
 
-    const int nx;
-    const int ny;
-    const int tx;
-    const int ty;
+    CUDA_HOST ImageDenoiser()
+    {
 
-    bool showWindow;
-    bool writeImage;
+    }
 
-    #ifdef OIDN_ENABLED
-        ImageDenoiser denoiser;
-    #endif // OIDN_ENABLED
+    CUDA_HOST ImageDenoiser(vec3* pixels, int nx, int ny)
+    {
+        // Create an Open Image Denoise device
+        device = oidn::newDevice();
+        device.commit();
 
-    CUDA_HOST Image(bool showWindow, bool writeImage,
-                    int x, int y, int tx, int ty );
+        // Create a denoising filter
+        filter = device.newFilter("RT"); // generic ray tracing filter
+        filter.setImage("color", pixels, oidn::Format::Float3, static_cast<size_t>(nx), static_cast<size_t>(ny));
+        filter.setImage("output", pixels, oidn::Format::Float3, static_cast<size_t>(nx), static_cast<size_t>(ny));
+        filter.set("hdr", true); // image is HDR
+        filter.commit();
+    }
 
     #ifdef OIDN_ENABLED
         void denoise()
         {
-            denoiser.denoise();
+            // Filter the image
+            filter.execute();
+
+            // Check for errors
+            const char* errorMessage;
+            if (device.getError(errorMessage) != oidn::Error::None)
+                std::cout << "Error: " << errorMessage << std::endl;
         }
     #endif // OIDN_ENABLED
-
-    #ifdef CUDA_ENABLED
-        void cudaResetImage();
-    #endif // CUDA_ENABLED
-
-    CUDA_HOSTDEV void resetImage();
-    void savePfm();
-    CUDA_HOST ~Image();
 
 };

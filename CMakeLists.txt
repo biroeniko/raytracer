@@ -75,7 +75,9 @@ set(SRC_HOST
     src/util/common.h
     src/util/globals.cpp
     src/util/globals.h
+    src/util/image.cpp
     src/util/image.h
+    src/util/imagedenoiser.h
     src/util/params.h
     src/util/randomgenerator.h
     src/util/ray.h
