@@ -47,8 +47,8 @@ CUDA_HOSTDEV inline hitable* simpleScene2()
 
     RandomGenerator rng;
 
-    int count = 20;
-    hitable** list = new hitable*[count];
+    int n = 20;
+    hitable** list = new hitable*[n];
     list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
     list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
     list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
@@ -80,7 +80,7 @@ CUDA_HOSTDEV inline hitable* simpleScene2()
     }
 
     //return new hitableList(list, count);
-    return new bvhNode(list, count, 0.0, 1.0);
+    return new bvhNode(list, i, 0.0, 1.0);
 
 }
 
@@ -90,7 +90,7 @@ inline hitable* randomScene()
     RandomGenerator rng;
 
     int n = 1000;
-    hitable** list = new hitable*[n+1];
+    hitable** list = new hitable*[n];
     list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
     int i = 1;
     for (int a = -15; a < 15; a++)
