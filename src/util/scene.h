@@ -21,8 +21,9 @@ SOFTWARE.
 
 #include <float.h>
 
-#include "hitables/sphere.h"
+#include "hitables/bvh.h"
 #include "hitables/hitablelist.h"
+#include "hitables/sphere.h"
 #include "materials/material.h"
 #include "util/randomgenerator.h"
 #include "util/common.h"
@@ -36,7 +37,8 @@ CUDA_HOSTDEV inline hitable* simpleScene()
     list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
     list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
-    return new hitableList(list, 4);
+    //return new hitableList(list, 4);
+    return new bvhNode(list, 4, 0.0, 1.0);
 
 }
 
