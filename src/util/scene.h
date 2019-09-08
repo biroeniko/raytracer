@@ -79,7 +79,8 @@ CUDA_HOSTDEV inline hitable* simpleScene2()
         }
     }
 
-    return new hitableList(list, count);
+    //return new hitableList(list, count);
+    return new bvhNode(list, count, 0.0, 1.0);
 
 }
 
@@ -120,6 +121,7 @@ inline hitable* randomScene()
     list[i++] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
     list[i++] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
-    return new hitableList(list, i);
+    //return new hitableList(list, i);
+    return new bvhNode(list, i, 0.0, 1.0);
 
 }

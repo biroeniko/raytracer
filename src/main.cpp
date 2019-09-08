@@ -75,7 +75,7 @@ void initializeWorld(lParams& lParams,
     rParams.renderer.reset(new Renderer(lParams.showWindow,
                                         lParams.writeImagePPM,
                                         lParams.writeImagePNG));
-    rParams.world.reset(simpleScene());
+    rParams.world.reset(randomScene());
 
     if (lParams.showWindow)
     {
