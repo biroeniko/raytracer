@@ -37,13 +37,13 @@ class bvhNode : public hitable
 
 };
 
-CUDA_DEV bool bvhNode::boundingBox(float t0, float t1, aabb& b) const
+inline CUDA_DEV bool bvhNode::boundingBox(float t0, float t1, aabb& b) const
 {
     b = box;
     return true;
 }
 
-CUDA_DEV bool bvhNode::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+inline CUDA_DEV bool bvhNode::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
 {
 
     if (box.hit(r, tMin, tMax))
@@ -77,7 +77,7 @@ CUDA_DEV bool bvhNode::hit(const ray& r, float tMin, float tMax, hitRecord& rec)
 
 }
 
-CUDA_DEV int boxCompareX(const void* a, const void* b)
+inline CUDA_DEV int boxCompareX(const void* a, const void* b)
 {
 
     aabb boxLeft, boxRight;
@@ -96,7 +96,7 @@ CUDA_DEV int boxCompareX(const void* a, const void* b)
 
 }
 
-CUDA_DEV int boxCompareY(const void* a, const void* b)
+inline CUDA_DEV int boxCompareY(const void* a, const void* b)
 {
 
     aabb boxLeft, boxRight;
@@ -115,7 +115,7 @@ CUDA_DEV int boxCompareY(const void* a, const void* b)
 
 }
 
-CUDA_DEV int boxCompareZ(const void* a, const void* b)
+inline CUDA_DEV int boxCompareZ(const void* a, const void* b)
 {
 
     aabb boxLeft, boxRight;
@@ -133,7 +133,7 @@ CUDA_DEV int boxCompareZ(const void* a, const void* b)
 
 }
 
-CUDA_DEV bvhNode::bvhNode(hitable **l, int n, float t0, float t1)
+inline CUDA_DEV bvhNode::bvhNode(hitable **l, int n, float t0, float t1)
 {
 
     int axis = int(3*drand48());
