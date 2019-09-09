@@ -21,6 +21,7 @@ SOFTWARE.
 
 #include <float.h>
 
+#include "hitables/bvh.h"
 #include "hitables/sphere.h"
 #include "hitables/movingsphere.h"
 #include "hitables/hitablelist.h"
@@ -40,6 +41,8 @@ SOFTWARE.
             list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
             *world  = new hitableList(list, 4);
+
+            //*world = new bvhNode(list, 4, 0.0, 1.0);
         }
 
     }

@@ -61,7 +61,11 @@ inline CUDA_DEV bool aabb::hit(const ray& r, float tMin, float tMax) const
         float t1 = (max()[a] - r.origin()[a]) * invD;
 
         if (invD < 0.0f)
-            std::swap(t0, t1);
+        {
+            float aux = t0;
+            t0 = t1;
+            t1 = aux;
+        }
 
         tMin = t0 > tMin ? t0 : tMin;
         tMax = t1 < tMax ? t1 : tMax;

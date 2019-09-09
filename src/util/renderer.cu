@@ -36,7 +36,7 @@ CUDA_DEV int numHitables = 0;
                              rParams& rParams)
     {
 
-        int choice = 6;
+        int choice = 0;
 
         switch(choice)
         {
@@ -237,7 +237,7 @@ CUDA_DEV int numHitables = 0;
 
 #ifdef CUDA_ENABLED
     void Renderer::traceRaysCuda(rParams& rParams,
-                              int sampleCount)
+                                 int sampleCount)
     {
 
         auto image = rParams.image.get();

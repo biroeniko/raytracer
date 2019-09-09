@@ -20,6 +20,7 @@ SOFTWARE.
 #pragma once
 
 #include "hitable.h"
+#include "util/randomgenerator.h"
 
 class bvhNode : public hitable
 {
@@ -34,6 +35,7 @@ class bvhNode : public hitable
         hitable *left;
         hitable *right;
         aabb box;
+        RandomGenerator rng;
 
 };
 
@@ -83,12 +85,14 @@ inline CUDA_DEV int boxCompareX(const void* a, const void* b)
     aabb boxLeft, boxRight;
     hitable* ah = *(hitable**)a;
     hitable* bh = *(hitable**)b;
-    if (!ah->boundingBox(0,0, boxLeft) ||
-        !bh->boundingBox(0,0, boxRight))
-    {
-        std::cerr << "No bounding box in bvhNode constructor" << std::endl;
-    }
 
+    #ifndef CUDA_ENABLED
+        if (!ah->boundingBox(0,0, boxLeft) ||
+            !bh->boundingBox(0,0, boxRight))
+        {
+            std::cerr << "No bounding box in bvhNode constructor" << std::endl;
+        }
+    #endif
     if (boxLeft.min().x() - boxRight.min().x() < 0.0)
         return -1;
     else
@@ -102,11 +106,14 @@ inline CUDA_DEV int boxCompareY(const void* a, const void* b)
     aabb boxLeft, boxRight;
     hitable* ah = *(hitable**)a;
     hitable* bh = *(hitable**)b;
-    if (!ah->boundingBox(0,0, boxLeft) ||
-        !bh->boundingBox(0,0, boxRight))
-    {
-        std::cerr << "No bounding box in bvhNode constructor" << std::endl;
-    }
+
+    #ifndef CUDA_ENABLED
+        if (!ah->boundingBox(0,0, boxLeft) ||
+            !bh->boundingBox(0,0, boxRight))
+        {
+            std::cerr << "No bounding box in bvhNode constructor" << std::endl;
+        }
+    #endif
 
     if (boxLeft.min().y() - boxRight.min().y() < 0.0)
         return -1;
@@ -121,11 +128,14 @@ inline CUDA_DEV int boxCompareZ(const void* a, const void* b)
     aabb boxLeft, boxRight;
     hitable* ah = *(hitable**)a;
     hitable* bh = *(hitable**)b;
-    if (!ah->boundingBox(0,0, boxLeft) ||
-        !bh->boundingBox(0,0, boxRight))
-    {
-        std::cerr << "No bounding box in bvhNode constructor" << std::endl;
-    }
+
+    #ifndef CUDA_ENABLED
+        if (!ah->boundingBox(0,0, boxLeft) ||
+            !bh->boundingBox(0,0, boxRight))
+        {
+            std::cerr << "No bounding box in bvhNode constructor" << std::endl;
+        }
+    #endif
     if (boxLeft.min().z() - boxRight.min().z() < 0.0)
         return -1;
     else
@@ -136,7 +146,7 @@ inline CUDA_DEV int boxCompareZ(const void* a, const void* b)
 inline CUDA_DEV bvhNode::bvhNode(hitable **l, int n, float t0, float t1)
 {
 
-    int axis = int(3*drand48());
+    int axis = int(3*rng.get1f());
 
     if (axis == 0)
        qsort(l, n, sizeof(hitable *), boxCompareX);
@@ -158,8 +168,10 @@ inline CUDA_DEV bvhNode::bvhNode(hitable **l, int n, float t0, float t1)
     }
 
     aabb boxLeft, boxRight;
-    if (!left->boundingBox(t0,t1, boxLeft) || !right->boundingBox(t0, t1, boxRight))
-        std::cerr << "No bounding box in bvhNode constructor" << std::endl;
+    #ifndef CUDA_ENABLED
+        if (!left->boundingBox(t0,t1, boxLeft) || !right->boundingBox(t0, t1, boxRight))
+            std::cerr << "No bounding box in bvhNode constructor" << std::endl;
+    #endif
     box = surroundingBox(boxLeft, boxRight);
 
 }
