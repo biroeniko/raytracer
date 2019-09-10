@@ -36,7 +36,7 @@ CUDA_DEV int numHitables = 0;
                              RParams& rParams)
     {
 
-        int choice = 6;
+        int choice = 7;
 
         switch(choice)
         {
@@ -60,6 +60,9 @@ CUDA_DEV int numHitables = 0;
                 break;
             case 6:
                 numHitables = 197;
+                break;
+            case 7:
+                numHitables = 102;
                 break;
         }
 
@@ -90,6 +93,9 @@ CUDA_DEV int numHitables = 0;
                 break;
             case 6:
                 randomSceneWithMovingSpheres<<<1,1>>>(*list, worldPtr);
+                break;
+            case 7:
+                randomSceneTexture<<<1,1>>>(*list, worldPtr);
                 break;
         }
         checkCudaErrors(cudaGetLastError());

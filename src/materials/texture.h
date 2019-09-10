@@ -63,8 +63,8 @@ class CheckerTexture : public Texture
 
     public:
 
-        CheckerTexture() { }
-        CheckerTexture(Texture *t0, Texture *t1): even(t0), odd(t1) { }
+        CUDA_DEV CheckerTexture() { }
+        CUDA_DEV CheckerTexture(Texture *t0, Texture *t1): even(t0), odd(t1) { }
 
         CUDA_DEV virtual Vec3 value(float u, float v, const Vec3& p) const
         {

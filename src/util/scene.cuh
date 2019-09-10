@@ -26,6 +26,7 @@ SOFTWARE.
 #include "hitables/movingsphere.h"
 #include "hitables/hitablelist.h"
 #include "materials/material.h"
+#include "materials/texture.h"
 #include "util/randomgenerator.h"
 #include "util/common.h"
 
@@ -290,6 +291,53 @@ SOFTWARE.
                                             0.2f, new Lambertian(new ConstantTexture(Vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.88f)      // metal
+                        {
+                            list[i++] = new Sphere(center, 0.2f, new Metal(Vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
+                        }
+                        else                            // glass
+                        {
+                            list[i++] = new Sphere(center, 0.2f, new Dielectric(1.5f));
+                        }
+                    }
+                }
+            }
+
+            *world = new HitableList(list, n);
+        }
+
+    }
+
+    CUDA_GLOBAL void randomSceneTexture(Hitable** list, Hitable** world)
+    {
+
+        if (threadIdx.x == 0 && blockIdx.x == 0)
+        {
+            RandomGenerator rng;
+
+            int n = 102;
+            Texture *checker = new CheckerTexture(
+                new ConstantTexture(Vec3(0.9, 0.05, 0.08)),
+                new ConstantTexture(Vec3(0.9, 0.9, 0.9))
+            );
+            list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(checker));
+            list[1] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
+            list[2] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(new ConstantTexture(Vec3(0.3f, 0.0f, 0.0f))));
+            list[3] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.4f, 0.5f, 0.6f), 0.0f));
+
+            int i = 4;
+            for (int a = -5; a < 5; a++)
+            {
+                for (int b = -5; b < 5; b++)
+                {
+                    float chooseMat = rng.get1f();
+                    Vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
+                    if ((center-Vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+                    {
+                        if (chooseMat < 0.5f)            // diffuse
+                        {
+                            list[i++] = new Sphere(center, 0.2f, new Lambertian(new ConstantTexture(Vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
+                        }
+                        else if (chooseMat < 0.75f)      // metal
                         {
                             list[i++] = new Sphere(center, 0.2f, new Metal(Vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
