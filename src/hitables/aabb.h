@@ -22,7 +22,7 @@ SOFTWARE.
 #include "util/vec3.h"
 #include "util/ray.h"
 
-class aabb
+class AABB
 {
 
     vec3 aabbMin;
@@ -30,8 +30,8 @@ class aabb
 
     public:
 
-        CUDA_DEV aabb() {}
-        CUDA_DEV aabb(const vec3& a, const vec3& b)
+        CUDA_DEV AABB() {}
+        CUDA_DEV AABB(const vec3& a, const vec3& b)
         {
             aabbMin = a;
             aabbMax = b;
@@ -51,7 +51,7 @@ class aabb
 
 };
 
-inline CUDA_DEV bool aabb::hit(const ray& r, float tMin, float tMax) const
+inline CUDA_DEV bool AABB::hit(const ray& r, float tMin, float tMax) const
 {
 
     for (int a = 0; a < 3; a++)
@@ -78,7 +78,7 @@ inline CUDA_DEV bool aabb::hit(const ray& r, float tMin, float tMax) const
 
 }
 
-inline CUDA_DEV aabb surroundingBox(aabb box0, aabb box1)
+inline CUDA_DEV AABB surroundingBox(AABB box0, AABB box1)
 {
 
     vec3 small(fmin(box0.min().x(), box1.min().x()),
@@ -89,6 +89,6 @@ inline CUDA_DEV aabb surroundingBox(aabb box0, aabb box1)
              fmax(box0.max().y(), box1.max().y()),
              fmax(box0.max().z(), box1.max().z())
             );
-    return aabb(small,big);
+    return AABB(small,big);
 
 }

@@ -45,7 +45,7 @@ class hitable
         // we want motion blur => time input variable
         CUDA_DEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const = 0;
 
-        CUDA_DEV virtual bool boundingBox(float t0, float t1, aabb& box) const = 0;
+        CUDA_DEV virtual bool boundingBox(float t0, float t1, AABB& box) const = 0;
 
         CUDA_DEV virtual ~hitable() {}
 

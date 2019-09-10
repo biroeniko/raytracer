@@ -32,9 +32,10 @@ As in Peter Shirley's book:
 
 struct hitRecord;
 
-#include "util/ray.h"
 #include "hitables/hitable.h"
+#include "materials/texture.h"
 #include "util/randomgenerator.h"
+#include "util/ray.h"
 
 class material
 {
@@ -52,18 +53,18 @@ class material
 class lambertian : public material 
 {
 
-    vec3 albedo; // the proportion of the incident light or radiation that is reflected by a surface
+    Texture* albedo; // the proportion of the incident light or radiation that is reflected by a surface
 
     public:
 
-        CUDA_DEV lambertian(const vec3& a) : albedo(a) {}
+        CUDA_DEV lambertian(Texture* a) : albedo(a) {}
 
         // diffuse matrials randomly scatter the rays
         CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
         {
             vec3 target = rec.point + rec.normal + rng.randomInUnitSphere();
             scattered = ray(rec.point, target - rec.point, rIn.time());
-            attenuation = albedo;
+            attenuation = albedo->value(0.0f, 0.0f, rec.point);
             return true;
         }
 

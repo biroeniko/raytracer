@@ -36,7 +36,7 @@ class hitableList: public hitable
         }
 
         CUDA_DEV bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
-        CUDA_DEV bool boundingBox(float t0, float t1, aabb& box) const override;
+        CUDA_DEV bool boundingBox(float t0, float t1, AABB& box) const override;
 
 };
 
@@ -62,12 +62,12 @@ inline CUDA_DEV bool hitableList::hit(const ray& r, float tMin, float tMax, hitR
 
 }
 
-inline CUDA_DEV bool hitableList::boundingBox(float t0, float t1, aabb& box) const
+inline CUDA_DEV bool hitableList::boundingBox(float t0, float t1, AABB& box) const
 {
 
     if (listSize < 1)
         return false;
-    aabb tempBox;
+    AABB tempBox;
     bool firstTrue = list[0]->boundingBox(t0, t1, tempBox);
 
     if (!firstTrue)

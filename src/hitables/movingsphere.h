@@ -39,7 +39,7 @@ class movingSphere: public hitable
 
         CUDA_DEV bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
         CUDA_DEV vec3 center(float time) const;
-        CUDA_DEV bool boundingBox(float t0, float t1, aabb& box) const override;
+        CUDA_DEV bool boundingBox(float t0, float t1, AABB& box) const override;
 
 };
 
@@ -84,13 +84,13 @@ inline CUDA_DEV vec3 movingSphere::center(float time) const
     return center0 + ((time - time0) / (time1 - time0))*(center1 - center0);
 }
 
-inline CUDA_DEV bool movingSphere::boundingBox(float t0, float t1, aabb& box) const
+inline CUDA_DEV bool movingSphere::boundingBox(float t0, float t1, AABB& box) const
 {
 
-        aabb box0(center(t0) - vec3(radius, radius, radius),
+        AABB box0(center(t0) - vec3(radius, radius, radius),
                   center(t0) + vec3(radius, radius, radius)
                  );
-        aabb box1(center(t1) - vec3(radius, radius, radius),
+        AABB box1(center(t1) - vec3(radius, radius, radius),
                   center(t1) + vec3(radius, radius, radius)
                  );
         box = surroundingBox(box0, box1);

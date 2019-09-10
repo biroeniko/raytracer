@@ -25,6 +25,7 @@ SOFTWARE.
 #include "hitables/hitablelist.h"
 #include "hitables/sphere.h"
 #include "materials/material.h"
+#include "materials/texture.h"
 #include "util/randomgenerator.h"
 #include "util/common.h"
 
@@ -32,9 +33,9 @@ CUDA_HOSTDEV inline hitable* simpleScene()
 {
 
     hitable** list = new hitable*[4];
-    list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+    list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
     list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-    list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
+    list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.4f, 0.2f, 0.1f))));
     list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
     //return new hitableList(list, 4);
@@ -49,9 +50,9 @@ CUDA_HOSTDEV inline hitable* simpleScene2()
 
     int n = 20;
     hitable** list = new hitable*[n];
-    list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+    list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
     list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-    list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
+    list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.4f, 0.2f, 0.1f))));
     list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
     int i = 4;
 
@@ -65,7 +66,7 @@ CUDA_HOSTDEV inline hitable* simpleScene2()
             {
                 if (chooseMat < 0.5f)            // diffuse
                 {
-                    list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
+                    list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                 }
                 else if (chooseMat < 0.75f)      // metal
                 {
@@ -91,7 +92,7 @@ inline hitable* randomScene()
 
     int n = 1000;
     hitable** list = new hitable*[n];
-    list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+    list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
     int i = 1;
     for (int a = -15; a < 15; a++)
     {
@@ -103,7 +104,7 @@ inline hitable* randomScene()
             {
                 if (chooseMat < 0.5f)            // diffuse
                 {
-                    list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
+                    list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                 }
                 else if (chooseMat < 0.75f)      // metal
                 {
@@ -118,7 +119,7 @@ inline hitable* randomScene()
     }
 
     list[i++] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-    list[i++] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
+    list[i++] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.4f, 0.2f, 0.1f))));
     list[i++] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
     //return new hitableList(list, i);

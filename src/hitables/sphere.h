@@ -34,7 +34,7 @@ class sphere: public hitable
         CUDA_DEV sphere(vec3 cen, float r, material *m) : center(cen), radius(r), matPtr(m) {}
 
         CUDA_DEV bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
-        CUDA_DEV bool boundingBox(float t0, float t1, aabb& box) const override;
+        CUDA_DEV bool boundingBox(float t0, float t1, AABB& box) const override;
 
 };
 
@@ -73,10 +73,10 @@ inline CUDA_DEV bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord
 
 }
 
-inline CUDA_DEV bool sphere::boundingBox(float t0, float t1, aabb& box) const
+inline CUDA_DEV bool sphere::boundingBox(float t0, float t1, AABB& box) const
 {
 
-    box = aabb(center - vec3(radius, radius, radius),
+    box = AABB(center - vec3(radius, radius, radius),
                center + vec3(radius, radius, radius)
               );
 

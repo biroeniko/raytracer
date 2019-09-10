@@ -35,9 +35,9 @@ SOFTWARE.
 
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
             list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
+            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.4f, 0.2f, 0.1f))));
             list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
             *world  = new hitableList(list, 4);
@@ -55,9 +55,9 @@ SOFTWARE.
             RandomGenerator rng;
 
             int count = 58;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
             list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
+            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.4f, 0.2f, 0.1f))));
             list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
             int i = 4;
 
@@ -71,7 +71,7 @@ SOFTWARE.
                     {
                         if (chooseMat < 0.5f)            // diffuse
                         {
-                            list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
+                            list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.75f)      // metal
                         {
@@ -98,9 +98,9 @@ SOFTWARE.
             RandomGenerator rng;
 
             int n = 901;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
             list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
+            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.4f, 0.2f, 0.1f))));
             list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
             int i = 4;
@@ -114,7 +114,7 @@ SOFTWARE.
                     {
                         if (chooseMat < 0.5f)            // diffuse
                         {
-                            list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
+                            list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.75f)      // metal
                         {
@@ -141,9 +141,9 @@ SOFTWARE.
             RandomGenerator rng;
 
             int n = 102;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
             list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.3f, 0.0f, 0.0f)));
+            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.3f, 0.0f, 0.0f))));
             list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.4f, 0.5f, 0.6f), 0.0f));
 
             int i = 4;
@@ -157,7 +157,7 @@ SOFTWARE.
                     {
                         if (chooseMat < 0.5f)            // diffuse
                         {
-                            list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
+                            list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.75f)      // metal
                         {
@@ -184,9 +184,9 @@ SOFTWARE.
             RandomGenerator rng;
 
             int n = 68;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
             list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.3f, 0.0f, 0.0f)));
+            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.3f, 0.0f, 0.0f))));
             list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.4f, 0.5f, 0.6f), 0.0f));
 
             int i = 4;
@@ -200,7 +200,7 @@ SOFTWARE.
                     {
                         if (chooseMat < 0.3f)            // diffuse
                         {
-                            list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
+                            list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.65f)      // metal
                         {
@@ -227,9 +227,9 @@ SOFTWARE.
             RandomGenerator rng;
 
             int n = 197;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
             list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.3f, 0.0f, 0.0f)));
+            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.3f, 0.0f, 0.0f))));
             list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.4f, 0.5f, 0.6f), 0.0f));
 
             int i = 4;
@@ -243,7 +243,7 @@ SOFTWARE.
                     {
                         if (chooseMat < 0.33f)            // diffuse
                         {
-                            list[i++] = new sphere(center, 0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
+                            list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.88f)      // metal
                         {
@@ -270,9 +270,9 @@ SOFTWARE.
             RandomGenerator rng;
 
             int n = 197;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
             list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.3f, 0.0f, 0.0f)));
+            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.3f, 0.0f, 0.0f))));
             list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.4f, 0.5f, 0.6f), 0.0f));
 
             int i = 4;
@@ -287,7 +287,7 @@ SOFTWARE.
                         if (chooseMat < 0.33f)            // diffuse
                         {
                             list[i++] = new movingSphere(center, center+vec3(0.0f, 0.5f*rng.get1f(), 0.0f), 0.0f, 1.0f,
-                                            0.2f, new lambertian(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f())));
+                                            0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.88f)      // metal
                         {

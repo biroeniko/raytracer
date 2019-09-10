@@ -30,16 +30,16 @@ class bvhNode : public hitable
         CUDA_DEV bvhNode() {}
         CUDA_DEV bvhNode(hitable **l, int n, float t0, float t1);
         CUDA_DEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
-        CUDA_DEV virtual bool boundingBox(float t0, float t1, aabb& box) const override;
+        CUDA_DEV virtual bool boundingBox(float t0, float t1, AABB& box) const override;
 
         hitable *left;
         hitable *right;
-        aabb box;
+        AABB box;
         RandomGenerator rng;
 
 };
 
-inline CUDA_DEV bool bvhNode::boundingBox(float t0, float t1, aabb& b) const
+inline CUDA_DEV bool bvhNode::boundingBox(float t0, float t1, AABB& b) const
 {
     b = box;
     return true;
@@ -82,7 +82,7 @@ inline CUDA_DEV bool bvhNode::hit(const ray& r, float tMin, float tMax, hitRecor
 inline CUDA_DEV int boxCompareX(const void* a, const void* b)
 {
 
-    aabb boxLeft, boxRight;
+    AABB boxLeft, boxRight;
     hitable* ah = *(hitable**)a;
     hitable* bh = *(hitable**)b;
 
@@ -103,7 +103,7 @@ inline CUDA_DEV int boxCompareX(const void* a, const void* b)
 inline CUDA_DEV int boxCompareY(const void* a, const void* b)
 {
 
-    aabb boxLeft, boxRight;
+    AABB boxLeft, boxRight;
     hitable* ah = *(hitable**)a;
     hitable* bh = *(hitable**)b;
 
@@ -125,7 +125,7 @@ inline CUDA_DEV int boxCompareY(const void* a, const void* b)
 inline CUDA_DEV int boxCompareZ(const void* a, const void* b)
 {
 
-    aabb boxLeft, boxRight;
+    AABB boxLeft, boxRight;
     hitable* ah = *(hitable**)a;
     hitable* bh = *(hitable**)b;
 
@@ -167,7 +167,7 @@ inline CUDA_DEV bvhNode::bvhNode(hitable **l, int n, float t0, float t1)
         right = new bvhNode(l + n/2, n - n/2, t0, t1);
     }
 
-    aabb boxLeft, boxRight;
+    AABB boxLeft, boxRight;
     #ifndef CUDA_ENABLED
         if (!left->boundingBox(t0,t1, boxLeft) || !right->boundingBox(t0, t1, boxRight))
             std::cerr << "No bounding box in bvhNode constructor" << std::endl;
