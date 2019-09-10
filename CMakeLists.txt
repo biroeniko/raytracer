@@ -72,6 +72,8 @@ set(SRC_HOST
     src/hitables/movingsphere.h
     src/hitables/sphere.h
     src/materials/material.h
+    src/materials/perlin.cpp
+    src/materials/perlin.h
     src/materials/texture.h
     src/util/camera.h
     src/util/common.h
@@ -89,8 +91,8 @@ set(SRC_HOST
     src/util/util.cpp
     src/util/util.h
     src/util/vec3.h
-    src/util/window.h
     src/util/window.cpp
+    src/util/window.h
     src/main.cpp
 )
 

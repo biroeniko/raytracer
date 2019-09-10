@@ -17,20 +17,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-As in Peter Shirley's book:
-- diffuse = matte materials
-- diffuse objects that don't emit light take on the color of their surroundings
-- BUT they modulate that with their own intrinsic colot
-- light that reflects off a diffuse surface has its direction randomized
-- if we send three rays into a crack between two diffuse surfaces they will each have different random behavior
-- rays might be absorbed
-- the darker the durface, the more likely absorption is
-*/
-
 #pragma once
 
 #include "util/vec3.h"
+#include "materials/perlin.h"
 
 class Texture
 {
@@ -78,4 +68,17 @@ class CheckerTexture : public Texture
         Texture *odd;
         Texture *even;
 
+};
+
+class NoiseTexture : public Texture
+{
+
+    public:
+
+        CUDA_DEV NoiseTexture() {}
+        CUDA_DEV virtual Vec3 value(float u, float v, const Vec3& p) const
+        {
+            return Vec3(1,1,1) * noise.noise(p);
+        }
+        Perlin noise;
 };
