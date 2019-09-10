@@ -208,7 +208,7 @@ int main(int argc, char **argv)
     bool writeImagePPM = true;
     bool writeImagePNG = true;
     bool writeEveryImageToFile = true;
-    bool moveCamera = true;
+    bool moveCamera = false;
 
     // Run benchmark.
     if (runBenchmark)

@@ -56,3 +56,4 @@ float* Perlin::randomFloat = perlinGenerate(Perlin::rng);
 int* Perlin::permX = perlinGeneratePerm(Perlin::rng);
 int* Perlin::permY = perlinGeneratePerm(Perlin::rng);
 int* Perlin::permZ = perlinGeneratePerm(Perlin::rng);
+

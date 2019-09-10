@@ -54,6 +54,7 @@ class Perlin
             int k = int(4*p.z()) & 255;
 
             return randomFloat[permX[i] ^ permY[j] ^ permZ[k]];
+
         }
 
         static float* randomFloat;
@@ -62,3 +63,5 @@ class Perlin
         static int *permZ;
 
 };
+
+
