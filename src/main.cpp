@@ -51,16 +51,16 @@ SOFTWARE.
 #include "util/params.h"
 
 #ifdef CUDA_ENABLED
-    void initializeWorldCuda(lParams& lParams,
-                             rParams& rParams);
-    void destroyWorldCuda(lParams& lParams,
-                          rParams& rParams);
+    void initializeWorldCuda(LParams& LParams,
+                             RParams& RParams);
+    void destroyWorldCuda(LParams& LParams,
+                          RParams& RParams);
 #endif // CUDA_ENABLED
 
 
 // Initialise the world.
-void initializeWorld(lParams& lParams,
-                     rParams& rParams)
+void initializeWorld(LParams& lParams,
+                     RParams& rParams)
 {
 
 #ifdef CUDA_ENABLED
@@ -89,8 +89,8 @@ void initializeWorld(lParams& lParams,
 }
 
 // Invoke the main renderer function.
-void invokeRenderer(lParams& lParams,
-                    rParams& rParams)
+void invokeRenderer(LParams& lParams,
+                    RParams& rParams)
 {
 
     std::ofstream ppmImageStream;
@@ -186,10 +186,10 @@ void invokeRenderer(lParams& lParams,
 
 }
 
-void raytrace(lParams lParams)
+void raytrace(LParams& lParams)
 {
 
-    rParams rParams;
+    RParams rParams;
 
     initializeWorld(lParams, rParams);
     invokeRenderer(lParams, rParams);
@@ -223,7 +223,7 @@ int main(int argc, char **argv)
 
             // Invoke renderer
 
-            lParams lParams(false, false, false, false, false);
+            LParams lParams(false, false, false, false, false);
             raytrace(lParams);
 
             // Record end time
@@ -243,7 +243,7 @@ int main(int argc, char **argv)
     else
     {
         // Invoke renderer.
-        lParams lParams(showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
+        LParams lParams(showWindow, writeImagePPM, writeImagePNG, writeEveryImageToFile, moveCamera);
         raytrace(lParams);
     }
 

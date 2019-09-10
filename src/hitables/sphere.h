@@ -21,27 +21,27 @@ SOFTWARE.
 
 #include "hitables/hitable.h"
 
-class sphere: public hitable
+class Sphere: public Hitable
 {
 
     public:
 
-        vec3 center;
+        Vec3 center;
         float radius;
-        material *matPtr;
+        Material *matPtr;
 
-        CUDA_DEV sphere() {}
-        CUDA_DEV sphere(vec3 cen, float r, material *m) : center(cen), radius(r), matPtr(m) {}
+        CUDA_DEV Sphere() {}
+        CUDA_DEV Sphere(Vec3 cen, float r, Material *m) : center(cen), radius(r), matPtr(m) {}
 
-        CUDA_DEV bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
+        CUDA_DEV bool hit(const Ray& r, float tMin, float tMax, HitRecord& rec) const override;
         CUDA_DEV bool boundingBox(float t0, float t1, AABB& box) const override;
 
 };
 
-inline CUDA_DEV bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+inline CUDA_DEV bool Sphere::hit(const Ray& r, float tMin, float tMax, HitRecord& rec) const
 {
 
-    vec3 oc = r.origin() - center;
+    Vec3 oc = r.origin() - center;
     float a = dot(r.direction(), r.direction());
     float b = dot(oc, r.direction());
     float c = dot(oc, oc) - radius*radius;
@@ -73,11 +73,11 @@ inline CUDA_DEV bool sphere::hit(const ray& r, float tMin, float tMax, hitRecord
 
 }
 
-inline CUDA_DEV bool sphere::boundingBox(float t0, float t1, AABB& box) const
+inline CUDA_DEV bool Sphere::boundingBox(float t0, float t1, AABB& box) const
 {
 
-    box = AABB(center - vec3(radius, radius, radius),
-               center + vec3(radius, radius, radius)
+    box = AABB(center - Vec3(radius, radius, radius),
+               center + Vec3(radius, radius, radius)
               );
 
     return true;

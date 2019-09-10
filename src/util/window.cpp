@@ -20,8 +20,8 @@ SOFTWARE.
 #include "util/window.h"
 #include "util/params.h"
 
-CUDA_HOSTDEV void Window::updateImage(lParams& lParams,
-                                      rParams& rParams,
+CUDA_HOSTDEV void Window::updateImage(LParams& lParams,
+                                      RParams& rParams,
                                       int sampleCount)
 {
 

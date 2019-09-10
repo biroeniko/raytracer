@@ -19,8 +19,8 @@ SOFTWARE.
 
 #include "vec3.h"
 
-vec3 lookFrom(12.0f, 2.0f, 3.0f);
-vec3 lookAt(0.0f, 0.0f, 0.0f);
-vec3 vup(0.0f, 1.0f, 0.0f);
+Vec3 lookFrom(12.0f, 2.0f, 3.0f);
+Vec3 lookAt(0.0f, 0.0f, 0.0f);
+Vec3 vup(0.0f, 1.0f, 0.0f);
 
 float distToFocus((lookAt-lookFrom).length());

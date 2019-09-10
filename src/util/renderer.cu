@@ -32,8 +32,8 @@ SOFTWARE.
 CUDA_DEV int numHitables = 0;
 
 #ifdef CUDA_ENABLED
-    void initializeWorldCuda(lParams& lParams,
-                             rParams& rParams)
+    void initializeWorldCuda(LParams& lParams,
+                             RParams& rParams)
     {
 
         int choice = 6;
@@ -65,9 +65,9 @@ CUDA_DEV int numHitables = 0;
 
         // World
         auto list = &rParams.list;
-        checkCudaErrors(cudaMallocManaged(list, numHitables*sizeof(hitable*)));
-        hitable** worldPtr;
-        checkCudaErrors(cudaMallocManaged(&worldPtr, sizeof(hitable*)));
+        checkCudaErrors(cudaMallocManaged(list, numHitables*sizeof(Hitable*)));
+        Hitable** worldPtr;
+        checkCudaErrors(cudaMallocManaged(&worldPtr, sizeof(Hitable*)));
         switch(choice)
         {
             case 0:
@@ -133,15 +133,15 @@ CUDA_DEV int numHitables = 0;
 
     }
 
-    CUDA_GLOBAL void freeList(hitable** list,
-                              hitable* world)
+    CUDA_GLOBAL void freeList(Hitable** list,
+                              Hitable* world)
     {
 
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
             for (int i = 0; i < numHitables; i++)
             {
-                delete ((sphere *)list[i])->matPtr;
+                delete ((Sphere *)list[i])->matPtr;
                 delete list[i];
             }
             //delete *world;
@@ -149,8 +149,8 @@ CUDA_DEV int numHitables = 0;
 
     }
 
-    void destroyWorldCuda(lParams& lParams,
-                          rParams& rParams)
+    void destroyWorldCuda(LParams& lParams,
+                          RParams& rParams)
     {
 
         freeList<<<1,1>>>(rParams.list, rParams.world.get());
@@ -165,7 +165,7 @@ CUDA_DEV int numHitables = 0;
 
     CUDA_GLOBAL void render(Camera* cam,
                             Image* image,
-                            hitable* world,
+                            Hitable* world,
                             Renderer* renderer,
                             int sampleCount)
     {
@@ -184,12 +184,12 @@ CUDA_DEV int numHitables = 0;
             RandomGenerator rng(sampleCount * nsBatch + s, pixelIndex);
             float u = float(i + rng.get1f()) / float(image->nx); // left to right
             float v = float(j + rng.get1f()) / float(image->ny); // bottom to top
-            ray r = cam->getRay(rng, u, v);
+            Ray r = cam->getRay(rng, u, v);
 
             image->pixels[pixelIndex] += renderer->color(rng, r, world, 0);
         }
 
-        vec3 col = image->pixels[pixelIndex] / (sampleCount * nsBatch);
+        Vec3 col = image->pixels[pixelIndex] / (sampleCount * nsBatch);
 
         image->pixels2[pixelIndex] = col;
 
@@ -203,7 +203,7 @@ CUDA_DEV int numHitables = 0;
 
         int pixelIndex = j*image->nx + i;
 
-        vec3 col = image->pixels2[pixelIndex];
+        Vec3 col = image->pixels2[pixelIndex];
 
         // Gamma encoding of images is used to optimize the usage of bits
         // when encoding an image, or bandwidth used to transport an image,
@@ -211,7 +211,7 @@ CUDA_DEV int numHitables = 0;
         // light and color. (wikipedia)
 
         // we use gamma 2: raising the color to the power 1/gamma (1/2)
-        col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+        col = Vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
         int ir = clamp(int(255.f*col[0]), 0, 255);
         int ig = clamp(int(255.f*col[1]), 0, 255);
@@ -236,7 +236,7 @@ CUDA_DEV int numHitables = 0;
 #endif // CUDA_ENABLED
 
 #ifdef CUDA_ENABLED
-    void Renderer::traceRaysCuda(rParams& rParams,
+    void Renderer::traceRaysCuda(RParams& rParams,
                                  int sampleCount)
     {
 

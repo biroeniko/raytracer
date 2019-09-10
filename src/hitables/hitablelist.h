@@ -21,29 +21,29 @@ SOFTWARE.
 
 #include "hitables/hitable.h"
 
-class hitableList: public hitable
+class HitableList: public Hitable
 {
 
     public: 
 
-        hitable **list;
+        Hitable **list;
         int listSize;
-        CUDA_DEV hitableList() {}
-        CUDA_DEV hitableList(hitable **l, int n)
+        CUDA_DEV HitableList() {}
+        CUDA_DEV HitableList(Hitable **l, int n)
         {
             list = l;
             listSize = n;
         }
 
-        CUDA_DEV bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const override;
+        CUDA_DEV bool hit(const Ray& r, float tMin, float tMax, HitRecord& rec) const override;
         CUDA_DEV bool boundingBox(float t0, float t1, AABB& box) const override;
 
 };
 
-inline CUDA_DEV bool hitableList::hit(const ray& r, float tMin, float tMax, hitRecord& rec) const
+inline CUDA_DEV bool HitableList::hit(const Ray& r, float tMin, float tMax, HitRecord& rec) const
 {
 
-    hitRecord tempRec;
+    HitRecord tempRec;
     bool hitAnything = false;
     float closestSoFar = tMax;
 
@@ -62,7 +62,7 @@ inline CUDA_DEV bool hitableList::hit(const ray& r, float tMin, float tMax, hitR
 
 }
 
-inline CUDA_DEV bool hitableList::boundingBox(float t0, float t1, AABB& box) const
+inline CUDA_DEV bool HitableList::boundingBox(float t0, float t1, AABB& box) const
 {
 
     if (listSize < 1)

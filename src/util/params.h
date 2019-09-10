@@ -23,7 +23,7 @@ SOFTWARE.
 #include "util/window.h"
 
 // Rendering parameters.
-class rParams
+class RParams
 {
 
     public:
@@ -32,11 +32,11 @@ class rParams
         std::unique_ptr<Image> image;
         std::unique_ptr<Camera> cam;
         std::unique_ptr<Renderer> renderer;
-        std::unique_ptr<hitable> world;
+        std::unique_ptr<Hitable> world;
 
-        hitable** list;
+        Hitable** list;
 
-        ~rParams()
+        ~RParams()
         {
             image.release();
             cam.release();
@@ -47,7 +47,7 @@ class rParams
 };
 
 // Logistical parameters.
-class lParams
+class LParams
 {
 
     public:
@@ -58,7 +58,7 @@ class lParams
         bool writeEveryImageToFile;
         bool moveCamera;
 
-        lParams(bool showWindow,
+        LParams(bool showWindow,
                 bool writeImagePPM,
                 bool writeImagePNG,
                 bool writeEveryImageToFile,

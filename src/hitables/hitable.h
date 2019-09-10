@@ -22,19 +22,19 @@ SOFTWARE.
 #include "util/ray.h"
 #include "aabb.h"
 
-class material;
+class Material;
 
-struct hitRecord
+struct HitRecord
 {
 
     float time;
-    vec3 point;
-    vec3 normal;
-    material* matPtr;
+    Vec3 point;
+    Vec3 normal;
+    Material* matPtr;
 
 };
 
-class hitable
+class Hitable
 {
 
     public:
@@ -43,10 +43,10 @@ class hitable
         // compute the normal if we hit something?
         // we will only need the normal of the closest thing
         // we want motion blur => time input variable
-        CUDA_DEV virtual bool hit(const ray& r, float tMin, float tMax, hitRecord& rec) const = 0;
+        CUDA_DEV virtual bool hit(const Ray& r, float tMin, float tMax, HitRecord& rec) const = 0;
 
         CUDA_DEV virtual bool boundingBox(float t0, float t1, AABB& box) const = 0;
 
-        CUDA_DEV virtual ~hitable() {}
+        CUDA_DEV virtual ~Hitable() {}
 
 };

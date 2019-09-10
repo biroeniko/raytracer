@@ -30,19 +30,19 @@ As in Peter Shirley's book:
 
 #pragma once
 
-struct hitRecord;
+struct HitRecord;
 
 #include "hitables/hitable.h"
 #include "materials/texture.h"
 #include "util/randomgenerator.h"
 #include "util/ray.h"
 
-class material
+class Material
 {
 
     public:
-        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const = 0;
-        CUDA_DEV virtual ~material() {}
+        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const Ray& rIn, const HitRecord& rec, Vec3& attenuation, Ray& scattered) const = 0;
+        CUDA_DEV virtual ~Material() {}
 
 };
 
@@ -50,20 +50,20 @@ class material
 // it can either scatter always and attenuate by its reflectance R
 // or it can scatter with no attenuation but absorb the fraction 1-R of the rays
 // or MIXED of these two strategies
-class lambertian : public material 
+class Lambertian : public Material
 {
 
     Texture* albedo; // the proportion of the incident light or radiation that is reflected by a surface
 
     public:
 
-        CUDA_DEV lambertian(Texture* a) : albedo(a) {}
+        CUDA_DEV Lambertian(Texture* a) : albedo(a) {}
 
         // diffuse matrials randomly scatter the rays
-        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const Ray& rIn, const HitRecord& rec, Vec3& attenuation, Ray& scattered) const
         {
-            vec3 target = rec.point + rec.normal + rng.randomInUnitSphere();
-            scattered = ray(rec.point, target - rec.point, rIn.time());
+            Vec3 target = rec.point + rec.normal + rng.randomInUnitSphere();
+            scattered = Ray(rec.point, target - rec.point, rIn.time());
             attenuation = albedo->value(0.0f, 0.0f, rec.point);
             return true;
         }
@@ -72,30 +72,30 @@ class lambertian : public material
 
 // for smooth metals the ray won't be randomly scattered
 // because v points in, we will need a minus sign before the dot product
-CUDA_DEV inline vec3 reflect(const vec3& v, const vec3& n)
+CUDA_DEV inline Vec3 reflect(const Vec3& v, const Vec3& n)
 {
     return v - 2.0f*dot(v,n)*n;
 }
 
-class metal: public material
+class Metal: public Material
 {
 
-    vec3 albedo;
+    Vec3 albedo;
     float fuzz;
 
     public:
 
-        CUDA_DEV metal(const vec3& a, float f = 0.0f) : albedo(a) {if (f < 1.0f) fuzz = f; else fuzz = 1.0f;}
-        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+        CUDA_DEV Metal(const Vec3& a, float f = 0.0f) : albedo(a) {if (f < 1.0f) fuzz = f; else fuzz = 1.0f;}
+        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const Ray& rIn, const HitRecord& rec, Vec3& attenuation, Ray& scattered) const;
 
 };
 
 // metals don't randomly scatter -> they reflect
-CUDA_DEV inline bool metal::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+CUDA_DEV inline bool Metal::scatter(RandomGenerator& rng, const Ray& rIn, const HitRecord& rec, Vec3& attenuation, Ray& scattered) const
 {
 
-    vec3 reflected = reflect(unitVector(rIn.direction()), rec.normal);
-    scattered = ray(rec.point, reflected + fuzz*rng.randomInUnitSphere(), rIn.time());
+    Vec3 reflected = reflect(unitVector(rIn.direction()), rec.normal);
+    scattered = Ray(rec.point, reflected + fuzz*rng.randomInUnitSphere(), rIn.time());
     attenuation = albedo;
 
     return (dot(scattered.direction(), rec.normal) > 0.0f);
@@ -112,10 +112,10 @@ CUDA_DEV inline bool metal::scatter(RandomGenerator& rng, const ray& rIn, const 
 // n sin(theta) = n' sin(theta')
 // n and n' are the refractive indices (air = 1, glass = 1.2-1.7, diamond = 2.4)
 // total internal reflection
-CUDA_DEV inline bool refract(const vec3& v, const vec3& n, float niOverNt, vec3& refracted)
+CUDA_DEV inline bool refract(const Vec3& v, const Vec3& n, float niOverNt, Vec3& refracted)
 {
 
-    vec3 uv = unitVector(v);
+    Vec3 uv = unitVector(v);
     float dt = dot(uv, n);
     float discriminant = 1.0f - niOverNt*niOverNt*(1.0f - dt*dt);
     if (discriminant > 0.0f)
@@ -128,15 +128,15 @@ CUDA_DEV inline bool refract(const vec3& v, const vec3& n, float niOverNt, vec3&
 
 }
 
-class dielectric: public material
+class Dielectric: public Material
 {
 
     float refIndex;
 
     public:
 
-        CUDA_DEV dielectric(float ri) : refIndex(ri) {}
-        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const;
+        CUDA_DEV Dielectric(float ri) : refIndex(ri) {}
+        CUDA_DEV virtual bool scatter(RandomGenerator& rng, const Ray& rIn, const HitRecord& rec, Vec3& attenuation, Ray& scattered) const;
 
 };
 
@@ -152,16 +152,16 @@ CUDA_DEV inline float schlick(float cosine, float refIndex)
 
 }
 
-CUDA_DEV inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, const hitRecord& rec, vec3& attenuation, ray& scattered) const
+CUDA_DEV inline bool Dielectric::scatter(RandomGenerator& rng, const Ray& rIn, const HitRecord& rec, Vec3& attenuation, Ray& scattered) const
 {
 
-    vec3 outWardNormal;
-    vec3 reflected = reflect(rIn.direction(), rec.normal);
+    Vec3 outWardNormal;
+    Vec3 reflected = reflect(rIn.direction(), rec.normal);
     float niOverNt;
     // the glass surface absorbs nothing => attenuation = 1
     // erase the blue channel 
-    attenuation = vec3(1.0f, 1.0f, 1.0f);
-    vec3 refracted;
+    attenuation = Vec3(1.0f, 1.0f, 1.0f);
+    Vec3 refracted;
     float reflectProbability;
     float cosine;
 
@@ -182,14 +182,14 @@ CUDA_DEV inline bool dielectric::scatter(RandomGenerator& rng, const ray& rIn, c
         reflectProbability = schlick(cosine, refIndex);
     else
     {
-        scattered = ray(rec.point, reflected, rIn.time());
+        scattered = Ray(rec.point, reflected, rIn.time());
         reflectProbability = 1.0f;
     }
 
     if (rng.get1f() < reflectProbability)
-        scattered = ray(rec.point, reflected, rIn.time());
+        scattered = Ray(rec.point, reflected, rIn.time());
     else
-        scattered = ray(rec.point, refracted, rIn.time());
+        scattered = Ray(rec.point, refracted, rIn.time());
 
     return true;
 

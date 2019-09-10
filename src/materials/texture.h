@@ -17,46 +17,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*
+As in Peter Shirley's book:
+- diffuse = matte materials
+- diffuse objects that don't emit light take on the color of their surroundings
+- BUT they modulate that with their own intrinsic colot
+- light that reflects off a diffuse surface has its direction randomized
+- if we send three rays into a crack between two diffuse surfaces they will each have different random behavior
+- rays might be absorbed
+- the darker the durface, the more likely absorption is
+*/
+
 #pragma once
 
 #include "util/vec3.h"
-#include "util/util.h"
-#include "util/imagedenoiser.h"
 
-struct Image
+class Texture
 {
 
-    Vec3* pixels;
-    Vec3* pixels2;
+    public:
 
-    uint32_t* windowPixels;
-    uint8_t* fileOutputImage;
+        CUDA_DEV virtual Vec3 value(float u, float v, const Vec3& p) const = 0;
 
-    const int nx;
-    const int ny;
-    const int tx;
-    const int ty;
+};
 
-    bool showWindow;
-    bool writeImage;
+class ConstantTexture : public Texture
+{
 
-    ImageDenoiser denoiser;
+    public:
 
-    CUDA_HOST Image(bool showWindow, bool writeImage, int x, int y, int tx, int ty);
+        CUDA_DEV ConstantTexture() { }
+        CUDA_DEV ConstantTexture(Vec3 c) : color(c) { }
 
-    void denoise()
-    {
-        #ifdef OIDN_ENABLED
-            denoiser.denoise();
-        #endif // OIDN_ENABLED
-    }
+        CUDA_DEV virtual Vec3 value(float u, float v, const Vec3& p) const
+        {
+            return color;
+        }
 
-    #ifdef CUDA_ENABLED
-        void cudaResetImage();
-    #endif // CUDA_ENABLED
-
-    CUDA_HOSTDEV void resetImage();
-    void savePfm();
-    CUDA_HOST ~Image();
-
+        Vec3 color;
 };

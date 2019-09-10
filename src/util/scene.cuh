@@ -30,24 +30,24 @@ SOFTWARE.
 #include "util/common.h"
 
 #ifdef CUDA_ENABLED
-    CUDA_GLOBAL void simpleScene(hitable** list, hitable** world)
+    CUDA_GLOBAL void simpleScene(Hitable** list, Hitable** world)
     {
 
         if (threadIdx.x == 0 && blockIdx.x == 0)
         {
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
-            list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.4f, 0.2f, 0.1f))));
-            list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
+            list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(new ConstantTexture(Vec3(0.5f, 0.5f, 0.5f))));
+            list[1] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
+            list[2] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(new ConstantTexture(Vec3(0.4f, 0.2f, 0.1f))));
+            list[3] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
-            *world  = new hitableList(list, 4);
+            *world  = new HitableList(list, 4);
 
             //*world = new bvhNode(list, 4, 0.0, 1.0);
         }
 
     }
 
-    CUDA_GLOBAL void simpleScene2(hitable** list, hitable** world)
+    CUDA_GLOBAL void simpleScene2(Hitable** list, Hitable** world)
     {
 
         if (threadIdx.x == 0 && blockIdx.x == 0)
@@ -55,10 +55,10 @@ SOFTWARE.
             RandomGenerator rng;
 
             int count = 58;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
-            list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.4f, 0.2f, 0.1f))));
-            list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
+            list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(new ConstantTexture(Vec3(0.5f, 0.5f, 0.5f))));
+            list[1] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
+            list[2] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(new ConstantTexture(Vec3(0.4f, 0.2f, 0.1f))));
+            list[3] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.7f, 0.6f, 0.5f), 0.0f));
             int i = 4;
 
             for (int a = -3; a < 3; a++)
@@ -66,31 +66,31 @@ SOFTWARE.
                 for (int b = -4; b < 5; b++)
                 {
                     float chooseMat = rng.get1f();
-                    vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
-                    if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+                    Vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
+                    if ((center-Vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
                         if (chooseMat < 0.5f)            // diffuse
                         {
-                            list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Lambertian(new ConstantTexture(Vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.75f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Metal(Vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
+                            list[i++] = new Sphere(center, 0.2f, new Dielectric(1.5f));
                         }
                     }
                 }
             }
 
-            *world = new hitableList(list, count);
+            *world = new HitableList(list, count);
         }
 
     }
 
-    CUDA_GLOBAL void randomScene(hitable** list, hitable** world)
+    CUDA_GLOBAL void randomScene(Hitable** list, Hitable** world)
     {
 
         if (threadIdx.x == 0 && blockIdx.x == 0)
@@ -98,10 +98,10 @@ SOFTWARE.
             RandomGenerator rng;
 
             int n = 901;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
-            list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.4f, 0.2f, 0.1f))));
-            list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
+            list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(new ConstantTexture(Vec3(0.5f, 0.5f, 0.5f))));
+            list[1] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
+            list[2] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(new ConstantTexture(Vec3(0.4f, 0.2f, 0.1f))));
+            list[3] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.7f, 0.6f, 0.5f), 0.0f));
 
             int i = 4;
             for (int a = -15; a < 15; a++)
@@ -109,31 +109,31 @@ SOFTWARE.
                 for (int b = -15; b < 15; b++)
                 {
                     float chooseMat = rng.get1f();
-                    vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
-                    if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+                    Vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
+                    if ((center-Vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
                         if (chooseMat < 0.5f)            // diffuse
                         {
-                            list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Lambertian(new ConstantTexture(Vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.75f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Metal(Vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
+                            list[i++] = new Sphere(center, 0.2f, new Dielectric(1.5f));
                         }
                     }
                 }
             }
 
-            *world = new hitableList(list, n);
+            *world = new HitableList(list, n);
         }
 
     }
 
-    CUDA_GLOBAL void randomScene2(hitable** list, hitable** world)
+    CUDA_GLOBAL void randomScene2(Hitable** list, Hitable** world)
     {
 
         if (threadIdx.x == 0 && blockIdx.x == 0)
@@ -141,10 +141,10 @@ SOFTWARE.
             RandomGenerator rng;
 
             int n = 102;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
-            list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.3f, 0.0f, 0.0f))));
-            list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.4f, 0.5f, 0.6f), 0.0f));
+            list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(new ConstantTexture(Vec3(0.5f, 0.5f, 0.5f))));
+            list[1] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
+            list[2] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(new ConstantTexture(Vec3(0.3f, 0.0f, 0.0f))));
+            list[3] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.4f, 0.5f, 0.6f), 0.0f));
 
             int i = 4;
             for (int a = -5; a < 5; a++)
@@ -152,31 +152,31 @@ SOFTWARE.
                 for (int b = -5; b < 5; b++)
                 {
                     float chooseMat = rng.get1f();
-                    vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
-                    if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+                    Vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
+                    if ((center-Vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
                         if (chooseMat < 0.5f)            // diffuse
                         {
-                            list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Lambertian(new ConstantTexture(Vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.75f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Metal(Vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
+                            list[i++] = new Sphere(center, 0.2f, new Dielectric(1.5f));
                         }
                     }
                 }
             }
 
-            *world = new hitableList(list, n);
+            *world = new HitableList(list, n);
         }
 
     }
 
-    CUDA_GLOBAL void randomScene3(hitable** list, hitable** world)
+    CUDA_GLOBAL void randomScene3(Hitable** list, Hitable** world)
     {
 
         if (threadIdx.x == 0 && blockIdx.x == 0)
@@ -184,10 +184,10 @@ SOFTWARE.
             RandomGenerator rng;
 
             int n = 68;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
-            list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.3f, 0.0f, 0.0f))));
-            list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.4f, 0.5f, 0.6f), 0.0f));
+            list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(new ConstantTexture(Vec3(0.5f, 0.5f, 0.5f))));
+            list[1] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
+            list[2] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(new ConstantTexture(Vec3(0.3f, 0.0f, 0.0f))));
+            list[3] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.4f, 0.5f, 0.6f), 0.0f));
 
             int i = 4;
             for (int a = -4; a < 4; a++)
@@ -195,31 +195,31 @@ SOFTWARE.
                 for (int b = -4; b < 4; b++)
                 {
                     float chooseMat = rng.get1f();
-                    vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
-                    if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+                    Vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
+                    if ((center-Vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
                         if (chooseMat < 0.3f)            // diffuse
                         {
-                            list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Lambertian(new ConstantTexture(Vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.65f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Metal(Vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
+                            list[i++] = new Sphere(center, 0.2f, new Dielectric(1.5f));
                         }
                     }
                 }
             }
 
-            *world = new hitableList(list, n);
+            *world = new HitableList(list, n);
         }
 
     }
 
-    CUDA_GLOBAL void randomScene4(hitable** list, hitable** world)
+    CUDA_GLOBAL void randomScene4(Hitable** list, Hitable** world)
     {
 
         if (threadIdx.x == 0 && blockIdx.x == 0)
@@ -227,10 +227,10 @@ SOFTWARE.
             RandomGenerator rng;
 
             int n = 197;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
-            list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.3f, 0.0f, 0.0f))));
-            list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.4f, 0.5f, 0.6f), 0.0f));
+            list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(new ConstantTexture(Vec3(0.5f, 0.5f, 0.5f))));
+            list[1] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
+            list[2] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(new ConstantTexture(Vec3(0.3f, 0.0f, 0.0f))));
+            list[3] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.4f, 0.5f, 0.6f), 0.0f));
 
             int i = 4;
             for (int a = -7; a < 7; a++)
@@ -238,31 +238,31 @@ SOFTWARE.
                 for (int b = -7; b < 7; b++)
                 {
                     float chooseMat = rng.get1f();
-                    vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
-                    if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+                    Vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
+                    if ((center-Vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
                         if (chooseMat < 0.33f)            // diffuse
                         {
-                            list[i++] = new sphere(center, 0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Lambertian(new ConstantTexture(Vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.88f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Metal(Vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
+                            list[i++] = new Sphere(center, 0.2f, new Dielectric(1.5f));
                         }
                     }
                 }
             }
 
-            *world = new hitableList(list, n);
+            *world = new HitableList(list, n);
         }
 
     }
 
-    CUDA_GLOBAL void randomSceneWithMovingSpheres(hitable** list, hitable** world)
+    CUDA_GLOBAL void randomSceneWithMovingSpheres(Hitable** list, Hitable** world)
     {
 
         if (threadIdx.x == 0 && blockIdx.x == 0)
@@ -270,10 +270,10 @@ SOFTWARE.
             RandomGenerator rng;
 
             int n = 197;
-            list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(new ConstantTexture(vec3(0.5f, 0.5f, 0.5f))));
-            list[1] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
-            list[2] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(new ConstantTexture(vec3(0.3f, 0.0f, 0.0f))));
-            list[3] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.4f, 0.5f, 0.6f), 0.0f));
+            list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(new ConstantTexture(Vec3(0.5f, 0.5f, 0.5f))));
+            list[1] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
+            list[2] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(new ConstantTexture(Vec3(0.3f, 0.0f, 0.0f))));
+            list[3] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.4f, 0.5f, 0.6f), 0.0f));
 
             int i = 4;
             for (int a = -7; a < 7; a++)
@@ -281,27 +281,27 @@ SOFTWARE.
                 for (int b = -7; b < 7; b++)
                 {
                     float chooseMat = rng.get1f();
-                    vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
-                    if ((center-vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+                    Vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
+                    if ((center-Vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
                     {
                         if (chooseMat < 0.33f)            // diffuse
                         {
-                            list[i++] = new movingSphere(center, center+vec3(0.0f, 0.5f*rng.get1f(), 0.0f), 0.0f, 1.0f,
-                                            0.2f, new lambertian(new ConstantTexture(vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
+                            list[i++] = new MovingSphere(center, center+Vec3(0.0f, 0.5f*rng.get1f(), 0.0f), 0.0f, 1.0f,
+                                            0.2f, new Lambertian(new ConstantTexture(Vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
                         }
                         else if (chooseMat < 0.88f)      // metal
                         {
-                            list[i++] = new sphere(center, 0.2f, new metal(vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
+                            list[i++] = new Sphere(center, 0.2f, new Metal(Vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
                         }
                         else                            // glass
                         {
-                            list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
+                            list[i++] = new Sphere(center, 0.2f, new Dielectric(1.5f));
                         }
                     }
                 }
             }
 
-            *world = new hitableList(list, n);
+            *world = new HitableList(list, n);
         }
 
     }

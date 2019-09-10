@@ -21,26 +21,26 @@ SOFTWARE.
 
 #include "util/vec3.h"
 
-class ray 
+class Ray
 {
 
-        vec3 A;             // ray origin
-        vec3 B;             // ray direction
+        Vec3 A;             // ray origin
+        Vec3 B;             // ray direction
         float m_time;
 
     public:
 
-        CUDA_HOSTDEV ray() {}
-        CUDA_HOSTDEV ray(const vec3& a, const vec3& b, float ti = 0.0f)
+        CUDA_HOSTDEV Ray() {}
+        CUDA_HOSTDEV Ray(const Vec3& a, const Vec3& b, float ti = 0.0f)
         {
             A = a;
             B = b;
             m_time = ti;
         }
 
-        CUDA_HOSTDEV vec3 origin() const                     { return A; }
-        CUDA_HOSTDEV vec3 direction() const                  { return B; }
+        CUDA_HOSTDEV Vec3 origin() const                     { return A; }
+        CUDA_HOSTDEV Vec3 direction() const                  { return B; }
         CUDA_HOSTDEV float time() const                      { return m_time; }
-        CUDA_HOSTDEV vec3 pointAtParameter(float t) const    { return A + t*B; }
+        CUDA_HOSTDEV Vec3 pointAtParameter(float t) const    { return A + t*B; }
 
 };

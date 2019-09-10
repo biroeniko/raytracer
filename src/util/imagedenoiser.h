@@ -39,7 +39,7 @@ struct ImageDenoiser
 
     }
 
-    CUDA_HOST ImageDenoiser(vec3* pixels, int nx, int ny)
+    CUDA_HOST ImageDenoiser(Vec3* pixels, int nx, int ny)
     {
         #ifdef OIDN_ENABLED
             // Create an Open Image Denoise device

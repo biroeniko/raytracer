@@ -28,7 +28,7 @@ CUDA_HOST Image::Image(bool showWindow, bool writeImage,
 
     #ifdef CUDA_ENABLED
         int pixelCount = nx*ny;
-        size_t pixelsFrameBufferSize = static_cast<size_t>(pixelCount)*sizeof(vec3);
+        size_t pixelsFrameBufferSize = static_cast<size_t>(pixelCount)*sizeof(Vec3);
         size_t windowPixelsFrameBufferSize = static_cast<size_t>(pixelCount)*sizeof(uint32_t);
         size_t fileOutputImageFrameBufferSize = static_cast<size_t>(3*pixelCount)*sizeof(uint8_t);
 
@@ -38,8 +38,8 @@ CUDA_HOST Image::Image(bool showWindow, bool writeImage,
         checkCudaErrors(cudaMallocManaged(reinterpret_cast<void**>(&windowPixels), windowPixelsFrameBufferSize));
         checkCudaErrors(cudaMallocManaged(reinterpret_cast<void**>(&fileOutputImage), fileOutputImageFrameBufferSize));
     #else
-        pixels = new vec3[nx*ny];
-        pixels2 = new vec3[nx*ny];
+        pixels = new Vec3[nx*ny];
+        pixels2 = new Vec3[nx*ny];
 
         if (showWindow)
             windowPixels = new uint32_t[nx*ny];
@@ -63,7 +63,7 @@ CUDA_HOSTDEV void Image::resetImage()
         #pragma omp parallel for
         for (int i = 0; i < nx*ny; i++)
         {
-            pixels[i] = vec3(0.0f, 0.0f, 0.0f);
+            pixels[i] = Vec3(0.0f, 0.0f, 0.0f);
         }
     #endif // CUDA_ENABLED
 

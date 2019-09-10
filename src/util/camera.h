@@ -38,18 +38,18 @@ class Camera
 {
 
     public:
-        vec3 origin;
-        vec3 lowerLeftCorner;
-        vec3 horizontal;
-        vec3 vertical;
-        vec3 u, v, w;
+        Vec3 origin;
+        Vec3 lowerLeftCorner;
+        Vec3 horizontal;
+        Vec3 vertical;
+        Vec3 u, v, w;
         float lensRadius;
         float time0, time1; // shutter open/close times
 
-        vec3 lookFrom;
-        vec3 lookAt;
+        Vec3 lookFrom;
+        Vec3 lookAt;
 
-        vec3 vup;
+        Vec3 vup;
         float vfov;
         float aspect;
         float aperture;
@@ -58,16 +58,16 @@ class Camera
         float halfWidth;
 	    float halfHeight;
 
-        CUDA_HOSTDEV Camera():   origin(vec3(0.0f, 0.0f, 0.0f)),
-                                 lowerLeftCorner(vec3(-2.0f, -1.0f, -1.0f)),
-                                 horizontal(vec3(4.0f, 0.0f, 0.0f)),
-                                 vertical(vec3(0.0f, 2.0f, 0.0f))
+        CUDA_HOSTDEV Camera():   origin(Vec3(0.0f, 0.0f, 0.0f)),
+                                 lowerLeftCorner(Vec3(-2.0f, -1.0f, -1.0f)),
+                                 horizontal(Vec3(4.0f, 0.0f, 0.0f)),
+                                 vertical(Vec3(0.0f, 2.0f, 0.0f))
         {
 
         }
         
         // vfov is top to bottom in degrees
-        CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup,
+        CUDA_HOSTDEV Camera(Vec3 lookFrom, Vec3 lookAt, Vec3 vup,
                 float vfov, float aspect)
         {
             float theta = vfov * static_cast<float>(M_PI)/180.0f;
@@ -92,7 +92,7 @@ class Camera
         }
 
         // another constructor
-        CUDA_HOSTDEV Camera(vec3 lookFrom, vec3 lookAt, vec3 vup,
+        CUDA_HOSTDEV Camera(Vec3 lookFrom, Vec3 lookAt, Vec3 vup,
                 float vfov, float aspect, float focusDist,
                 float aperture = 0.0f, float t0 = 0.0f, float t1 = 1.0f) :
         Camera(lookFrom, lookAt, vup, vfov, aspect)
@@ -129,7 +129,7 @@ class Camera
         CUDA_HOSTDEV void rotate(float theta, float phi)
         {
             float radialDistance = (lookFrom - lookAt).length();
-            this->lookFrom = vec3(
+            this->lookFrom = Vec3(
                 radialDistance*sinf(theta)*sinf(phi),
                 radialDistance*cosf(theta),
                 radialDistance*sinf(theta)*cosf(phi)) + lookAt;
@@ -169,12 +169,12 @@ class Camera
             update();
         }
 
-        CUDA_DEV ray getRay(RandomGenerator& rng, float s, float t)
+        CUDA_DEV Ray getRay(RandomGenerator& rng, float s, float t)
         {
-            vec3 rd = lensRadius*rng.randomInUnitSphere();
-            vec3 offset = u * rd.x() + v * rd.y();
+            Vec3 rd = lensRadius*rng.randomInUnitSphere();
+            Vec3 offset = u * rd.x() + v * rd.y();
             float time = time0 + rng.get1f()*(time1-time0);
-            return ray(origin + offset, lowerLeftCorner + s*horizontal + t*vertical - origin - offset, time);
+            return Ray(origin + offset, lowerLeftCorner + s*horizontal + t*vertical - origin - offset, time);
         }
 
 };

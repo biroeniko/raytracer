@@ -43,9 +43,9 @@ const float phiInit = 1.32596f;
 const float zoomScale = 0.5f;
 const float stepScale = 0.5f;
 
-extern vec3 lookFrom;
-extern vec3 lookAt;
-extern vec3 vup;
+extern Vec3 lookFrom;
+extern Vec3 lookAt;
+extern Vec3 vup;
 
 extern float distToFocus;
 

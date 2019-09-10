@@ -25,7 +25,7 @@ SOFTWARE.
 #include "util/renderer.h"
 #include "util/image.h"
 
-class lParams;
+class LParams;
 
 struct Window
 {
@@ -117,8 +117,8 @@ struct Window
         SDL_Quit();
     }
 
-    CUDA_HOSTDEV void updateImage(lParams& lParams,
-                                  rParams& rParams,
+    CUDA_HOSTDEV void updateImage(LParams& LParams,
+                                  RParams& RParams,
                                   int sampleCount);
 
     CUDA_HOSTDEV void pollEvents(std::unique_ptr<Image>& image)

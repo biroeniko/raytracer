@@ -32,7 +32,7 @@ SOFTWARE.
 #include "materials/material.h"
 #include "hitables/sphere.h"
 
-class rParams;
+class RParams;
 
 class Renderer
 {
@@ -51,50 +51,50 @@ class Renderer
 
         }
 
-        CUDA_DEV vec3 color(RandomGenerator& rng,
-                            const ray& r,
-                            hitable* world,
+        CUDA_DEV Vec3 color(RandomGenerator& rng,
+                            const Ray& r,
+                            Hitable* world,
                             int depth)
         {
 
-            ray curRay = r;
-            vec3 curAttenuation = vec3(1.0f, 1.0f, 1.0f);
+            Ray curRay = r;
+            Vec3 curAttenuation = Vec3(1.0f, 1.0f, 1.0f);
             for (int i = 0; i < 50; i++)
             {
-                hitRecord rec;
+                HitRecord rec;
                 if (world->hit(curRay, 0.001f, FLT_MAX, rec))
                 {
-                    ray scattered;
-                    vec3 attenuation;
+                    Ray scattered;
+                    Vec3 attenuation;
                     if (rec.matPtr->scatter(rng, curRay, rec, attenuation, scattered))
                     {
                         curAttenuation *= attenuation;
                         curRay = scattered;
                     }
                     else
-                        return vec3(0.0f, 0.0f, 0.0f);
+                        return Vec3(0.0f, 0.0f, 0.0f);
                 }
                 else
                 {
-                    vec3 unit_direction = unitVector(curRay.direction());
+                    Vec3 unit_direction = unitVector(curRay.direction());
                     float t = 0.5f * (unit_direction.y() + 1.0f);
-                    vec3 c = (1.0f-t) * vec3(1.0f, 1.0f, 1.0f) + t*vec3(0.5f, 0.7f, 1.0f);
+                    Vec3 c = (1.0f-t) * Vec3(1.0f, 1.0f, 1.0f) + t*Vec3(0.5f, 0.7f, 1.0f);
                     return curAttenuation * c;
                 }
             }
-            return vec3(0.0f, 0.0f, 0.0f); // Exceeded recursion
+            return Vec3(0.0f, 0.0f, 0.0f); // Exceeded recursion
 
         }
 
-        CUDA_HOSTDEV bool traceRays(rParams& rParams,
+        CUDA_HOSTDEV bool traceRays(RParams& RParams,
                                     int sampleCount);
 
         #ifdef CUDA_ENABLED
-            void traceRaysCuda(rParams& rParams,
+            void traceRaysCuda(RParams& RParams,
                                int sampleCount);
         #else
             CUDA_HOSTDEV void render(int i, int j,
-                                     rParams& rParams,
+                                     RParams& rParams,
                                      int sampleCount);
             CUDA_HOSTDEV void display(int i, int j,
                                       std::unique_ptr<Image>& image);

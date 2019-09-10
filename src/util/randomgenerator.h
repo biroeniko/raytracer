@@ -69,11 +69,11 @@ public:
        return toFloatUnorm(get1ui());
     }
 
-    CUDA_DEV vec3 randomInUnitSphere()
+    CUDA_DEV Vec3 randomInUnitSphere()
     {
-        vec3 point;
+        Vec3 point;
         do {
-            point = 2.0f * vec3(get1f(), get1f(), get1f()) - vec3(1.0f, 1.0f, 1.0f);
+            point = 2.0f * Vec3(get1f(), get1f(), get1f()) - Vec3(1.0f, 1.0f, 1.0f);
         } while (point.squaredLength() >= 1.0f);
         return point;
     }

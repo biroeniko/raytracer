@@ -25,8 +25,9 @@ SOFTWARE.
 #ifdef CUDA_ENABLED
 
 #else
+
     CUDA_HOSTDEV void Renderer::render(int i, int j,
-                                       rParams& rParams,
+                                       RParams& rParams,
                                        int sampleCount)
     {
 
@@ -38,12 +39,12 @@ SOFTWARE.
             RandomGenerator rng(sampleCount * nsBatch + s, pixelIndex);
             float u = float(i + rng.get1f()) / float(rParams.image->nx); // left to right
             float v = float(j + rng.get1f()) / float(rParams.image->ny); // bottom to top
-            ray r = rParams.cam->getRay(rng, u, v);
+            Ray r = rParams.cam->getRay(rng, u, v);
 
             rParams.image->pixels[pixelIndex] += color(rng, r, rParams.world.get(), 0);
         }
 
-        vec3 col = rParams.image->pixels[pixelIndex] / sampleCount;
+        Vec3 col = rParams.image->pixels[pixelIndex] / sampleCount;
 
         rParams.image->pixels2[pixelIndex] = col;
 
@@ -54,7 +55,7 @@ SOFTWARE.
 
         int pixelIndex = j*image->nx + i;
 
-        vec3 col = image->pixels2[pixelIndex];
+        Vec3 col = image->pixels2[pixelIndex];
 
         // Gamma encoding of images is used to optimize the usage of bits
         // when encoding an image, or bandwidth used to transport an image,
@@ -62,7 +63,7 @@ SOFTWARE.
         // light and color. (wikipedia)
 
         // We use gamma 2: raising the color to the power 1/gamma (1/2).
-        col = vec3(sqrtf(col[0]), sqrtf(col[1]), sqrtf(col[2]));
+        col = Vec3(sqrtf(col[0]), sqrtf(col[1]), sqrtf(col[2]));
 
         int ir = clamp(int(255.f*col[0]), 0, 255);
         int ig = clamp(int(255.f*col[1]), 0, 255);
@@ -86,8 +87,9 @@ SOFTWARE.
 
 #endif // CUDA_ENABLED
 
-CUDA_HOSTDEV bool Renderer::traceRays(rParams& rParams,
+CUDA_HOSTDEV bool Renderer::traceRays(RParams& rParams,
                                       int sampleCount)
+
 {
 
     #ifdef CUDA_ENABLED
