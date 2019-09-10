@@ -11,18 +11,29 @@ My implementation of [Peter Shirley's Ray Tracing in one weekend](https://github
 This code follows the steps of Peter Shirley's mini book series.
 ### Features implemented so far are:
 * Cmake support
-* Basic implementation of all features included in [Peter Shirley's Ray Tracing in one weekend](https://github.com/petershirley/raytracinginoneweekend/)
 * Multithreaded implementation with OpenMP
 * Supported output formats: PNG with [STB image library](https://github.com/nothings/stb) and PPM
 * [SDL2](https://www.libsdl.org/) for real-time display support + keyboard movement support
-* [PCG](http://www.pcg-random.org/) random number generator (the minimal C implementation)
 * [CUDA](https://developer.nvidia.com/cuda-zone) support
 * [Open Image Denoise](https://openimagedenoise.github.io/) support
 
+* Implementation of all features included in [Peter Shirley's Ray Tracing In One Weekend](https://github.com/RayTracing/raytracing.github.io/blob/master/books/RayTracingInOneWeekend.html)
+  * Spheres
+  * Surface Normals
+  * Antialiasing
+  * Diffuse Materials
+  * Metal
+  * Dielectrics
+  * Positionable Camera
+  * Defocus Blur (“depth of field”)
+* Implementation of the following features included in [Peter Shirley's Ray Tracing: The Next Week](https://github.com/RayTracing/raytracing.github.io/blob/master/books/RayTracingInOneWeekend.html)
+  * Bounding volume hierarchy (BVH) support on CPU
+  * Solid texture support
+
 ### Features to be implemented:
-* Other two books
-* Accelerated versions
-  * ispc
+* Ray Tracing: The Next Week
+* Ray Tracing: The Rest of Your Life
+* Bounding volume hierarchy (BVH) support on GPU
 
 ## Getting Started
 
