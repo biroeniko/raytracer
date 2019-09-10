@@ -75,7 +75,7 @@ void initializeWorld(LParams& lParams,
     rParams.renderer.reset(new Renderer(lParams.showWindow,
                                         lParams.writeImagePPM,
                                         lParams.writeImagePNG));
-    rParams.world.reset(randomScene());
+    rParams.world.reset(randomSceneTexture());
 
     if (lParams.showWindow)
     {
@@ -208,7 +208,7 @@ int main(int argc, char **argv)
     bool writeImagePPM = true;
     bool writeImagePNG = true;
     bool writeEveryImageToFile = true;
-    bool moveCamera = false;
+    bool moveCamera = true;
 
     // Run benchmark.
     if (runBenchmark)

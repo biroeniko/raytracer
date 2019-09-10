@@ -126,3 +126,51 @@ inline Hitable* randomScene()
     return new BVHNode(list, i, 0.0, 1.0);
 
 }
+
+
+inline Hitable* randomSceneTexture()
+{
+
+    RandomGenerator rng;
+
+    int n = 104;
+    Hitable** list = new Hitable*[n];
+    Texture *checker = new CheckerTexture(
+        new ConstantTexture(Vec3(0.9, 0.05, 0.08)),
+        new ConstantTexture(Vec3(0.9, 0.9, 0.9))
+    );
+    list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(checker));
+    int i = 1;
+    for (int a = -5; a < 5; a++)
+    {
+        for (int b = -5; b < 5; b++)
+        {
+            float chooseMat = rng.get1f();
+            Vec3 center(a+0.9f*rng.get1f(), 0.2f, b+0.9f*rng.get1f());
+            if ((center-Vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+            {
+                if (chooseMat < 0.5f)            // diffuse
+                {
+                    list[i++] = new Sphere(center, 0.2f, new Lambertian(new ConstantTexture(Vec3(rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f(), rng.get1f()*rng.get1f()))));
+                }
+                else if (chooseMat < 0.75f)      // metal
+                {
+                    list[i++] = new Sphere(center, 0.2f, new Metal(Vec3(0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()), 0.5f*(1.0f+rng.get1f()))));
+                }
+                else                            // glass
+                {
+                    list[i++] = new Sphere(center, 0.2f, new Dielectric(1.5f));
+                }
+            }
+        }
+    }
+
+    list[i++] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
+    list[i++] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(new ConstantTexture(Vec3(0.4f, 0.2f, 0.1f))));
+    list[i++] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.7f, 0.6f, 0.5f), 0.0f));
+
+    //return new hitableList(list, i);
+    return new BVHNode(list, i, 0.0, 1.0);
+
+}
+
