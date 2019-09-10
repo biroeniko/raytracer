@@ -72,6 +72,7 @@ set(SRC_HOST
     src/hitables/movingsphere.h
     src/hitables/sphere.h
     src/materials/material.h
+    src/materials/texture.h
     src/util/camera.h
     src/util/common.h
     src/util/globals.cpp

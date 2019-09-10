@@ -36,7 +36,7 @@ CUDA_DEV int numHitables = 0;
                              rParams& rParams)
     {
 
-        int choice = 0;
+        int choice = 6;
 
         switch(choice)
         {
