@@ -76,9 +76,11 @@ class NoiseTexture : public Texture
     public:
 
         CUDA_DEV NoiseTexture() {}
+
         CUDA_DEV virtual Vec3 value(float u, float v, const Vec3& p) const
         {
-            return Vec3(1,1,1) * noise.noise(p);
+            return Vec3(1.0f,1.0f,1.0f) * noise.noise(p);
         }
+
         Perlin noise;
 };

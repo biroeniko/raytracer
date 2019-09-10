@@ -19,8 +19,9 @@ SOFTWARE.
 
 #include "util/common.h"
 #include "util/randomgenerator.h"
+#include "materials/perlin.h"
 
-CUDA_DEV float* perlinGenerate(RandomGenerator& rng)
+CUDA_DEV static float* perlinGenerate(RandomGenerator& rng)
 {
     float* p = new float[256];
     for (int i = 0; i < 256; ++i)
@@ -41,7 +42,7 @@ CUDA_DEV void permute(RandomGenerator& rng, int *p, int n)
     return;
 }
 
-CUDA_DEV int* perlinGeneratePerm(RandomGenerator& rng)
+CUDA_DEV static int* perlinGeneratePerm(RandomGenerator& rng)
 {
     int * p = new int[256];
     for (int i = 0; i < 256; i++)
@@ -49,3 +50,9 @@ CUDA_DEV int* perlinGeneratePerm(RandomGenerator& rng)
     permute(rng, p, 256);
     return p;
 }
+
+RandomGenerator Perlin::rng;
+float* Perlin::randomFloat = perlinGenerate(Perlin::rng);
+int* Perlin::permX = perlinGeneratePerm(Perlin::rng);
+int* Perlin::permY = perlinGeneratePerm(Perlin::rng);
+int* Perlin::permZ = perlinGeneratePerm(Perlin::rng);

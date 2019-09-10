@@ -22,42 +22,43 @@ SOFTWARE.
 #include "util/randomgenerator.h"
 #include "util/vec3.h"
 
-CUDA_DEV float* perlinGenerate(RandomGenerator& rng);
+CUDA_DEV static float* perlinGenerate(RandomGenerator& rng);
 
-CUDA_DEV void permute(RandomGenerator& rng, int *p, int n);
+CUDA_DEV static void permute(RandomGenerator& rng, int *p, int n);
 
-CUDA_DEV int* perlinGeneratePerm(RandomGenerator& rng);
+CUDA_DEV static int* perlinGeneratePerm(RandomGenerator& rng);
+
+#include <iostream>
 
 class Perlin
 {
 
-        RandomGenerator rng;
+        static RandomGenerator rng;
 
     public:
 
         CUDA_DEV Perlin()
         {
-            randomFloat = perlinGenerate(rng);
-            perm_x = perlinGeneratePerm(rng);
-            perm_y = perlinGeneratePerm(rng);
-            perm_z = perlinGeneratePerm(rng);
+
+
         }
 
         CUDA_DEV float noise(const Vec3& p) const
         {
+
             float u = p.x() - floor(p.x());
             float v = p.y() - floor(p.y());
             float w = p.z() - floor(p.z());
-            int i = floor(p.x());
-            int j = floor(p.y());
-            int k = floor(p.z());
+            int i = int(4*p.x()) & 255;
+            int j = int(4*p.y()) & 255;
+            int k = int(4*p.z()) & 255;
 
-            return randomFloat[perm_x[i] ^ perm_y[j] ^ perm_z[k]];
+            return randomFloat[permX[i] ^ permY[j] ^ permZ[k]];
         }
 
-        float *randomFloat;
-        int *perm_x;
-        int *perm_y;
-        int *perm_z;
+        static float* randomFloat;
+        static int *permX;
+        static int *permY;
+        static int *permZ;
 
 };
