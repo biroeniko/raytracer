@@ -190,9 +190,11 @@ inline Hitable* twoPerlinSpheres()
 inline Hitable* surfaceTexture()
 {
     int nx, ny, nn;
-    unsigned char *texData = stbi_load("cat.jpg", &nx, &ny, &nn, 0);
+    unsigned char *texData = stbi_load("../cat.jpg", &nx, &ny, &nn, 0);
     Material *mat = new Lambertian(new ImageTexture(texData, nx, ny));
 
+    return new Sphere(Vec3(0.0f,0.0f, 0.0f), 2.0f, mat);
+/*
     Hitable** list = new Hitable*[4];
     list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(new ConstantTexture(Vec3(0.5f, 0.5f, 0.5f))));
     list[1] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
@@ -201,4 +203,5 @@ inline Hitable* surfaceTexture()
 
     //return new hitableList(list, 4);
     return new BVHNode(list, 4, 0.0, 1.0);
+    */
 }

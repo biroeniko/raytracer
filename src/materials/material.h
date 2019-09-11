@@ -64,7 +64,7 @@ class Lambertian : public Material
         {
             Vec3 target = rec.point + rec.normal + rng.randomInUnitSphere();
             scattered = Ray(rec.point, target - rec.point, rIn.time());
-            attenuation = albedo->value(0.0f, 0.0f, rec.point);
+            attenuation = albedo->value(rec.u, rec.v, rec.point);
             return true;
         }
 

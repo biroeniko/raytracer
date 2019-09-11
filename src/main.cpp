@@ -75,7 +75,8 @@ void initializeWorld(LParams& lParams,
     rParams.renderer.reset(new Renderer(lParams.showWindow,
                                         lParams.writeImagePPM,
                                         lParams.writeImagePNG));
-    rParams.world.reset(twoPerlinSpheres());
+
+    rParams.world.reset(surfaceTexture());
 
     if (lParams.showWindow)
     {

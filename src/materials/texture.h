@@ -93,14 +93,14 @@ class ImageTexture : public Texture
 
     public:
 
-        ImageTexture() {}
-        ImageTexture(unsigned char *pixels, int A, int B) :
+        CUDA_DEV ImageTexture() {}
+        CUDA_DEV ImageTexture(unsigned char *pixels, int A, int B) :
             data(pixels), nx(A), ny(B)
         {
 
         }
 
-        virtual Vec3 value(float u, float v, const Vec3& p) const;
+        CUDA_DEV virtual Vec3 value(float u, float v, const Vec3& p) const;
 
         unsigned char *data;
         int nx, ny;
