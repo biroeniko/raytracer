@@ -176,11 +176,11 @@ inline Hitable* randomSceneTexture()
 
 inline Hitable* twoPerlinSpheres()
 {
-    Texture* pertext = new NoiseTexture();
+    Texture* pertext = new NoiseTexture(1);
     Hitable** list = new Hitable*[2];
     list[0] = new Sphere(Vec3(0.0f,-1000.0f, 0.0f), 1000.0f, new Lambertian(pertext));
     list[1] = new Sphere(Vec3(0.0f, 2.0f, 0.0f), 2.0f, new Lambertian(pertext));
 
-    return new BVHNode(list, 2, 0.0, 1.0);
+    return new BVHNode(list, 2.0f, 0.0f, 1.0f);
 }
 

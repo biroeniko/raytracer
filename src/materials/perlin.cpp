@@ -25,7 +25,7 @@ CUDA_DEV static Vec3* perlinGenerate(RandomGenerator& rng)
 {
     Vec3 *p = new Vec3[256];
     for (int i = 0; i < 256; ++i)
-        p[i] = unitVector(Vec3(rng.get1f() - 1, rng.get1f() - 1, rng.get1f() - 1));
+        p[i] = unitVector(Vec3(2*rng.get1f() - 1, 2*rng.get1f() - 1, 2*rng.get1f() - 1));
     return p;
 }
 
@@ -67,7 +67,6 @@ CUDA_DEV float perlinInterp(Vec3 c[2][2][2], float u, float v, float w)
             }
     return accum;
 }
-
 
 RandomGenerator Perlin::rng;
 Vec3* Perlin::randomVector = perlinGenerate(Perlin::rng);
