@@ -22,13 +22,13 @@ SOFTWARE.
 #include "util/randomgenerator.h"
 #include "util/vec3.h"
 
-CUDA_DEV static float* perlinGenerate(RandomGenerator& rng);
+CUDA_DEV static Vec3* perlinGenerate(RandomGenerator& rng);
 
 CUDA_DEV static void permute(RandomGenerator& rng, int *p, int n);
 
 CUDA_DEV static int* perlinGeneratePerm(RandomGenerator& rng);
 
-#include <iostream>
+CUDA_DEV float perlinInterp(Vec3 c[2][2][2], float u, float v, float w);
 
 class Perlin
 {
@@ -49,15 +49,19 @@ class Perlin
             float u = p.x() - floor(p.x());
             float v = p.y() - floor(p.y());
             float w = p.z() - floor(p.z());
-            int i = int(4*p.x()) & 255;
-            int j = int(4*p.y()) & 255;
-            int k = int(4*p.z()) & 255;
-
-            return randomFloat[permX[i] ^ permY[j] ^ permZ[k]];
+            int i = floor(p.x());
+            int j = floor(p.y());
+            int k = floor(p.z());
+            Vec3 c[2][2][2];
+            for (int di = 0; di < 2; di++)
+                for (int dj = 0; dj < 2; dj++)
+                    for (int dk = 0; dk < 2; dk++)
+                        c[di][dj][dk] = randomVector[permX[(i+di) & 255] ^ permY[(j+dj) & 255] ^ permZ[(k+dk) & 255]];
+            return perlinInterp(c, u, v, w);
 
         }
 
-        static float* randomFloat;
+        static Vec3* randomVector;
         static int *permX;
         static int *permY;
         static int *permZ;
