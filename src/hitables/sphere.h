@@ -21,6 +21,14 @@ SOFTWARE.
 
 #include "hitables/hitable.h"
 
+inline void getSphereUV(const Vec3& p, float& u, float& v)
+{
+    float phi = atan2(p.z(), p.x());
+    float theta = asin(p.y());
+    u = 1-(phi + M_PI) / (2*M_PI);
+    v = (theta + M_PI/2) / M_PI;
+}
+
 class Sphere: public Hitable
 {
 
@@ -54,6 +62,7 @@ inline CUDA_DEV bool Sphere::hit(const Ray& r, float tMin, float tMax, HitRecord
         {
             rec.time = temp;
             rec.point = r.pointAtParameter(rec.time);
+            getSphereUV((rec.point-center)/radius, rec.u, rec.v);
             rec.normal = (rec.point - center) / radius;
             rec.matPtr = matPtr;
             return true;
@@ -63,6 +72,7 @@ inline CUDA_DEV bool Sphere::hit(const Ray& r, float tMin, float tMax, HitRecord
         {
             rec.time = temp;
             rec.point = r.pointAtParameter(rec.time);
+            getSphereUV((rec.point-center)/radius, rec.u, rec.v);
             rec.normal = (rec.point - center) / radius;
             rec.matPtr = matPtr;
             return true;

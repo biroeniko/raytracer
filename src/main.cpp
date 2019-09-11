@@ -27,17 +27,6 @@ SOFTWARE.
 #include <sys/types.h>
 #include <sys/stat.h>
 
-// STB IMAGE FOR WRITING IMAGE FILES
-#ifndef STB_IMAGE_IMPLEMENTATION 
-  #define STB_IMAGE_IMPLEMENTATION
-    #include "stb_image.h"
-#endif /* STB_IMAGE_IMPLEMENTATION */
-
-#ifndef STB_IMAGE_WRITE_IMPLEMENTATION 
-  #define STB_IMAGE_WRITE_IMPLEMENTATION
-    #include "stb_image_write.h"
-#endif /* STB_IMAGE_WRITE_IMPLEMENTATION */
-
 // INCLUDE
 #include "hitables/sphere.h"
 #include "hitables/hitablelist.h"
@@ -49,6 +38,17 @@ SOFTWARE.
 #include "util/globals.h"
 #include "util/scene.h"
 #include "util/params.h"
+
+// STB IMAGE FOR WRITING IMAGE FILES
+#ifndef STB_IMAGE_IMPLEMENTATION
+  #define STB_IMAGE_IMPLEMENTATION
+    #include "stb_image.h"
+#endif /* STB_IMAGE_IMPLEMENTATION */
+
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
+  #define STB_IMAGE_WRITE_IMPLEMENTATION
+    #include "stb_image_write.h"
+#endif /* STB_IMAGE_WRITE_IMPLEMENTATION */
 
 #ifdef CUDA_ENABLED
     void initializeWorldCuda(LParams& LParams,

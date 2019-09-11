@@ -28,6 +28,8 @@ struct HitRecord
 {
 
     float time;
+    float u;
+    float v;
     Vec3 point;
     Vec3 normal;
     Material* matPtr;
