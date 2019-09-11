@@ -28,7 +28,8 @@ This code follows the steps of Peter Shirley's mini book series.
   * Defocus Blur (“depth of field”)
 * Implementation of the following features included in [Peter Shirley's Ray Tracing: The Next Week](https://github.com/RayTracing/raytracing.github.io/blob/master/books/RayTracingInOneWeekend.html)
   * Bounding volume hierarchy (BVH) support on CPU
-  * Solid texture support
+  * Solid texture
+  * Perlin noise support on CPU
 
 ### Features to be implemented:
 * Ray Tracing: The Next Week
