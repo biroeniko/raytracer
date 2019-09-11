@@ -194,14 +194,4 @@ inline Hitable* surfaceTexture()
     Material *mat = new Lambertian(new ImageTexture(texData, nx, ny));
 
     return new Sphere(Vec3(0.0f,0.0f, 0.0f), 2.0f, mat);
-/*
-    Hitable** list = new Hitable*[4];
-    list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(new ConstantTexture(Vec3(0.5f, 0.5f, 0.5f))));
-    list[1] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
-    list[2] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(new ConstantTexture(Vec3(0.4f, 0.2f, 0.1f))));
-    list[3] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.7f, 0.6f, 0.5f), 0.0f));
-
-    //return new hitableList(list, 4);
-    return new BVHNode(list, 4, 0.0, 1.0);
-    */
 }
